@@ -5,6 +5,11 @@ import { LangProvider } from './context/LangContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import './index.css';
 
+// Initialize Sentry if DSN is provided (guarded)
+if (import.meta.env.VITE_SENTRY_DSN) {
+  import('./design/sentry');
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ErrorBoundary>
