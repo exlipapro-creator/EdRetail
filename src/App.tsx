@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Leaf, Coffee, Activity, BadgeCheck } from 'lucide-react';
+import { motionTokens } from './design/motion';
 import { ProductCard } from './components/ProductCard';
 import { HeroCarousel } from './components/HeroCarousel';
 import { CheckoutSheet } from './components/CheckoutSheet';
@@ -125,10 +126,10 @@ function App() {
           key={activeCategory}
           initial={{ opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.25 }}
+          transition={{ duration: motionTokens.page }}
         >
           {activeCategory !== 'all' && activeCategoryData && (
-            <span className={`w-7 h-7 ${activeCategoryData.color} rounded-[7px] flex items-center justify-center text-white`}>
+            <span className={`w-7 h-7 ${activeCategoryData.color} rounded-md flex items-center justify-center text-white`}>
               {CATEGORY_ICONS[activeCategory]}
             </span>
           )}
@@ -160,7 +161,7 @@ function App() {
                   initial={{ opacity: 0, scale: 0.92 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.92 }}
-                  transition={{ duration: 0.2, delay: index * 0.04 }}
+                  transition={{ duration: motionTokens.page, delay: index * 0.04 }}
                 >
                   <ProductCard product={product} />
                 </motion.div>
@@ -184,7 +185,7 @@ function App() {
             {search && (
               <button
                 onClick={() => setSearch('')}
-                className="mt-3 text-xs text-blue-600 underline outline-none [-webkit-tap-highlight-color:transparent]"
+                className="mt-3 text-xs text-primary-600 underline outline-none [-webkit-tap-highlight-color:transparent]"
               >
                 {lang === 'sw' ? 'Futa utafutaji' : 'Clear search'}
               </button>
@@ -207,8 +208,8 @@ function App() {
             { icon: <ShoppingCart className="w-5 h-5 text-blue-500" />, en: 'WhatsApp Order', sw: 'Agiza WhatsApp', descEn: 'Quick & Easy', descSw: 'Haraka na Rahisi' },
             { icon: <Activity className="w-5 h-5 text-amber-500" />, en: 'Tanzania Wide', sw: 'Tanzania Nzima', descEn: 'Delivery Available', descSw: 'Uwasilishaji Unapatikana' },
           ].map((badge) => (
-            <div key={badge.en} className="flex flex-col items-center text-center p-3 bg-white rounded-[10px] border border-gray-100">
-              <div className="w-9 h-9 bg-gray-50 rounded-[8px] flex items-center justify-center mb-2">
+            <div key={badge.en} className="flex flex-col items-center text-center p-3 bg-white rounded-md border border-gray-100">
+              <div className="w-9 h-9 bg-gray-50 rounded-md flex items-center justify-center mb-2">
                 {badge.icon}
               </div>
               <span className="text-[11px] font-semibold text-gray-900">{lang === 'sw' ? badge.sw : badge.en}</span>
@@ -242,7 +243,7 @@ function App() {
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            transition={{ type: 'spring', stiffness: motionTokens.spring.stiffness, damping: motionTokens.spring.damping }}
           >
             <motion.button
               onClick={() => setIsCartOpen(true)}

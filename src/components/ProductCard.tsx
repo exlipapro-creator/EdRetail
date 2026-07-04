@@ -5,6 +5,7 @@ import { Product } from '../types';
 import { useCartStore } from '../store/cartStore';
 import { formatPrice, formatUsd } from '../utils/whatsappCompiler';
 import { useLang } from '../context/LangContext';
+import { motionTokens } from '../design/motion';
 
 interface ProductCardProps {
   product: Product;
@@ -125,7 +126,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.85 }}
                   whileTap={{ scale: 0.95 }}
-                  transition={{ duration: 0.15 }}
+                  transition={{ duration: motionTokens.hover }}
                   style={{ minHeight: 40 }}
                 >
                   <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
@@ -138,7 +139,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   initial={{ opacity: 0, scale: 0.85 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.85 }}
-                  transition={{ duration: 0.15 }}
+                  transition={{ duration: motionTokens.hover }}
                 >
                   <motion.button
                     onClick={handleMinus}
