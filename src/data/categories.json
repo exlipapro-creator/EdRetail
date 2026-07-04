@@ -1,0 +1,5 @@
+[
+  { "id": "p4-slimming", "label": { "en": "P4 Slimming", "sw": "P4 Kupunguza Uzito" }, "color": "bg-blue-600" },
+  { "id": "health-wellness", "label": { "en": "Health & Wellness", "sw": "Afya na Ustawi" }, "color": "bg-green-600" },
+  { "id": "lifestyle-beverages", "label": { "en": "Lifestyle Beverages", "sw": "Vinywaji vya Afya" }, "color": "bg-amber-600" }
+]

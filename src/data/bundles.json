@@ -1,0 +1,22 @@
+[
+  {
+    "id": "p4-complete",
+    "name": { "en": "Complete P4 Bundle", "sw": "Pakiti Kamili ya P4" },
+    "description": {
+      "en": "The full P4 Slimming System — MRT Complex + Shake Off Phyto Fiber. Everything you need to start your weight management journey.",
+      "sw": "Mfumo kamili wa P4 wa kupunguza uzito — MRT Complex + Shake Off Phyto Fiber. Kila kitu unachohitaji kuanza safari yako ya usimamizi wa uzito."
+    },
+    "productIds": ["mrt-complex", "shake-off-phyto"],
+    "discountPercent": 10
+  },
+  {
+    "id": "wellness-duo",
+    "name": { "en": "Wellness Duo", "sw": "Mchanganyiko wa Afya" },
+    "description": {
+      "en": "Splina Chlorophyll + Hawaiian Spirulina — the ultimate daily detox and immunity stack.",
+      "sw": "Splina Klorofili + Spirulina ya Hawaii — mchanganyiko bora wa kila siku wa kusafisha sumu na kinga."
+    },
+    "productIds": ["splina-chlorophyll", "hawaiian-spirulina"],
+    "discountPercent": 8
+  }
+]

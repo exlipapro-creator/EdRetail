@@ -1,0 +1,35 @@
+[
+  {
+    "id": "t1",
+    "name": "Amina J.",
+    "location": "Dar es Salaam",
+    "product": "P4 Slimming Program",
+    "text": {
+      "en": "I lost 8kg in 6 weeks using the P4 program. My energy levels are amazing and I feel like a new person. Highly recommend!",
+      "sw": "Nilipoteza kilo 8 katika wiki 6 kwa kutumia programu ya P4. Viwango vyangu vya nishati ni vya ajabu na nahisi kama mtu mpya. Napendekeza sana!"
+    },
+    "result": "−8kg in 6 weeks"
+  },
+  {
+    "id": "t2",
+    "name": "David M.",
+    "location": "Arusha",
+    "product": "Splina Chlorophyll",
+    "text": {
+      "en": "Splina has improved my digestion and skin completely. My colleagues keep asking what my secret is. Best purchase I have made this year.",
+      "sw": "Splina imeboresha usagaji wangu na ngozi kabisa. Wenzangu wanaendelea kuuliza siri yangu ni nini. Ununuzi bora nilioufanya mwaka huu."
+    },
+    "result": "Better digestion & skin"
+  },
+  {
+    "id": "t3",
+    "name": "Grace N.",
+    "location": "Mwanza",
+    "product": "Ginseng Coffee",
+    "text": {
+      "en": "I switched from regular coffee to Ginseng Coffee 3 months ago. No more afternoon crashes and my focus at work has improved so much.",
+      "sw": "Nilibadilisha kutoka kahawa ya kawaida hadi Kahawa ya Ginseng miezi 3 iliyopita. Hakuna tena kupungukiwa nguvu mchana na umakini wangu kazini umeboreshwa sana."
+    },
+    "result": "Sustained energy all day"
+  }
+]

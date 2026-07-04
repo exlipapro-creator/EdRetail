@@ -1,0 +1,134 @@
+[
+  {
+    "id": "mrt-complex",
+    "name": { "en": "MRT Complex", "sw": "MRT Complex" },
+    "category": "p4-slimming",
+    "price": 45000,
+    "priceUsd": 17,
+    "currency": "TZS",
+    "description": {
+      "en": "Meal Replacement Therapy for healthy weight management. High-protein formula that keeps you full and nourished while reducing calorie intake.",
+      "sw": "Tiba ya Kubadilisha Mlo kwa usimamizi wa uzito wenye afya. Fomula ya protini nyingi inayokufanya ujisikie kamili na kupata lishe huku ukipunguza kalori."
+    },
+    "usage": {
+      "en": "Mix 2 scoops with 200ml water or milk. Take once daily as a meal replacement, preferably breakfast or lunch.",
+      "sw": "Changanya vijiko 2 na maji au maziwa 200ml. Tumia mara moja kwa siku badala ya mlo, ikiwezekana kiamsha kinywa au chakula cha mchana."
+    },
+    "image": "/products/mrt-complex.png",
+    "badge": "Step 1",
+    "steps": ["Step 1: Replace meals"],
+    "inStock": true
+  },
+  {
+    "id": "shake-off-phyto",
+    "name": { "en": "Shake Off Phyto Fiber", "sw": "Shake Off Phyto Fiber" },
+    "category": "p4-slimming",
+    "price": 35000,
+    "priceUsd": 13,
+    "currency": "TZS",
+    "description": {
+      "en": "Colon cleansing formula with phytonutrients. Removes toxins and waste, improves digestion, and prepares the body to absorb nutrients efficiently.",
+      "sw": "Fomula ya kusafisha utumbo mkubwa na virutubisho vya mmea. Huondoa sumu na taka, huboresha usagaji wa chakula, na kuandaa mwili kufyonza virutubisho."
+    },
+    "usage": {
+      "en": "Mix 1 sachet with 250ml cold water. Drink immediately once daily, best taken in the morning before breakfast.",
+      "sw": "Changanya kifurushi 1 na maji baridi 250ml. Kunywa mara moja kwa siku, inafaa kunywa asubuhi kabla ya kiamsha kinywa."
+    },
+    "image": "/products/shake-off.png",
+    "badge": "Step 2",
+    "steps": ["Step 2: Cleanse colon"],
+    "inStock": true
+  },
+  {
+    "id": "splina-chlorophyll",
+    "name": { "en": "Splina Liquid Chlorophyll", "sw": "Splina Klorofili ya Majimaji" },
+    "category": "health-wellness",
+    "price": 28000,
+    "priceUsd": 11,
+    "currency": "TZS",
+    "description": {
+      "en": "Nature's green miracle — detoxifies, alkalises, and energises your body. Rich in antioxidants and supports healthy blood production.",
+      "sw": "Muujiza wa kijani wa asili — husafisha sumu, hutenganisha asidi, na kutoa nguvu mwilini. Tajiri katika vioksidishaji na inasaidia uzalishaji wa damu."
+    },
+    "usage": {
+      "en": "Add 5ml (1 teaspoon) to a glass of water (300ml). Take 1–2 times daily, morning and/or evening.",
+      "sw": "Ongeza 5ml (kijiko 1) kwenye glasi ya maji (300ml). Tumia mara 1–2 kwa siku, asubuhi na/au jioni."
+    },
+    "image": "/products/splina.png",
+    "badge": "Bestseller",
+    "inStock": true
+  },
+  {
+    "id": "hawaiian-spirulina",
+    "name": { "en": "Hawaiian Spirulina", "sw": "Spirulina ya Hawaii" },
+    "category": "health-wellness",
+    "price": 32000,
+    "priceUsd": 12,
+    "currency": "TZS",
+    "description": {
+      "en": "Premium blue-green algae superfood packed with proteins, vitamins, and antioxidants. Boosts immunity, energy, and overall vitality.",
+      "sw": "Chakula bora cha mwani wa bluu-kijani kilichojaa protini, vitamini, na vioksidishaji. Huimarisha kinga, nishati, na nguvu ya jumla."
+    },
+    "usage": {
+      "en": "Take 3–6 tablets daily with water. Best taken 30 minutes before meals for maximum absorption.",
+      "sw": "Tumia vidonge 3–6 kwa siku na maji. Inafaa kunywa dakika 30 kabla ya mlo kwa ufyonzaji bora."
+    },
+    "image": "/products/spirulina.png",
+    "inStock": true
+  },
+  {
+    "id": "ginseng-coffee",
+    "name": { "en": "Ginseng Coffee", "sw": "Kahawa ya Ginseng" },
+    "category": "lifestyle-beverages",
+    "price": 25000,
+    "priceUsd": 10,
+    "currency": "TZS",
+    "description": {
+      "en": "Premium blend with Korean ginseng extract for sustained energy without jitters. Enhances focus, stamina, and mental clarity throughout the day.",
+      "sw": "Mchanganyiko wa hali ya juu na dondoo ya ginseng ya Korea kwa nishati endelevu bila mshtuko. Huimarisha umakini, nguvu, na uwazi wa kiakili."
+    },
+    "usage": {
+      "en": "Mix 1 sachet with 150–200ml hot water. Stir well and enjoy. Take 1–2 cups daily, preferably morning and early afternoon.",
+      "sw": "Changanya kifurushi 1 na maji moto 150–200ml. Koroga vizuri na unywe. Tumia vikombe 1–2 kwa siku, ikiwezekana asubuhi na mchana."
+    },
+    "image": "/products/ginseng-coffee.png",
+    "inStock": true
+  },
+  {
+    "id": "cafe-troika",
+    "name": { "en": "Cafe Troika", "sw": "Kahawa Troika" },
+    "category": "lifestyle-beverages",
+    "price": 27000,
+    "priceUsd": 10,
+    "currency": "TZS",
+    "description": {
+      "en": "Three-in-one coffee with ganoderma, ginseng, and tongkat ali. A powerful wellness brew that supports vitality, stamina, and male health.",
+      "sw": "Kahawa ya tatu-kwa-moja na ganoderma, ginseng, na tongkat ali. Kinywaji chenye nguvu kinachosaidia nguvu, stamina, na afya ya kiume."
+    },
+    "usage": {
+      "en": "Mix 1 sachet with 150ml hot water. Take 1 cup daily, best in the morning. Do not exceed 2 cups per day.",
+      "sw": "Changanya kifurushi 1 na maji moto 150ml. Tumia kikombe 1 kwa siku, inafaa asubuhi. Usizidi vikombe 2 kwa siku."
+    },
+    "image": "/products/cafe-troika.png",
+    "badge": "Premium",
+    "inStock": true
+  },
+  {
+    "id": "cocollagen",
+    "name": { "en": "Cocollagen", "sw": "Cocollagen" },
+    "category": "lifestyle-beverages",
+    "price": 30000,
+    "priceUsd": 11,
+    "currency": "TZS",
+    "description": {
+      "en": "Collagen-rich chocolate drink for radiant skin, stronger joints, and better sleep. Combines marine collagen with cocoa for a delicious daily ritual.",
+      "sw": "Kinywaji cha chokoleti chenye kolajeni nyingi kwa ngozi yenye kung'aa, viungo imara, na usingizi bora. Inachanganya kolajeni ya baharini na kakao."
+    },
+    "usage": {
+      "en": "Mix 1 sachet with 200ml warm water or milk. Take once daily, best in the evening before bed for overnight skin repair.",
+      "sw": "Changanya kifurushi 1 na maji ya uvuguvugu au maziwa 200ml. Tumia mara moja kwa siku, inafaa jioni kabla ya kulala kwa ukarabati wa ngozi usiku."
+    },
+    "image": "/products/cocollagen.png",
+    "inStock": true
+  }
+]
