@@ -7,6 +7,37 @@ export default {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
       colors: {
+        // Primary accent - 10% accent in 70-20-10 rule
+        primary: {
+          50: '#EEF2FF',
+          100: '#E0E7FF',
+          200: '#C7D2FE',
+          300: '#A78BFA',
+          400: '#8B5CF6',
+          500: '#6366F1', // canonical primary
+          600: '#4F46E5',
+          700: '#4338CA',
+          800: '#3730A3',
+          900: '#312E81',
+        },
+
+        // Neutral / surface system (70% neutral / 20% surfaces)
+        background: '#0B0F14',
+        surface: '#111827',
+        elevated: '#1F2937',
+
+        // Semantic states (use only for status)
+        success: {
+          DEFAULT: '#10B981',
+        },
+        warning: {
+          DEFAULT: '#F59E0B',
+        },
+        danger: {
+          DEFAULT: '#EF4444',
+        },
+
+        // Keep legacy royal (optional) for now so we don't break everything
         royal: {
           50: '#eff6ff',
           100: '#dbeafe',
@@ -20,6 +51,13 @@ export default {
           900: '#1e3a8a',
           950: '#172554',
         },
+      },
+
+      // Border radius scale — prefer these over ad-hoc rounding
+      borderRadius: {
+        sm: '4px',
+        md: '8px',
+        lg: '12px',
       },
     },
   },

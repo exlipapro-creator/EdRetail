@@ -13,24 +13,24 @@ export function DistributorBio() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.4 }}
-        className="bg-white rounded-[12px] border border-gray-100 p-4 flex gap-4 items-center"
+        className="bg-white rounded-lg border border-gray-100 p-4 flex gap-4 items-center"
       >
         {/* Photo */}
         <div className="relative flex-shrink-0">
           <img
             src="/logo/distributor-circle.png"
             alt={DISTRIBUTOR_NAME}
-            className="w-20 h-20 rounded-full object-cover border-2 border-amber-300"
+            className="w-20 h-20 rounded-full object-cover border-2 border-primary-200"
           />
-          <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-amber-400 rounded-full flex items-center justify-center border-2 border-white">
-            <Crown className="w-3.5 h-3.5 text-amber-900" strokeWidth={2.5} />
+          <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary-300 rounded-full flex items-center justify-center border-2 border-white">
+            <Crown className="w-3.5 h-3.5 text-primary-900" strokeWidth={2.5} />
           </div>
         </div>
 
         {/* Details */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-0.5">
-            <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full uppercase tracking-wide">
+            <span className="text-[10px] font-semibold text-primary-700 bg-primary-50 border border-primary-200 px-2 py-0.5 rounded-full uppercase tracking-wide">
               {lang === 'sw' ? 'Meneja wa Taji' : 'Crown Manager'}
             </span>
           </div>
@@ -61,7 +61,7 @@ export function DistributorBio() {
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ delay: 0.15 }}
-        className="mt-2 w-full flex items-center justify-center gap-2 py-2.5 bg-green-600 text-white rounded-[10px] text-xs font-semibold hover:bg-green-700 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
+        className="mt-2 w-full flex items-center justify-center gap-2 py-2.5 bg-primary-600 text-white rounded-md text-xs font-semibold hover:bg-primary-700 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
       >
         <Phone className="w-3.5 h-3.5" />
         {lang === 'sw' ? `Ongea na ${DISTRIBUTOR_NAME.split(' ')[0]}` : `Chat with ${DISTRIBUTOR_NAME.split(' ')[0]}`}

@@ -222,9 +222,9 @@ function App() {
         <p className="text-xs text-gray-500 mb-3">
           {lang === 'sw' ? 'Msambazaji Huru wa Edmark' : 'Authorized Edmark Distributor'}
         </p>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-full">
-          <BadgeCheck className="w-3.5 h-3.5 text-blue-600" />
-          <span className="text-xs font-medium text-blue-800">{DISTRIBUTOR_NAME}</span>
+        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-50 border border-primary-100 rounded-full">
+          <BadgeCheck className="w-3.5 h-3.5 text-primary-600" />
+          <span className="text-xs font-medium text-primary-800">{DISTRIBUTOR_NAME}</span>
         </div>
         <div className="mt-4">
           <ReferralShareButton variant="compact" />
@@ -244,7 +244,7 @@ function App() {
           >
             <motion.button
               onClick={() => setIsCartOpen(true)}
-              className="w-full flex items-center justify-between px-5 py-3.5 bg-blue-600 text-white rounded-[10px] hover:bg-blue-700 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
+              className="w-full flex items-center justify-between px-5 py-3.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
               whileTap={{ scale: 0.97 }}
             >
               <div className="flex items-center gap-3">
@@ -258,7 +258,7 @@ function App() {
                   {lang === 'sw' ? 'Tazama Mkoba' : 'View Cart'}
                 </span>
               </div>
-              <span className="text-blue-100 text-sm font-semibold">
+              <span className="text-primary-100 text-sm font-semibold">
                 {formatPrice(totalPrice)} TZS
               </span>
             </motion.button>
