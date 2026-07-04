@@ -73,17 +73,19 @@ function App() {
             {/* Language toggle */}
             <button
               onClick={() => setLang(lang === 'en' ? 'sw' : 'en')}
-              className="px-2.5 py-1.5 rounded-[7px] bg-gray-100 hover:bg-gray-200 text-xs font-semibold text-gray-700 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
+              className="p-2 rounded-md bg-gray-100 hover:bg-gray-200 text-xs font-semibold text-gray-700 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
               aria-label={lang === 'en' ? 'Badilisha lugha kwenda Kiswahili' : 'Switch language to English'}
+              style={{ minWidth: 44, minHeight: 44 }}
             >
               {lang === 'en' ? 'SW' : 'EN'}
             </button>
 
             {/* Cart button */}
             <motion.button
-              className="relative p-2.5 bg-gray-100 rounded-[8px] hover:bg-gray-200 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
+              className="relative p-2 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
               onClick={() => setIsCartOpen(true)}
               whileTap={{ scale: 0.9 }}
+              style={{ minWidth: 44, minHeight: 44 }}
             >
               <ShoppingCart className="w-5 h-5 text-gray-700" strokeWidth={2} />
               <CartBadge count={totalItems} />
@@ -246,11 +248,12 @@ function App() {
               onClick={() => setIsCartOpen(true)}
               className="w-full flex items-center justify-between px-5 py-3.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
               whileTap={{ scale: 0.97 }}
+              style={{ minHeight: 50 }}
             >
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <ShoppingCart className="w-5 h-5" strokeWidth={2.5} />
-                  <span className="absolute -top-2 -right-2 w-4 h-4 bg-green-500 text-white text-[9px] rounded-full flex items-center justify-center font-semibold">
+                  <span className="absolute -top-2 -right-2 w-4 h-4 bg-success text-white text-[9px] rounded-full flex items-center justify-center font-semibold">
                     {totalItems}
                   </span>
                 </div>

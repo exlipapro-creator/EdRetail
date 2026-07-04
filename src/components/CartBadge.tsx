@@ -9,7 +9,7 @@ export function CartBadge({ count }: CartBadgeProps) {
     <AnimatePresence>
       {count > 0 && (
         <motion.span
-          className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 text-white text-[10px] rounded-full flex items-center justify-center font-semibold shadow-sm"
+          className="absolute -top-2 -right-2 w-5 h-5 bg-success text-white text-[10px] rounded-full flex items-center justify-center font-semibold shadow-sm"
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           exit={{ scale: 0 }}

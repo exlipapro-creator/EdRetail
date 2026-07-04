@@ -49,14 +49,15 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <>
       <div
-        className="relative bg-white rounded-[10px] overflow-hidden border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer"
+        className="relative bg-white rounded-lg overflow-hidden border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer"
         onClick={() => setShowDetail(true)}
       >
         {/* Favourite */}
         <button
           onClick={(e) => { e.stopPropagation(); toggleFavourite(product.id); }}
-          className="absolute top-2 right-2 z-20 w-7 h-7 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm outline-none [-webkit-tap-highlight-color:transparent]"
+          className="absolute top-2 right-2 z-20 p-2 rounded-md bg-white/80 backdrop-blur-sm outline-none [-webkit-tap-highlight-color:transparent]"
           aria-label={isFavourite ? t({ en: 'Remove from favourites', sw: 'Ondoa kwenye vipendwa' }) : t({ en: 'Add to favourites', sw: 'Ongeza kwenye vipendwa' })}
+          style={{ minWidth: 44, minHeight: 44 }}
         >
           <Heart
             className={`w-3.5 h-3.5 transition-colors ${isFavourite ? 'fill-rose-500 text-rose-500' : 'text-gray-300'}`}
@@ -106,8 +107,9 @@ export function ProductCard({ product }: ProductCardProps) {
           <div className="flex items-center justify-between">
             <button
               onClick={(e) => { e.stopPropagation(); setShowDetail(true); }}
-              className="p-1.5 text-gray-300 hover:text-blue-500 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
+              className="p-2 rounded-md text-gray-300 hover:text-primary-500 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
               aria-label={t({ en: 'View details', sw: 'Ona maelezo' })}
+              style={{ minWidth: 44, minHeight: 44 }}
             >
               <Info className="w-4 h-4" />
             </button>
@@ -118,12 +120,13 @@ export function ProductCard({ product }: ProductCardProps) {
                   key="add"
                   onClick={handleAdd}
                   disabled={!product.inStock}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-[7px] text-xs font-semibold hover:bg-blue-700 active:bg-blue-800 transition-colors outline-none [-webkit-tap-highlight-color:transparent] disabled:opacity-40"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-600 text-white rounded-md text-xs font-semibold hover:bg-primary-700 active:bg-primary-800 transition-colors outline-none"
                   initial={{ opacity: 0, scale: 0.85 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.85 }}
                   whileTap={{ scale: 0.95 }}
                   transition={{ duration: 0.15 }}
+                  style={{ minHeight: 40 }}
                 >
                   <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
                   Add
@@ -139,15 +142,15 @@ export function ProductCard({ product }: ProductCardProps) {
                 >
                   <motion.button
                     onClick={handleMinus}
-                    className="w-7 h-7 flex items-center justify-center bg-gray-100 rounded-[6px] hover:bg-gray-200 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
+                    className="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-md hover:bg-gray-200 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
                     whileTap={{ scale: 0.9 }}
                   >
                     <Minus className="w-3 h-3 text-gray-700" strokeWidth={2.5} />
                   </motion.button>
-                  <span className="w-6 text-center text-sm font-semibold text-gray-900">{qty}</span>
+                  <span className="w-8 text-center text-sm font-semibold text-gray-900">{qty}</span>
                   <motion.button
                     onClick={handleAdd}
-                    className="w-7 h-7 flex items-center justify-center bg-blue-600 rounded-[6px] hover:bg-blue-700 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
+                    className="w-10 h-10 flex items-center justify-center bg-primary-600 rounded-md hover:bg-primary-700 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
                     whileTap={{ scale: 0.9 }}
                   >
                     <Plus className="w-3 h-3 text-white" strokeWidth={2.5} />
@@ -197,7 +200,8 @@ export function ProductCard({ product }: ProductCardProps) {
                   <h2 className="text-lg font-semibold text-gray-900 leading-tight">{t(product.name)}</h2>
                   <button
                     onClick={() => setShowDetail(false)}
-                    className="p-1.5 text-gray-400 hover:text-gray-600 flex-shrink-0 outline-none [-webkit-tap-highlight-color:transparent]"
+                    className="p-2 text-gray-400 hover:text-gray-600 flex-shrink-0 outline-none [-webkit-tap-highlight-color:transparent]"
+                    style={{ minWidth: 44, minHeight: 44 }}
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -214,9 +218,9 @@ export function ProductCard({ product }: ProductCardProps) {
                   <p className="text-sm text-gray-700 leading-relaxed">{t(product.description)}</p>
                 </div>
 
-                <div className="mb-6 p-3 bg-blue-50 rounded-[10px] border border-blue-100">
-                  <h3 className="text-xs font-semibold text-blue-700 uppercase tracking-wider mb-2">{t({ en: 'How to use', sw: 'Jinsi ya kutumia' })}</h3>
-                  <p className="text-sm text-blue-900 leading-relaxed">{t(product.usage)}</p>
+                <div className="mb-6 p-3 bg-primary-50 rounded-md border border-primary-100">
+                  <h3 className="text-xs font-semibold text-primary-700 uppercase tracking-wider mb-2">{t({ en: 'How to use', sw: 'Jinsi ya kutumia' })}</h3>
+                  <p className="text-sm text-primary-900 leading-relaxed">{t(product.usage)}</p>
                 </div>
 
                 <AnimatePresence mode="wait">
@@ -225,7 +229,7 @@ export function ProductCard({ product }: ProductCardProps) {
                       key="add-detail"
                       onClick={(e) => { handleAdd(e); setShowDetail(false); }}
                       disabled={!product.inStock}
-                      className="w-full flex items-center justify-center gap-2 py-3.5 bg-blue-600 text-white rounded-[10px] text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-40 outline-none [-webkit-tap-highlight-color:transparent]"
+                      className="w-full flex items-center justify-center gap-2 py-3.5 bg-primary-600 text-white rounded-md text-sm font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50 outline-none"
                       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                       whileTap={{ scale: 0.97 }}
                     >
@@ -235,12 +239,12 @@ export function ProductCard({ product }: ProductCardProps) {
                   ) : (
                     <motion.div
                       key="qty-detail"
-                      className="flex items-center justify-between bg-gray-50 rounded-[10px] p-2 border border-gray-100"
+                      className="flex items-center justify-between bg-gray-50 rounded-md p-2 border border-gray-100"
                       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                     >
                       <motion.button
                         onClick={handleMinus}
-                        className="w-10 h-10 flex items-center justify-center bg-white rounded-[8px] border border-gray-200 outline-none [-webkit-tap-highlight-color:transparent]"
+                        className="w-10 h-10 flex items-center justify-center bg-white rounded-md border border-gray-200 outline-none [-webkit-tap-highlight-color:transparent]"
                         whileTap={{ scale: 0.9 }}
                       >
                         <Minus className="w-4 h-4 text-gray-700" />
@@ -248,7 +252,7 @@ export function ProductCard({ product }: ProductCardProps) {
                       <span className="text-base font-semibold text-gray-900">{qty} in cart</span>
                       <motion.button
                         onClick={handleAdd}
-                        className="w-10 h-10 flex items-center justify-center bg-blue-600 rounded-[8px] outline-none [-webkit-tap-highlight-color:transparent]"
+                        className="w-10 h-10 flex items-center justify-center bg-primary-600 rounded-md outline-none [-webkit-tap-highlight-color:transparent]"
                         whileTap={{ scale: 0.9 }}
                       >
                         <Plus className="w-4 h-4 text-white" />
