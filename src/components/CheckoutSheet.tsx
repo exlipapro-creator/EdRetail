@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Minus, Plus, Send, User, Phone, MapPin, ShoppingBag, Package, CheckCircle2, Heart, BadgeCheck, Eye, EyeOff } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
@@ -6,6 +6,7 @@ import { compileWhatsAppMessage, buildOrderMessage, formatPrice, validateCustome
 import { useLang } from '../context/LangContext';
 import { PRODUCTS } from '../types';
 import { ReferralShareButton } from './ReferralShare';
+import { motionTokens } from '../design/motion';
 
 interface CheckoutSheetProps {
   isOpen: boolean;
@@ -26,6 +27,10 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
   const [orderUrl, setOrderUrl]         = useState('');
   const [showPreview, setShowPreview]   = useState(false);
 
+  // Focus management
+  const firstInputRef = useRef<HTMLInputElement | null>(null);
+  const previouslyFocusedElement = useRef<HTMLElement | null>(null);
+
   const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -42,14 +47,32 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
     validate();
   };
 
+  useEffect(() => {
+    if (isOpen) {
+      // save previously focused element and move focus into sheet
+      previouslyFocusedElement.current = document.activeElement as HTMLElement | null;
+      setTimeout(() => {
+        firstInputRef.current?.focus();
+      }, 50);
+    } else {
+      // restore focus when closed
+      previouslyFocusedElement.current?.focus?.();
+    }
+  }, [isOpen]);
+
   const handleSubmit = () => {
     setTouched({ name: true, phone: true, location: true });
+
+    // prevent double submissions
+    if (isSubmitting) return;
+
     if (!validate() || items.length === 0) return;
 
     setIsSubmitting(true);
     const url = compileWhatsAppMessage(items, { name, phone, location }, lang);
     setOrderUrl(url);
 
+    // simulate send delay — keep submission atomic and announce
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSuccess(true);
@@ -68,6 +91,12 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
   const isValid = Object.keys(validateCustomer(name, phone, location)).length === 0 && items.length > 0;
   const previewMessage = isValid ? buildOrderMessage(items, { name, phone, location }, lang) : '';
 
+  // Error announcement helper: returns the first error message for aria-live role="alert"
+  const firstErrorMessage = () => {
+    const keys = Object.keys(errors);
+    return keys.length ? errors[keys[0]] : '';
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -81,19 +110,23 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
           <motion.div
             className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl max-w-lg mx-auto max-h-[92vh] overflow-y-auto shadow-2xl"
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 28, stiffness: 350 }}
+            transition={{ type: 'spring', damping: motionTokens.spring.damping, stiffness: motionTokens.spring.stiffness }}
             onClick={(e) => e.stopPropagation()}
+            aria-modal="true"
+            role="dialog"
+            aria-label={lang === 'sw' ? 'Fomu ya Malipo' : 'Checkout form'}
           >
             <div className="flex justify-center pt-4 pb-2">
               <div className="w-12 h-1.5 bg-gray-200 rounded-full" />
             </div>
 
-            <div className="px-5 pb-8">
+            {/* make the form region announce busy state during submit */}
+            <div className="px-5 pb-8" aria-busy={isSubmitting} aria-live="polite" aria-atomic="true">
               {/* Header */}
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
-                    <ShoppingBag className="w-5 h-5 text-blue-600" />
+                  <div className="w-10 h-10 bg-primary-50 rounded-md flex items-center justify-center">
+                    <ShoppingBag className="w-5 h-5 text-primary-600" />
                   </div>
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900">
@@ -106,14 +139,15 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                 </div>
                 <motion.button
                   onClick={onClose}
-                  className="p-2 bg-gray-100 rounded-[8px] hover:bg-gray-200 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
-                  whileTap={{ scale: 0.9 }}
+                  className="p-2 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
+                  whileTap={{ scale: motionTokens.press }}
+                  aria-label={lang === 'sw' ? 'Funga fomu' : 'Close checkout'}
                 >
                   <X className="w-5 h-5 text-gray-600" />
                 </motion.button>
               </div>
 
-              {/* ── SUCCESS SCREEN ── */}
+              {/* success screen */}
               <AnimatePresence>
                 {isSuccess && (
                   <motion.div
@@ -121,13 +155,15 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0 }}
+                    role="status"
+                    aria-live="polite"
                   >
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: 'spring', stiffness: 300, damping: 18, delay: 0.1 }}
                     >
-                      <CheckCircle2 className="w-16 h-16 text-green-500 mb-4" />
+                      <CheckCircle2 className="w-16 h-16 text-success mb-4" />
                     </motion.div>
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
                       {lang === 'sw' ? 'Agizo Liko Tayari!' : 'Order Ready!'}
@@ -144,8 +180,8 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                     </p>
                     <motion.button
                       onClick={handleOpenWhatsApp}
-                      className="w-full flex items-center justify-center gap-2 py-3.5 bg-green-600 text-white rounded-[10px] font-semibold text-sm hover:bg-green-700 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
-                      whileTap={{ scale: 0.97 }}
+                      className="w-full flex items-center justify-center gap-2 py-3.5 bg-success text-white rounded-md font-semibold text-sm hover:bg-success/90 transition-colors outline-none"
+                      whileTap={{ scale: motionTokens.press }}
                     >
                       <Send className="w-4 h-4" />
                       {lang === 'sw' ? 'Fungua WhatsApp' : 'Open WhatsApp'}
@@ -165,7 +201,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
 
               {!isSuccess && (
                 <>
-                  {/* ── EMPTY ── */}
+                  {/* empty */}
                   {items.length === 0 && (
                     <div className="text-center py-10 text-gray-400">
                       <Package className="w-12 h-12 mx-auto mb-3 opacity-30" />
@@ -176,7 +212,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                         {lang === 'sw' ? 'Ongeza bidhaa kuanza' : 'Add some products to get started'}
                       </p>
 
-                      {/* Favourites quick-add */}
+                      {/* favourites quick-add */}
                       {favouriteProducts.length > 0 && (
                         <div className="mt-6 text-left">
                           <p className="text-xs font-semibold text-gray-500 mb-2 flex items-center gap-1">
@@ -185,11 +221,12 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                           </p>
                           <div className="space-y-2">
                             {favouriteProducts.map((p) => (
-                              <div key={p.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-[8px] border border-gray-100">
+                              <div key={p.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-md border border-gray-100">
                                 <span className="text-sm text-gray-700 font-medium">{t(p.name)}</span>
                                 <button
                                   onClick={() => addItem({ ...p, quantity: 1 })}
-                                  className="text-xs px-3 py-1.5 bg-blue-600 text-white rounded-[6px] font-semibold outline-none [-webkit-tap-highlight-color:transparent]"
+                                  className="text-xs px-3 py-1.5 bg-primary-600 text-white rounded-md font-semibold outline-none [-webkit-tap-highlight-color:transparent]"
+                                  aria-label={lang === 'sw' ? `Ongeza ${t(p.name)}` : `Add ${t(p.name)}`}
                                 >
                                   + {lang === 'sw' ? 'Ongeza' : 'Add'}
                                 </button>
@@ -201,7 +238,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                     </div>
                   )}
 
-                  {/* ── CART ITEMS ── */}
+                  {/* cart items */}
                   {items.length > 0 && (
                     <div className="space-y-2 mb-5">
                       {items.map((item) => (
@@ -211,9 +248,9 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                           initial={{ opacity: 0, x: -16 }}
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: 20 }}
-                          className="flex items-center gap-3 p-3 bg-gray-50 rounded-[10px] border border-gray-100"
+                          className="flex items-center gap-3 p-3 bg-gray-50 rounded-md border border-gray-100"
                         >
-                          <div className="w-11 h-11 rounded-[8px] bg-gray-100 flex items-center justify-center flex-shrink-0">
+                          <div className="w-11 h-11 rounded-md bg-gray-100 flex items-center justify-center flex-shrink-0">
                             <Package className="w-5 h-5 text-gray-400" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -223,16 +260,18 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                           <div className="flex items-center gap-1.5">
                             <motion.button
                               onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              className="w-7 h-7 flex items-center justify-center bg-white rounded-[6px] border border-gray-200 outline-none [-webkit-tap-highlight-color:transparent]"
-                              whileTap={{ scale: 0.85 }}
+                              className="w-9 h-9 flex items-center justify-center bg-white rounded-md border border-gray-200 outline-none [-webkit-tap-highlight-color:transparent]"
+                              whileTap={{ scale: motionTokens.press }}
+                              aria-label={lang === 'sw' ? 'Punguza idadi' : 'Decrease quantity'}
                             >
                               <Minus className="w-3 h-3 text-gray-600" />
                             </motion.button>
-                            <span className="w-6 text-center font-semibold text-sm text-gray-900">{item.quantity}</span>
+                            <span className="w-8 text-center font-semibold text-sm text-gray-900">{item.quantity}</span>
                             <motion.button
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="w-7 h-7 flex items-center justify-center bg-blue-600 rounded-[6px] outline-none [-webkit-tap-highlight-color:transparent]"
-                              whileTap={{ scale: 0.85 }}
+                              className="w-9 h-9 flex items-center justify-center bg-primary-600 rounded-md outline-none [-webkit-tap-highlight-color:transparent]"
+                              whileTap={{ scale: motionTokens.press }}
+                              aria-label={lang === 'sw' ? 'Ongeza idadi' : 'Increase quantity'}
                             >
                               <Plus className="w-3 h-3 text-white" />
                             </motion.button>
@@ -242,7 +281,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                     </div>
                   )}
 
-                  {/* ── TOTAL ── */}
+                  {/* total */}
                   {items.length > 0 && (
                     <div className="flex items-center justify-between py-4 border-t border-dashed border-gray-200 mb-5">
                       <span className="text-sm text-gray-600 font-medium">
@@ -254,41 +293,43 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                     </div>
                   )}
 
-                  {/* ── FORM ── */}
+                  {/* form */}
                   {items.length > 0 && (
                     <div className="space-y-3 mb-5">
                       <h3 className="font-semibold text-gray-900 text-sm flex items-center gap-2">
-                        <User className="w-4 h-4 text-blue-600" />
+                        <User className="w-4 h-4 text-primary-600" />
                         {lang === 'sw' ? 'Maelezo ya Uwasilishaji' : 'Delivery Details'}
                       </h3>
 
                       {/* Name */}
                       <div>
                         <div className="relative group">
-                          <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                          <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
                           <input
+                            ref={firstInputRef}
                             type="text"
                             autoComplete="name"
                             placeholder={lang === 'sw' ? 'Jina lako kamili' : 'Your full name'}
                             value={name}
                             onChange={(e) => { setName(e.target.value); if (touched.name) validate(e.target.value, phone, location); }}
                             onBlur={() => handleBlur('name')}
-                            className={`w-full pl-11 pr-4 py-3 bg-gray-50 border rounded-[10px] text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                            aria-invalid={!!(touched.name && errors.name)}
+                            className={`w-full pl-11 pr-4 py-3 bg-gray-50 border rounded-md text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all ${
                               touched.name && errors.name
                                 ? 'border-red-400 focus:ring-red-500/20 focus:border-red-500'
-                                : 'border-gray-200 focus:ring-blue-500/20 focus:border-blue-500'
+                                : 'border-gray-200 focus:ring-primary-200/60 focus:border-primary-500'
                             }`}
                           />
                         </div>
                         {touched.name && errors.name && (
-                          <p className="text-xs text-red-500 mt-1 ml-1">{errors.name}</p>
+                          <div role="alert" className="text-xs text-red-500 mt-1 ml-1">{errors.name}</div>
                         )}
                       </div>
 
                       {/* Phone */}
                       <div>
                         <div className="relative group">
-                          <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                          <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
                           <input
                             type="tel"
                             autoComplete="tel"
@@ -296,22 +337,23 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                             value={phone}
                             onChange={(e) => { setPhone(e.target.value); if (touched.phone) validate(name, e.target.value, location); }}
                             onBlur={() => handleBlur('phone')}
-                            className={`w-full pl-11 pr-4 py-3 bg-gray-50 border rounded-[10px] text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                            aria-invalid={!!(touched.phone && errors.phone)}
+                            className={`w-full pl-11 pr-4 py-3 bg-gray-50 border rounded-md text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all ${
                               touched.phone && errors.phone
                                 ? 'border-red-400 focus:ring-red-500/20 focus:border-red-500'
-                                : 'border-gray-200 focus:ring-blue-500/20 focus:border-blue-500'
+                                : 'border-gray-200 focus:ring-primary-200/60 focus:border-primary-500'
                             }`}
                           />
                         </div>
                         {touched.phone && errors.phone && (
-                          <p className="text-xs text-red-500 mt-1 ml-1">{errors.phone}</p>
+                          <div role="alert" className="text-xs text-red-500 mt-1 ml-1">{errors.phone}</div>
                         )}
                       </div>
 
                       {/* Location */}
                       <div>
                         <div className="relative group">
-                          <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                          <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
                           <input
                             type="text"
                             autoComplete="address-line1"
@@ -319,21 +361,22 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                             value={location}
                             onChange={(e) => { setLocation(e.target.value); if (touched.location) validate(name, phone, e.target.value); }}
                             onBlur={() => handleBlur('location')}
-                            className={`w-full pl-11 pr-4 py-3 bg-gray-50 border rounded-[10px] text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all ${
+                            aria-invalid={!!(touched.location && errors.location)}
+                            className={`w-full pl-11 pr-4 py-3 bg-gray-50 border rounded-md text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 transition-all ${
                               touched.location && errors.location
                                 ? 'border-red-400 focus:ring-red-500/20 focus:border-red-500'
-                                : 'border-gray-200 focus:ring-blue-500/20 focus:border-blue-500'
+                                : 'border-gray-200 focus:ring-primary-200/60 focus:border-primary-500'
                             }`}
                           />
                         </div>
                         {touched.location && errors.location && (
-                          <p className="text-xs text-red-500 mt-1 ml-1">{errors.location}</p>
+                          <div role="alert" className="text-xs text-red-500 mt-1 ml-1">{errors.location}</div>
                         )}
                       </div>
                     </div>
                   )}
 
-                  {/* ── SUBMIT ── */}
+                  {/* submit */}
                   {items.length > 0 && (
                     <>
                       {isValid && (
@@ -354,10 +397,10 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: 'auto', opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.25, ease: 'easeInOut' }}
+                                transition={{ duration: motionTokens.hover, ease: 'easeInOut' }}
                                 className="overflow-hidden"
                               >
-                                <div className="bg-[#dcf8c6] border border-[#c5edb0] rounded-[10px] rounded-tr-none p-3 mb-1">
+                                <div className="bg-[#dcf8c6] border border-[#c5edb0] rounded-md rounded-tr-none p-3 mb-1">
                                   <pre className="text-[11px] text-gray-800 whitespace-pre-wrap font-sans leading-relaxed">
                                     {previewMessage}
                                   </pre>
@@ -371,28 +414,30 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                         </div>
                       )}
                       <div className="flex items-center justify-center gap-1.5 mb-3">
-                        <BadgeCheck className="w-3.5 h-3.5 text-blue-600" />
+                        <BadgeCheck className="w-3.5 h-3.5 text-primary-600" />
                         <span className="text-[11px] text-gray-500">
                           {lang === 'sw' ? 'Agizo litatumwa kwa' : 'Order will be sent to'}{' '}
                           <span className="font-medium text-gray-700">{DISTRIBUTOR_NAME}</span>
                         </span>
                       </div>
+
                       <motion.button
                         onClick={handleSubmit}
-                        disabled={isSubmitting}
-                        className={`w-full flex items-center justify-center gap-2.5 py-3.5 rounded-[10px] font-semibold text-sm transition-colors outline-none [-webkit-tap-highlight-color:transparent] ${
-                          isValid && !isSubmitting
-                            ? 'bg-green-600 text-white hover:bg-green-700 active:bg-green-800'
-                            : 'bg-gray-200 text-gray-400'
+                        disabled={isSubmitting || !isValid}
+                        aria-disabled={isSubmitting || !isValid}
+                        className={`w-full flex items-center justify-center gap-2.5 py-3.5 rounded-md font-semibold text-sm transition-colors outline-none ${
+                          isValid && !isSubmitting ? 'bg-success text-white hover:bg-success/90' : 'bg-gray-200 text-gray-400'
                         }`}
-                        whileTap={isValid && !isSubmitting ? { scale: 0.97 } : {}}
+                        whileTap={isValid && !isSubmitting ? { scale: motionTokens.press } : {}}
                       >
                         {isSubmitting ? (
-                          <motion.div
-                            className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
-                            animate={{ rotate: 360 }}
-                            transition={{ repeat: Infinity, duration: 0.7, ease: 'linear' }}
-                          />
+                          <span role="status" aria-live="polite" aria-label={lang === 'sw' ? 'Inatuma...' : 'Sending...'} className="flex items-center">
+                            <motion.div
+                              className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                              animate={{ rotate: 360 }}
+                              transition={{ repeat: Infinity, duration: 0.7, ease: 'linear' }}
+                            />
+                          </span>
                         ) : (
                           <>
                             <Send className="w-4 h-4" />
@@ -400,6 +445,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                           </>
                         )}
                       </motion.button>
+
                       {!isValid && (
                         <p className="text-center text-xs text-gray-400 mt-2">
                           {lang === 'sw' ? 'Jaza maelezo yote hapo juu ili kuendelea' : 'Complete all delivery details above to continue'}
@@ -410,6 +456,13 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                           ? "Utaelekezwa WhatsApp kukamilisha agizo lako na msambazaji"
                           : "You'll be redirected to WhatsApp to complete your order with the distributor"}
                       </p>
+
+                      {/* inline error live region (first error) */}
+                      {firstErrorMessage() && (
+                        <div role="alert" className="text-center text-xs text-red-500 mt-3">
+                          {firstErrorMessage()}
+                        </div>
+                      )}
                     </>
                   )}
                 </>
