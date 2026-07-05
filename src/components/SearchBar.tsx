@@ -22,7 +22,7 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
       {value && (
         <button
           onClick={() => onChange('')}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 outline-none [-webkit-tap-highlight-color:transparent]"
+          className="absolute right-3 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full text-gray-400 hover:text-gray-600 outline-none [-webkit-tap-highlight-color:transparent]"
           aria-label={lang === 'sw' ? 'Futa utafutaji' : 'Clear search'}
         >
           <X className="w-4 h-4" />
