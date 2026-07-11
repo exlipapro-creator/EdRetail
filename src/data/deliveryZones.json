@@ -1,0 +1,7 @@
+[
+  { "zone": "Dar es Salaam", "days": "1–2 business days", "note": "Same-day available for orders before 12pm" },
+  { "zone": "Dodoma / Arusha / Moshi", "days": "2–3 business days" },
+  { "zone": "Mwanza / Tabora / Morogoro", "days": "3–4 business days" },
+  { "zone": "Zanzibar", "days": "2–3 business days", "note": "Ferry shipping — subject to weather" },
+  { "zone": "Other upcountry regions", "days": "4–6 business days", "note": "Contact us to confirm availability" }
+]
