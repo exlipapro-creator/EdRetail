@@ -20,12 +20,17 @@ export function Bundles() {
 
   return (
     <section className="max-w-lg mx-auto px-4 py-4">
-      <h2 className="text-base font-semibold text-gray-900 mb-1">
-        {lang === 'sw' ? 'Pakiti Maalum' : 'Bundle Deals'}
-      </h2>
-      <p className="text-xs text-gray-400 mb-4">
-        {lang === 'sw' ? 'Okoa zaidi unaponunua pamoja' : 'Save more when you buy together'}
-      </p>
+      <div className="mb-4">
+        <span className="inline-block text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-full uppercase tracking-widest mb-2">
+          {lang === 'sw' ? 'Pakiti' : 'Bundles'}
+        </span>
+        <h2 className="text-lg font-bold text-gray-900 leading-tight">
+          {lang === 'sw' ? 'Pakiti Maalum' : 'Bundle Deals'}
+        </h2>
+        <p className="text-xs text-gray-400 mt-0.5">
+          {lang === 'sw' ? 'Okoa zaidi unaponunua pamoja' : 'Save more when you buy together'}
+        </p>
+      </div>
 
       <div className="space-y-3">
         {BUNDLES.map((bundle) => {
@@ -38,15 +43,15 @@ export function Bundles() {
           const savings = originalTotal - discountedTotal;
 
           return (
-            <div key={bundle.id} className="bg-white rounded-[10px] border border-blue-100 p-4">
+            <div key={bundle.id} className="bg-white rounded-xl border border-indigo-100 p-4 shadow-sm">
               <div className="flex items-start gap-3 mb-3">
-                <div className="w-9 h-9 bg-blue-50 rounded-[8px] flex items-center justify-center flex-shrink-0">
-                  <Package2 className="w-[18px] h-[18px] text-blue-600" />
+                <div className="w-9 h-9 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Package2 className="w-[18px] h-[18px] text-indigo-600" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <h3 className="text-sm font-semibold text-gray-900">{t(bundle.name)}</h3>
-                    <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">
+                    <h3 className="text-sm font-bold text-gray-900">{t(bundle.name)}</h3>
+                    <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full">
                       {bundle.discountPercent}% OFF
                     </span>
                   </div>
@@ -56,7 +61,7 @@ export function Bundles() {
 
               <div className="flex flex-wrap gap-1.5 mb-3">
                 {products.map((p) => (
-                  <span key={p.id} className="text-[10px] bg-gray-50 border border-gray-100 px-2 py-1 rounded-full text-gray-600 font-medium">
+                  <span key={p.id} className="text-[10px] bg-gray-50 border border-gray-200 px-2 py-1 rounded-full text-gray-600 font-medium">
                     {t(p.name)}
                   </span>
                 ))}
@@ -64,10 +69,10 @@ export function Bundles() {
 
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-base font-semibold text-gray-900">{formatPrice(discountedTotal)}</span>
+                  <span className="text-base font-bold text-gray-900">{formatPrice(discountedTotal)}</span>
                   <span className="text-xs text-gray-400 ml-1">TZS</span>
                   <span className="text-xs text-gray-400 line-through ml-2">{formatPrice(originalTotal)}</span>
-                  <span className="text-xs text-green-600 font-semibold ml-2">
+                  <span className="text-xs text-green-600 font-bold ml-2">
                     {lang === 'sw' ? `Okoa ${formatPrice(savings)}` : `Save ${formatPrice(savings)}`}
                   </span>
                 </div>

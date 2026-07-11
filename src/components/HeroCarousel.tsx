@@ -130,7 +130,7 @@ export function HeroCarousel() {
                 <div className="flex gap-2">
                   <a
                     href="#products"
-                    className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-white text-gray-900 rounded-[8px] text-xs font-semibold hover:bg-gray-100 transition-colors"
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 transition-colors shadow-sm"
                   >
                     <ShoppingCart className="w-3.5 h-3.5" />
                     {slide.cta}
@@ -138,7 +138,7 @@ export function HeroCarousel() {
                   </a>
                   <a
                     href={WHATSAPP_LINK}
-                    className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-green-600 text-white rounded-[8px] text-xs font-semibold hover:bg-green-700 transition-colors"
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 bg-white/15 border border-white/30 text-white rounded-lg text-xs font-semibold hover:bg-white/25 transition-colors backdrop-blur-sm"
                   >
                     <Phone className="w-3.5 h-3.5" />
                     WhatsApp

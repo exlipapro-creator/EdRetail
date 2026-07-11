@@ -201,35 +201,35 @@ function App() {
       <section className="max-w-lg mx-auto px-4 py-4">
         <div className="grid grid-cols-3 gap-3">
           {[
-            { icon: <Leaf className="w-5 h-5 text-green-500" />, en: '100% Authentic', sw: '100% Halisi', descEn: 'Genuine Edmark', descSw: 'Edmark ya kweli' },
-            { icon: <ShoppingCart className="w-5 h-5 text-blue-500" />, en: 'WhatsApp Order', sw: 'Agiza WhatsApp', descEn: 'Quick & Easy', descSw: 'Haraka na Rahisi' },
-            { icon: <Activity className="w-5 h-5 text-amber-500" />, en: 'Tanzania Wide', sw: 'Tanzania Nzima', descEn: 'Delivery Available', descSw: 'Uwasilishaji Unapatikana' },
+            { icon: <Leaf className="w-5 h-5 text-green-600" />,        iconBg: 'bg-green-100',  en: '100% Authentic',  sw: '100% Halisi',      descEn: 'Genuine Edmark',      descSw: 'Edmark ya kweli'             },
+            { icon: <ShoppingCart className="w-5 h-5 text-indigo-600" />, iconBg: 'bg-indigo-100', en: 'WhatsApp Order',   sw: 'Agiza WhatsApp',   descEn: 'Quick & Easy',        descSw: 'Haraka na Rahisi'            },
+            { icon: <Activity className="w-5 h-5 text-amber-600" />,     iconBg: 'bg-amber-100',  en: 'Tanzania Wide',    sw: 'Tanzania Nzima',   descEn: 'Delivery Available',  descSw: 'Uwasilishaji Unapatikana'    },
           ].map((badge) => (
-            <div key={badge.en} className="flex flex-col items-center text-center p-3 bg-white rounded-[10px] border border-gray-100">
-              <div className="w-9 h-9 bg-gray-50 rounded-[8px] flex items-center justify-center mb-2">
+            <div key={badge.en} className="flex flex-col items-center text-center p-3.5 bg-white rounded-xl border border-gray-100 shadow-sm">
+              <div className={`w-10 h-10 ${badge.iconBg} rounded-xl flex items-center justify-center mb-2.5`}>
                 {badge.icon}
               </div>
-              <span className="text-[11px] font-semibold text-gray-900">{lang === 'sw' ? badge.sw : badge.en}</span>
-              <span className="text-[10px] text-gray-400 mt-0.5">{lang === 'sw' ? badge.descSw : badge.descEn}</span>
+              <span className="text-[11px] font-bold text-gray-900 leading-tight">{lang === 'sw' ? badge.sw : badge.en}</span>
+              <span className="text-[10px] text-gray-400 mt-0.5 leading-tight">{lang === 'sw' ? badge.descSw : badge.descEn}</span>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="max-w-lg mx-auto px-4 py-8 text-center border-t border-gray-100">
-        <img src="/logo/wordmark.png" alt="ED Retail" className="h-7 w-auto mx-auto mb-3 opacity-90" />
-        <p className="text-xs text-gray-500 mb-3">
-          {lang === 'sw' ? 'Msambazaji Huru wa Edmark' : 'Authorized Edmark Distributor'}
+      <footer className="max-w-lg mx-auto px-4 pt-6 pb-10 border-t border-gray-100 mt-2">
+        <div className="flex items-center justify-between mb-4">
+          <img src="/logo/wordmark.png" alt="ED Retail" className="h-7 w-auto opacity-90" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 border border-indigo-100 rounded-full">
+            <BadgeCheck className="w-3.5 h-3.5 text-indigo-600" />
+            <span className="text-xs font-semibold text-indigo-800">{DISTRIBUTOR_NAME}</span>
+          </div>
+        </div>
+        <p className="text-xs text-gray-500 mb-4">
+          {lang === 'sw' ? 'Msambazaji Rasmi wa Edmark · Tanzania' : 'Authorized Edmark Distributor · Tanzania'}
         </p>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-full">
-          <BadgeCheck className="w-3.5 h-3.5 text-blue-600" />
-          <span className="text-xs font-medium text-blue-800">{DISTRIBUTOR_NAME}</span>
-        </div>
-        <div className="mt-4">
-          <ReferralShareButton variant="compact" />
-        </div>
-        <p className="text-[10px] text-gray-400 mt-4">© 2026 ED Retail. All rights reserved.</p>
+        <ReferralShareButton />
+        <p className="text-[10px] text-gray-400 mt-5 text-center">© 2026 ED Retail. All rights reserved.</p>
       </footer>
 
       {/* ── STICKY CART ── */}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Check, Plus, ShoppingBag } from 'lucide-react';
+import { Check, Plus, ShoppingBag } from 'lucide-react';
 import { PRODUCTS, BUNDLES } from '../types';
 import { useCartStore } from '../store/cartStore';
 import { formatPrice } from '../utils/whatsappCompiler';
@@ -101,28 +101,30 @@ export function P4GoalPicker() {
 
   return (
     <section className="max-w-lg mx-auto px-4 py-4">
-      <div className="flex items-center gap-1.5 mb-1">
-        <Sparkles className="w-3.5 h-3.5 text-primary-600" />
-        <h2 className="text-base font-semibold text-gray-900">
+      <div className="mb-4">
+        <span className="inline-block text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-full uppercase tracking-widest mb-2">
+          {lang === 'sw' ? 'Kipengele cha P4' : 'P4 Goal Finder'}
+        </span>
+        <h2 className="text-lg font-bold text-gray-900 leading-tight">
           {lang === 'sw' ? 'Huna uhakika wapi kuanzia?' : "Not sure where to start?"}
         </h2>
+        <p className="text-xs text-gray-400 mt-0.5">
+          {lang === 'sw' ? 'Chagua lengo lako, tutapendekeza bidhaa' : "Pick your goal — we'll recommend a plan"}
+        </p>
       </div>
-      <p className="text-xs text-gray-400 mb-4">
-        {lang === 'sw' ? 'Chagua lengo lako, tutapendekeza bidhaa' : "Pick your goal — we'll recommend a plan"}
-      </p>
 
       <div className="grid grid-cols-3 gap-2 mb-3">
         {GOALS.map((goal) => (
           <button
             key={goal.id}
             onClick={() => handleSelect(goal.id)}
-            className={`text-left min-h-[64px] p-2.5 rounded-lg border transition-colors outline-none [-webkit-tap-highlight-color:transparent] ${
+            className={`text-left min-h-[64px] p-2.5 rounded-lg border-2 transition-all outline-none [-webkit-tap-highlight-color:transparent] ${
               selected === goal.id
-                ? 'bg-primary-50 border-primary-300'
-                : 'bg-white border-gray-100 hover:border-gray-200'
+                ? 'bg-indigo-50 border-indigo-400 shadow-sm'
+                : 'bg-white border-gray-200 hover:border-indigo-200'
             }`}
           >
-            <div className={`text-[11px] font-semibold leading-tight mb-1 ${selected === goal.id ? 'text-primary-700' : 'text-gray-900'}`}>
+            <div className={`text-[11px] font-bold leading-tight mb-1 ${selected === goal.id ? 'text-indigo-700' : 'text-gray-800'}`}>
               {lang === 'sw' ? goal.label.sw : goal.label.en}
             </div>
             <div className="text-[10px] text-gray-400 leading-tight">
