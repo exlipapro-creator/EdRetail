@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ShoppingCart, Phone, ArrowRight } from 'lucide-react';
 import { WHATSAPP_LINK } from '../utils/whatsappCompiler';
 
@@ -111,7 +110,7 @@ export function HeroCarousel() {
             }`}
             aria-hidden={i !== current}
           >
-            <div className="max-w-lg mx-auto px-5 pt-8 pb-16 flex gap-4 items-center">
+            <div className="max-w-lg mx-auto px-5 pt-8 pb-10 flex gap-4 items-center">
 
               {/* Text content */}
               <div className="flex-1 min-w-0">
@@ -159,34 +158,9 @@ export function HeroCarousel() {
         ))}
       </div>
 
-      {/* Controls: progress bar + pill indicators */}
-      <div className="absolute bottom-5 left-0 right-0 flex flex-col items-center gap-2">
-        {/* Progress bar */}
-        <div className="w-16 h-0.5 bg-white/20 rounded-full overflow-hidden">
-          <motion.div
-            key={`progress-${current}-${progressKey.current}`}
-            className="h-full bg-white/75 rounded-full"
-            initial={{ width: '0%' }}
-            animate={{ width: '100%' }}
-            transition={{ duration: INTERVAL / 1000, ease: 'linear' }}
-          />
-        </div>
-
-        {/* Pill indicators — wider active pill, slim inactive bars (no circles) */}
-        <div className="flex gap-1.5 items-center">
-          {SLIDES.map((s, i) => (
-            <button
-              key={s.id}
-              onClick={() => go(i)}
-              aria-label={`Go to slide ${i + 1}: ${s.highlight}`}
-              className={`h-[3px] rounded-full transition-all duration-300 ease-out outline-none ring-0 focus:outline-none focus-visible:outline-none appearance-none border-0 [-webkit-tap-highlight-color:transparent] ${
-                i === current
-                  ? 'w-6 bg-white'
-                  : 'w-2 bg-white/35 hover:bg-white/60'
-              }`}
-            />
-          ))}
-        </div>
+      {/* Screen-reader slide position announcement only — no visible indicators */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {`Slide ${current + 1} of ${SLIDES.length}: ${SLIDES[current].highlight}`}
       </div>
 
       {/* Wave divider */}

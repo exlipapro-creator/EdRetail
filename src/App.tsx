@@ -182,7 +182,7 @@ function App() {
             {search && (
               <button
                 onClick={() => setSearch('')}
-                className="mt-3 text-xs text-blue-600 underline outline-none [-webkit-tap-highlight-color:transparent]"
+                className="mt-3 text-xs font-semibold text-indigo-600 underline outline-none [-webkit-tap-highlight-color:transparent]"
               >
                 {lang === 'sw' ? 'Futa utafutaji' : 'Clear search'}
               </button>
@@ -244,7 +244,7 @@ function App() {
           >
             <motion.button
               onClick={() => setIsCartOpen(true)}
-              className="w-full flex items-center justify-between px-5 py-3.5 bg-blue-600 text-white rounded-[10px] hover:bg-blue-700 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
+              className="w-full flex items-center justify-between px-5 py-3.5 bg-indigo-600 text-white rounded-2xl hover:bg-indigo-700 transition-colors outline-none shadow-lg [-webkit-tap-highlight-color:transparent]"
               whileTap={{ scale: 0.97 }}
             >
               <div className="flex items-center gap-3">

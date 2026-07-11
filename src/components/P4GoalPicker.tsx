@@ -182,20 +182,20 @@ export function P4GoalPicker() {
                 onClick={handleAdd}
                 disabled={added}
                 whileTap={{ scale: 0.97 }}
-                className={`w-full mt-2 flex items-center justify-center gap-1.5 py-2.5 rounded-md text-xs font-semibold transition-all outline-none focus-visible:ring-2 focus-visible:ring-primary-300 focus-visible:ring-offset-2 [-webkit-tap-highlight-color:transparent] ${
+                className={`w-full mt-2 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold transition-all outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-2 [-webkit-tap-highlight-color:transparent] shadow-sm ${
                   added
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-primary-600 text-white hover:bg-primary-700 shadow-sm'
+                    ? 'bg-green-500 text-white'
+                    : 'bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800'
                 }`}
               >
                 {added ? (
                   <>
-                    <Check className="w-3.5 h-3.5" />
+                    <Check className="w-4 h-4" />
                     {lang === 'sw' ? 'Imeongezwa kwenye Mkoba' : 'Added to Cart'}
                   </>
                 ) : (
                   <>
-                    <Plus className="w-3.5 h-3.5" />
+                    <Plus className="w-4 h-4" strokeWidth={2.5} />
                     {ctaCopy}
                   </>
                 )}

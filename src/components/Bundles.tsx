@@ -73,10 +73,10 @@ export function Bundles() {
                 </div>
                 <motion.button
                   onClick={() => handleAddBundle(bundle.productIds, bundle.discountPercent)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 text-white rounded-[8px] text-xs font-semibold hover:bg-blue-700 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
+                  className="flex items-center gap-1.5 px-4 py-2.5 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 active:bg-indigo-800 transition-colors outline-none shadow-sm [-webkit-tap-highlight-color:transparent]"
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
                   {lang === 'sw' ? 'Ongeza Pakiti' : 'Add Bundle'}
                 </motion.button>
               </div>

@@ -48,7 +48,7 @@ export function ReferralShareButton({ variant = 'default' }: ReferralShareButton
   return (
     <button
       onClick={handleShare}
-      className="w-full flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-[10px] text-xs font-semibold hover:bg-gray-50 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
+      className="w-full flex items-center justify-center gap-2 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 active:bg-indigo-800 transition-colors outline-none shadow-sm [-webkit-tap-highlight-color:transparent]"
     >
       <Share2 className="w-3.5 h-3.5" />
       {lang === 'sw' ? 'Shiriki na Rafiki' : 'Share with a Friend'}

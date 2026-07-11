@@ -119,7 +119,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   key="add"
                   onClick={handleAdd}
                   disabled={!product.inStock}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-primary-600 text-white rounded-md text-xs font-semibold hover:bg-primary-700 active:bg-primary-800 transition-colors outline-none disabled:opacity-40"
+                  className="flex items-center gap-1.5 px-3.5 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 active:bg-indigo-800 transition-colors outline-none disabled:opacity-40 shadow-sm"
                   initial={{ opacity: 0, scale: 0.85 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.85 }}
@@ -149,7 +149,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   <span className="w-8 text-center text-sm font-semibold text-gray-900">{qty}</span>
                   <motion.button
                     onClick={handleAdd}
-                    className="w-10 h-10 flex items-center justify-center bg-primary-600 rounded-md hover:bg-primary-700 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
+                    className="w-10 h-10 flex items-center justify-center bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
                     whileTap={{ scale: 0.9 }}
                   >
                     <Plus className="w-3 h-3 text-white" strokeWidth={2.5} />
@@ -228,11 +228,11 @@ export function ProductCard({ product }: ProductCardProps) {
                       key="add-detail"
                       onClick={(e) => { handleAdd(e); setShowDetail(false); }}
                       disabled={!product.inStock}
-                      className="w-full flex items-center justify-center gap-2 py-3.5 bg-primary-600 text-white rounded-md text-sm font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50 outline-none"
+                      className="w-full flex items-center justify-center gap-2 py-3.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors disabled:opacity-50 outline-none shadow-sm"
                       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                       whileTap={{ scale: 0.97 }}
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-4 h-4" strokeWidth={2.5} />
                       {product.inStock ? t({ en: 'Add to Cart', sw: 'Ongeza kwenye Mkoba' }) : t({ en: 'Out of Stock', sw: 'Haipatikani' })}
                     </motion.button>
                   ) : (
@@ -251,10 +251,10 @@ export function ProductCard({ product }: ProductCardProps) {
                       <span className="text-base font-semibold text-gray-900">{qty} in cart</span>
                       <motion.button
                         onClick={handleAdd}
-                        className="w-10 h-10 flex items-center justify-center bg-primary-600 rounded-md outline-none [-webkit-tap-highlight-color:transparent]"
+                        className="w-10 h-10 flex items-center justify-center bg-indigo-600 rounded-lg hover:bg-indigo-700 outline-none [-webkit-tap-highlight-color:transparent]"
                         whileTap={{ scale: 0.9 }}
                       >
-                        <Plus className="w-4 h-4 text-white" />
+                        <Plus className="w-4 h-4 text-white" strokeWidth={2.5} />
                       </motion.button>
                     </motion.div>
                   )}
