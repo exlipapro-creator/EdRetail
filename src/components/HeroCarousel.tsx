@@ -11,7 +11,7 @@ interface Slide {
   bg: string;
   accent: string;
   cta: string;
-  imagePlaceholder: string;
+  image: string;
 }
 
 const SLIDES: Slide[] = [
@@ -24,7 +24,7 @@ const SLIDES: Slide[] = [
     bg: 'from-blue-800 to-blue-950',
     accent: 'text-blue-300',
     cta: 'Order MRT Complex',
-    imagePlaceholder: 'MRT',
+    image: '/products/mrt-complex.png',
   },
   {
     id: 'splina',
@@ -35,7 +35,7 @@ const SLIDES: Slide[] = [
     bg: 'from-green-800 to-green-950',
     accent: 'text-green-300',
     cta: 'Order Splina',
-    imagePlaceholder: 'SPL',
+    image: '/products/splina.png',
   },
   {
     id: 'spirulina',
@@ -46,7 +46,7 @@ const SLIDES: Slide[] = [
     bg: 'from-teal-800 to-teal-950',
     accent: 'text-teal-300',
     cta: 'Order Spirulina',
-    imagePlaceholder: 'SPR',
+    image: '/products/spirulina.png',
   },
   {
     id: 'ginseng',
@@ -57,7 +57,7 @@ const SLIDES: Slide[] = [
     bg: 'from-amber-800 to-amber-950',
     accent: 'text-amber-300',
     cta: 'Order Ginseng Coffee',
-    imagePlaceholder: 'GNS',
+    image: '/products/ginseng-coffee.png',
   },
   {
     id: 'cocollagen',
@@ -68,7 +68,7 @@ const SLIDES: Slide[] = [
     bg: 'from-rose-800 to-rose-950',
     accent: 'text-rose-300',
     cta: 'Order Cocollagen',
-    imagePlaceholder: 'COC',
+    image: '/products/cocollagen.png',
   },
 ];
 
@@ -146,11 +146,20 @@ export function HeroCarousel() {
                 </div>
               </div>
 
-              {/* Product image placeholder */}
-              <div className="flex-shrink-0 w-24 h-24 rounded-2xl bg-white/10 border border-white/15 flex flex-col items-center justify-center gap-1">
-                {/* Replace with <img> when real product photos are ready */}
-                <span className="text-xl font-semibold text-white/60 tracking-widest">{slide.imagePlaceholder}</span>
-                <span className="text-[9px] text-white/40 font-medium">Product image</span>
+              {/* Product image */}
+              <div className="flex-shrink-0 w-24 h-24 rounded-2xl bg-white/10 border border-white/15 overflow-hidden flex items-center justify-center">
+                <img
+                  src={slide.image}
+                  alt={slide.highlight}
+                  className="w-full h-full object-contain p-1"
+                  onError={(e) => {
+                    const el = e.currentTarget;
+                    el.style.display = 'none';
+                    const fallback = el.nextElementSibling as HTMLElement | null;
+                    if (fallback) fallback.style.display = 'block';
+                  }}
+                />
+                <span className="text-lg font-bold text-white/40 hidden">{slide.highlight.split(' ')[0]}</span>
               </div>
 
             </div>

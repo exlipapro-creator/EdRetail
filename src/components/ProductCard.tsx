@@ -81,7 +81,18 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* Image */}
         <div className="relative h-40 bg-gray-50 flex items-center justify-center overflow-hidden">
-          <div className="w-24 h-24 rounded-lg bg-gray-100 flex items-center justify-center">
+          <img
+            src={product.image}
+            alt={t(product.name)}
+            className="w-full h-full object-contain p-3"
+            onError={(e) => {
+              const t = e.currentTarget;
+              t.style.display = 'none';
+              const fallback = t.nextElementSibling as HTMLElement | null;
+              if (fallback) fallback.style.display = 'flex';
+            }}
+          />
+          <div className="w-24 h-24 rounded-lg bg-gray-100 items-center justify-center hidden">
             <ShoppingBag className="w-9 h-9 text-gray-300" />
           </div>
         </div>
@@ -185,8 +196,21 @@ export function ProductCard({ product }: ProductCardProps) {
               </div>
 
               {/* Image area */}
-              <div className="h-48 bg-gray-50 flex items-center justify-center mx-5 mt-2 rounded-xl relative">
-                <ShoppingBag className="w-16 h-16 text-gray-200" />
+              <div className="h-48 bg-gray-50 flex items-center justify-center mx-5 mt-2 rounded-xl relative overflow-hidden">
+                <img
+                  src={product.image}
+                  alt={t(product.name)}
+                  className="w-full h-full object-contain p-4"
+                  onError={(e) => {
+                    const el = e.currentTarget;
+                    el.style.display = 'none';
+                    const fallback = el.nextElementSibling as HTMLElement | null;
+                    if (fallback) fallback.style.display = 'flex';
+                  }}
+                />
+                <div className="absolute inset-0 items-center justify-center hidden">
+                  <ShoppingBag className="w-16 h-16 text-gray-200" />
+                </div>
                 {product.badge && (
                   <span className={`absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${badgeColor} uppercase tracking-wide`}>
                     {product.badge}
