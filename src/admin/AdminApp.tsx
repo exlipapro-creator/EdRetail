@@ -23,18 +23,18 @@ export function AdminApp() {
   return (
     <AuthProvider>
       <Routes>
-        <Route path="/admin" element={<LoginRedirect />} />
-        <Route path="/admin/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-        <Route path="/admin/products"  element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />
-        <Route path="/admin/sales"     element={<ProtectedRoute><SalesPage /></ProtectedRoute>} />
-        <Route path="/admin/loans"     element={<ProtectedRoute><LoansPage /></ProtectedRoute>} />
-        <Route path="/admin/cashflow"  element={<ProtectedRoute><CashFlowPage /></ProtectedRoute>} />
+        {/* relative paths — this component is mounted at /admin/* */}
+        <Route index element={<LoginRedirect />} />
+        <Route path="dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+        <Route path="products"  element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />
+        <Route path="sales"     element={<ProtectedRoute><SalesPage /></ProtectedRoute>} />
+        <Route path="loans"     element={<ProtectedRoute><LoansPage /></ProtectedRoute>} />
+        <Route path="cashflow"  element={<ProtectedRoute><CashFlowPage /></ProtectedRoute>} />
       </Routes>
     </AuthProvider>
   );
 }
 
-// Redirect to dashboard if already logged in
 function LoginRedirect() {
   const { user, loading } = useAuth();
   if (loading) return (
