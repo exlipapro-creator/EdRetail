@@ -1,5 +1,4 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle, RotateCw } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -7,13 +6,14 @@ interface Props {
 
 interface State {
   hasError: boolean;
+  errorMessage: string;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false };
+  state: State = { hasError: false, errorMessage: '' };
 
-  static getDerivedStateFromError(): State {
-    return { hasError: true };
+  static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, errorMessage: error?.message ?? 'Unknown error' };
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
@@ -29,27 +29,23 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 px-6">
-          <div className="max-w-sm w-full text-center">
-            <div className="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle className="w-7 h-7 text-red-500" />
-            </div>
-            <h1 className="text-lg font-semibold text-gray-900 mb-2">Something went wrong</h1>
-            <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-              We hit an unexpected error loading the app. Your cart is safe — tap below to try again.
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9fafb', padding: '24px' }}>
+          <div style={{ maxWidth: 400, textAlign: 'center' }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
+            <h1 style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: '#111' }}>Something went wrong</h1>
+            <p style={{ fontSize: 14, color: '#666', marginBottom: 24 }}>
+              {this.state.errorMessage || 'An unexpected error occurred.'}
             </p>
             <button
               onClick={this.handleReset}
-              className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-[10px] text-sm font-semibold hover:bg-blue-700 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
+              style={{ padding: '10px 24px', background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
             >
-              <RotateCw className="w-4 h-4" />
               Reload app
             </button>
           </div>
         </div>
       );
     }
-
     return this.props.children;
   }
 }
