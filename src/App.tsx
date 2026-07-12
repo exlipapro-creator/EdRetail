@@ -217,19 +217,28 @@ function App() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="max-w-lg mx-auto px-4 pt-6 pb-10 border-t border-gray-100 mt-2">
-        <div className="flex items-center justify-between mb-4">
-          <img src="/logo/wordmark.png" alt="ED Retail" className="h-7 w-auto opacity-90" />
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 border border-indigo-100 rounded-full">
+      <footer className="w-full bg-white border-t border-gray-100 mt-2 px-6 pt-6 pb-10">
+        {/* Row 1 — logo + distributor badge */}
+        <div className="flex items-center justify-between gap-4 mb-3">
+          <img src="/logo/wordmark.png" alt="ED Retail" className="h-7 w-auto opacity-90 flex-shrink-0" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 border border-indigo-100 rounded-full flex-shrink-0">
             <BadgeCheck className="w-3.5 h-3.5 text-indigo-600" />
-            <span className="text-xs font-semibold text-indigo-800">{DISTRIBUTOR_NAME}</span>
+            <span className="text-xs font-semibold text-indigo-800 truncate">{DISTRIBUTOR_NAME}</span>
           </div>
         </div>
-        <p className="text-xs text-gray-500 mb-4">
-          {lang === 'sw' ? 'Msambazaji Rasmi wa Edmark · Tanzania' : 'Authorized Edmark Distributor · Tanzania'}
-        </p>
-        <ReferralShareButton />
-        <p className="text-[10px] text-gray-400 mt-5 text-center">© 2026 ED Retail. All rights reserved.</p>
+
+        {/* Row 2 — tagline + share button side by side */}
+        <div className="flex items-center justify-between gap-4 mb-5">
+          <p className="text-xs text-gray-500 leading-snug">
+            {lang === 'sw' ? 'Msambazaji Rasmi wa Edmark · Tanzania' : 'Authorized Edmark Distributor · Tanzania'}
+          </p>
+          <div className="flex-shrink-0">
+            <ReferralShareButton />
+          </div>
+        </div>
+
+        {/* Row 3 — copyright */}
+        <p className="text-[10px] text-gray-400 text-center w-full">© 2026 ED Retail. All rights reserved.</p>
       </footer>
 
       {/* ── STICKY CART ── */}
