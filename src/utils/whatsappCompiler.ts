@@ -1,7 +1,7 @@
 import { CartItem, CustomerDetails, Lang } from '../types';
 
 // Distributor contact details
-export const TARGET_PHONE = '255683171345';
+export const TARGET_PHONE = '255783481416';
 export const WHATSAPP_LINK = `https://wa.me/${TARGET_PHONE}`;
 export const DISTRIBUTOR_NAME = 'Mwanahamisi Lissu';
 
