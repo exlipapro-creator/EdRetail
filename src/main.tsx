@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import App from './App';
+import { AdminApp } from './admin/AdminApp';
 import { LangProvider } from './context/LangContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import './index.css';
@@ -8,9 +10,18 @@ import './index.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <LangProvider>
-        <App />
-      </LangProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Storefront */}
+          <Route path="/" element={
+            <LangProvider>
+              <App />
+            </LangProvider>
+          } />
+          {/* Admin — all /admin/* routes */}
+          <Route path="/admin/*" element={<AdminApp />} />
+        </Routes>
+      </BrowserRouter>
     </ErrorBoundary>
   </React.StrictMode>,
 );
