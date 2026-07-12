@@ -59,7 +59,7 @@ function App() {
   const activeCategoryData = CATEGORIES.find((c) => c.id === activeCategory);
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans antialiased pb-24">
+    <div className="min-h-screen bg-gray-50 font-sans antialiased pb-0">
       {/* ── HEADER ── */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-gray-100/80">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
@@ -217,7 +217,7 @@ function App() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="w-full bg-white border-t border-gray-100 mt-2 px-6 pt-6 pb-10">
+      <footer className="w-full bg-white border-t border-gray-100 mt-2 px-6 pt-6 pb-6">
         {/* Row 1 — logo + distributor badge */}
         <div className="flex items-center justify-between gap-4 mb-3">
           <img src="/logo/wordmark.png" alt="ED Retail" className="h-7 w-auto opacity-90 flex-shrink-0" />
