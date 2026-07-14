@@ -13,8 +13,22 @@ export const motionTokens = {
     inOut:  'easeInOut',
     out:    'easeOut',
     spring: { type: 'spring', stiffness: 400, damping: 30 },
+
+    // Smooth crossfade for hero slides — slow, intentional
+    heroFade: {
+      type: 'tween' as const,
+      ease: 'easeInOut',
+      duration: 0.7,
+    },
+
+    // Calm spring for sheets and overlays — wellness feel, not bouncy
+    calmSpring: {
+      type: 'spring' as const,
+      stiffness: 260,
+      damping: 30,
+    },
   },
 
-  // Pre-composed spring config for sheet/modal entry
+  // Pre-composed spring config (retained for backward-compat)
   spring: { type: 'spring', stiffness: 400, damping: 30 },
 } as const;

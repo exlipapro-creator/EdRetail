@@ -94,8 +94,11 @@ create policy "products_auth_insert"  on products for insert with check (auth.ro
 create policy "products_auth_update"  on products for update using (auth.role() = 'authenticated');
 create policy "products_auth_delete"  on products for delete using (auth.role() = 'authenticated');
 
--- Sales: auth only
-create policy "sales_auth_all" on sales for all using (auth.role() = 'authenticated');
+-- Sales: anon INSERT allowed (storefront checkout), auth for everything else
+create policy "sales_anon_insert"  on sales for insert with check (true);
+create policy "sales_auth_select"  on sales for select using (auth.role() = 'authenticated');
+create policy "sales_auth_update"  on sales for update using (auth.role() = 'authenticated');
+create policy "sales_auth_delete"  on sales for delete using (auth.role() = 'authenticated');
 
 -- Loans: auth only
 create policy "loans_auth_all" on loans for all using (auth.role() = 'authenticated');
@@ -149,3 +152,14 @@ values
    'Changanya kifurushi 1 na maji ya uvuguvugu au maziwa 200ml. Tumia mara moja kwa siku, inafaa jioni kabla ya kulala kwa ukarabati wa ngozi usiku.',
    '/products/cocollagen.png',null,true,28)
 on conflict (id) do nothing;
+
+-- ════════════════════════════════════════════════════════════════
+-- MIGRATION: apply if schema already exists in Supabase
+-- Run this separately if tables already exist from initial setup:
+--
+-- drop policy if exists "sales_auth_all" on sales;
+-- create policy "sales_anon_insert" on sales for insert with check (true);
+-- create policy "sales_auth_select" on sales for select using (auth.role() = 'authenticated');
+-- create policy "sales_auth_update" on sales for update using (auth.role() = 'authenticated');
+-- create policy "sales_auth_delete" on sales for delete using (auth.role() = 'authenticated');
+-- ════════════════════════════════════════════════════════════════

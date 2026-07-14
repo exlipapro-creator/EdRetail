@@ -108,8 +108,8 @@ export function ProductCard({ product }: ProductCardProps) {
 
           {/* Price row */}
           <div className="flex items-baseline gap-1.5 mb-3">
-            <span className="text-sm font-semibold text-gray-900">{formatPrice(product.price)}</span>
-            <span className="text-[10px] text-gray-400 font-medium">TZS</span>
+            <span className="text-lg font-bold text-gray-900">{formatPrice(product.price)}</span>
+            <span className="text-xs text-gray-400 font-medium">TZS</span>
             <span className="text-[10px] text-gray-300 ml-auto">{formatUsd(product.priceUsd)}</span>
           </div>
 

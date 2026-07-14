@@ -23,7 +23,7 @@ export function DistributorBio() {
         className="relative bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm"
       >
         {/* ── Gradient banner ── */}
-        <div className="h-20 bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-600" />
+        <div className="h-20 bg-gradient-to-r from-indigo-700 via-indigo-600 to-indigo-700" />
 
         {/* ── Avatar ── */}
         <div className="absolute top-8 left-5">

@@ -7,6 +7,7 @@ import { useLang } from '../context/LangContext';
 import { PRODUCTS } from '../types';
 import { ReferralShareButton } from './ReferralShare';
 import { motionTokens } from '../design/motion';
+import { supabase } from '../lib/supabase';
 
 interface CheckoutSheetProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
   const [isSuccess, setIsSuccess]       = useState(false);
   const [orderUrl, setOrderUrl]         = useState('');
   const [showPreview, setShowPreview]   = useState(false);
+  const [insertError, setInsertError]   = useState(false);
 
   // Focus management
   const firstInputRef = useRef<HTMLInputElement | null>(null);
@@ -56,7 +58,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
     }
   }, [isOpen]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setTouched({ name: true, phone: true, location: true });
     if (isSubmitting) return;
     if (!validate() || items.length === 0) return;
@@ -64,6 +66,29 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
     setIsSubmitting(true);
     const url = compileWhatsAppMessage(items, { name, phone, location }, lang);
     setOrderUrl(url);
+
+    // Insert order record into Supabase (non-blocking on failure)
+    const { error: dbError } = await supabase.from('sales').insert({
+      channel: 'app',
+      status: 'pending',
+      customer_name: name.trim(),
+      customer_phone: phone.trim(),
+      customer_location: location.trim(),
+      items: items.map((i) => ({
+        productId: i.id,
+        name: i.name,
+        price: i.price,
+        quantity: i.quantity,
+      })),
+      subtotal: totalPrice,
+    });
+
+    if (dbError) {
+      console.error('Order insert failed:', dbError);
+      setInsertError(true);
+      setTimeout(() => setInsertError(false), 3000);
+      // Continue — don't block WhatsApp redirect
+    }
 
     setTimeout(() => {
       setIsSubmitting(false);
@@ -101,7 +126,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
           <motion.div
             className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl max-w-lg mx-auto max-h-[92vh] overflow-y-auto shadow-2xl"
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: motionTokens.spring.damping, stiffness: motionTokens.spring.stiffness }}
+            transition={motionTokens.easings.calmSpring}
             onClick={(e) => e.stopPropagation()}
             aria-modal="true"
             role="dialog"
@@ -411,6 +436,14 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                           <span className="font-medium text-gray-700">{DISTRIBUTOR_NAME}</span>
                         </span>
                       </div>
+
+                      {insertError && (
+                        <p className="text-center text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-3">
+                          {lang === 'sw'
+                            ? 'Hitilafu ndogo: agizo halikuhifadhiwa, lakini WhatsApp inafungua.'
+                            : 'Minor issue: order not saved, but WhatsApp will still open.'}
+                        </p>
+                      )}
 
                       <motion.button
                         onClick={handleSubmit}

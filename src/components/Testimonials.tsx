@@ -68,7 +68,7 @@ export function Testimonials() {
             <span className="inline-block text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-full uppercase tracking-widest mb-2">
               {lang === 'sw' ? 'Ushuhuda' : 'Testimonials'}
             </span>
-            <h2 className="text-lg font-bold text-gray-900 leading-tight">
+            <h2 className="text-2xl font-bold text-gray-900 leading-tight">
               {lang === 'sw' ? 'Wanachosema Wateja Wetu' : 'What Our Customers Say'}
             </h2>
           </div>

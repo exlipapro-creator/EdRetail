@@ -14,6 +14,7 @@ import { SkeletonCard } from './components/SkeletonCard';
 import { DistributorBio } from './components/DistributorBio';
 import { P4GoalPicker } from './components/P4GoalPicker';
 import { ReferralShareButton } from './components/ReferralShare';
+import { BestSellers } from './components/BestSellers';
 import { PRODUCTS, CATEGORIES } from './types';
 import { useCartStore } from './store/cartStore';
 import { formatPrice, DISTRIBUTOR_NAME } from './utils/whatsappCompiler';
@@ -95,8 +96,8 @@ function App() {
       {/* ── HERO CAROUSEL ── */}
       <HeroCarousel />
 
-      {/* ── DISTRIBUTOR BIO ── */}
-      <DistributorBio />
+      {/* ── BEST SELLERS ── (populated from sales data once orders exist) */}
+      <BestSellers />
 
       {/* ── GOAL-BASED P4 PICKER ── */}
       <P4GoalPicker />
@@ -131,11 +132,11 @@ function App() {
             </span>
           )}
           <div>
-            <h3 className="font-semibold text-gray-900 text-base">
+            <h2 className="font-bold text-gray-900 text-2xl">
               {activeCategory === 'all'
                 ? (lang === 'sw' ? 'Bidhaa Zote' : 'All Products')
                 : t(activeCategoryData!.label)}
-            </h3>
+            </h2>
             <p className="text-xs text-gray-400">
               {filteredProducts.length} {lang === 'sw' ? 'bidhaa zinapatikana' : `product${filteredProducts.length !== 1 ? 's' : ''} available`}
             </p>
@@ -193,6 +194,9 @@ function App() {
 
       {/* ── TESTIMONIALS ── */}
       <Testimonials />
+
+      {/* ── DISTRIBUTOR BIO ── (moved here — trust signal after products) */}
+      <DistributorBio />
 
       {/* ── DELIVERY INFO ── */}
       <DeliveryInfo />

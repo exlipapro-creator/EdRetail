@@ -24,7 +24,7 @@ export function DeliveryInfo() {
         <span className="inline-block text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-full uppercase tracking-widest mb-2">
           {lang === 'sw' ? 'Uwasilishaji' : 'Delivery'}
         </span>
-        <h2 className="text-lg font-bold text-gray-900 leading-tight">
+        <h2 className="text-2xl font-bold text-gray-900 leading-tight">
           {lang === 'sw' ? 'Tanzania Nzima' : 'Across Tanzania'}
         </h2>
         <p className="text-xs text-gray-400 mt-0.5">
