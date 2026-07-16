@@ -1,69 +1,59 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, ArrowRight } from 'lucide-react';
+import { ShoppingCart, Phone } from 'lucide-react';
 import { motionTokens } from '../design/motion';
+import { WHATSAPP_LINK } from '../utils/whatsappCompiler';
 
 interface Slide {
   id: string;
-  headline: string;
-  highlight: string;
-  sub: string;
-  bg: string;
-  accent: string;
-  cta: string;
   image: string;
+  alt: string;
+  ctaLabel: string;
+  ctaHref: string;
 }
 
 const SLIDES: Slide[] = [
   {
-    id: 'mrt',
-    headline: 'Manage your weight with',
-    highlight: 'MRT Complex',
-    sub: 'Meal Replacement Therapy packed with nutrients. Real results, no shortcuts.',
-    bg: 'from-amber-800 to-amber-950',
-    accent: 'text-amber-300',
-    cta: 'Order MRT Complex',
-    image: '/products/mrt-complex.png',
+    id: 'ginseng',
+    image: '/hero/hero-ginseng.png',
+    alt: 'Start Your Day the Edmark Way — Ginseng Coffee',
+    ctaLabel: 'Shop Now',
+    ctaHref: '#products',
   },
   {
     id: 'splina',
-    headline: 'Detox and energise with',
-    highlight: 'Splina Chlorophyll',
-    sub: "Nature's green miracle — alkalises your body, boosts energy, fights toxins.",
-    bg: 'from-stone-700 to-stone-900',
-    accent: 'text-stone-300',
-    cta: 'Order Splina',
-    image: '/products/splina.png',
+    image: '/hero/hero-splina.png',
+    alt: 'Nourish Your Body Every Day — Splina Chlorophyll',
+    ctaLabel: 'Shop Now',
+    ctaHref: '#products',
   },
   {
-    id: 'spirulina',
-    headline: 'Power your body with',
-    highlight: 'Hawaiian Spirulina',
-    sub: 'Premium blue-green algae rich in protein, antioxidants, and essential nutrients.',
-    bg: 'from-orange-800 to-orange-950',
-    accent: 'text-orange-300',
-    cta: 'Order Spirulina',
-    image: '/products/spirulina.png',
+    id: 'mrt-metabolism',
+    image: '/hero/hero-mrt-metabolism.png',
+    alt: 'Power Your Metabolism Naturally — MRT Complex',
+    ctaLabel: 'Shop Now',
+    ctaHref: '#products',
   },
   {
-    id: 'ginseng',
-    headline: 'Start your morning with',
-    highlight: 'Ginseng Coffee',
-    sub: 'Premium Korean ginseng extract blended into a rich, smooth coffee. No jitters.',
-    bg: 'from-yellow-800 to-yellow-950',
-    accent: 'text-yellow-300',
-    cta: 'Order Ginseng Coffee',
-    image: '/products/ginseng-coffee.png',
+    id: 'mrt-balance',
+    image: '/hero/hero-mrt-balance.png',
+    alt: 'Balance Your Health Inside & Out — MRT Complex',
+    ctaLabel: 'Shop Now',
+    ctaHref: '#products',
   },
   {
-    id: 'cocollagen',
-    headline: 'Glow from within with',
-    highlight: 'Cocollagen',
-    sub: 'Collagen-rich chocolate drink for radiant skin, stronger joints, better sleep.',
-    bg: 'from-amber-700 to-stone-900',
-    accent: 'text-amber-300',
-    cta: 'Order Cocollagen',
-    image: '/products/cocollagen.png',
+    id: 'shakeoff-1',
+    image: '/hero/hero-shakeoff-1.png',
+    alt: 'Shake Off — Feel Light. Live Right.',
+    ctaLabel: 'Shop Now',
+    ctaHref: '#products',
+  },
+  {
+    id: 'shakeoff-2',
+    image: '/hero/hero-shakeoff-2.png',
+    alt: 'Shake Off Your Daily Cleanse',
+    ctaLabel: 'Shop Now',
+    ctaHref: '#products',
   },
 ];
 
@@ -72,16 +62,10 @@ const INTERVAL = 8000;
 export function HeroCarousel() {
   const [current, setCurrent] = useState(0);
   const [paused, setPaused]   = useState(false);
-  const prevRef = useRef(0);
-
-  const go = useCallback((i: number) => {
-    prevRef.current = current;
-    setCurrent(i);
-  }, [current]);
 
   const next = useCallback(() => {
-    go((current + 1) % SLIDES.length);
-  }, [current, go]);
+    setCurrent((c) => (c + 1) % SLIDES.length);
+  }, []);
 
   useEffect(() => {
     if (paused) return;
@@ -95,45 +79,41 @@ export function HeroCarousel() {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className="relative" style={{ minHeight: 220 }}>
+      {/* Slide stack */}
+      <div className="relative w-full" style={{ aspectRatio: '1 / 1' }}>
         <AnimatePresence mode="wait">
           {SLIDES.map((slide, i) => i === current && (
             <motion.div
               key={slide.id}
+              className="absolute inset-0"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={motionTokens.easings.heroFade}
-              className={`bg-gradient-to-br ${slide.bg} text-white`}
             >
-              <div className="relative max-w-lg mx-auto px-5 pt-10 pb-14 overflow-hidden">
+              {/* Campaign image — full bleed */}
+              <img
+                src={slide.image}
+                alt={slide.alt}
+                className="w-full h-full object-cover object-center"
+              />
 
-                {/* Decorative background image — atmospheric, not a thumbnail */}
-                <img
-                  src={slide.image}
-                  alt=""
-                  aria-hidden="true"
-                  className="absolute right-0 top-1/2 -translate-y-1/2 h-[70%] w-auto object-contain opacity-10 pointer-events-none select-none"
-                />
-
-                {/* Text content */}
-                <div className="relative z-10 max-w-[65%]">
-                  <h2 className="text-2xl font-bold leading-tight mb-2">
-                    {slide.headline}{' '}
-                    <span className={slide.accent}>{slide.highlight}</span>
-                  </h2>
-
-                  <p className="text-white/70 text-sm leading-relaxed mb-6">
-                    {slide.sub}
-                  </p>
-
+              {/* Bottom CTA overlay — subtle dark gradient + buttons */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent px-5 pt-10 pb-5">
+                <div className="flex gap-3 max-w-lg mx-auto">
                   <a
-                    href="#products"
-                    className="inline-flex items-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-colors shadow-sm"
+                    href={slide.ctaHref}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-colors shadow-md"
                   >
                     <ShoppingCart className="w-4 h-4" />
-                    {slide.cta}
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    {slide.ctaLabel}
+                  </a>
+                  <a
+                    href={WHATSAPP_LINK}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-white/15 hover:bg-white/25 border border-white/40 text-white rounded-xl text-sm font-semibold backdrop-blur-sm transition-colors shadow-md"
+                  >
+                    <Phone className="w-4 h-4" />
+                    WhatsApp
                   </a>
                 </div>
               </div>
@@ -142,9 +122,23 @@ export function HeroCarousel() {
         </AnimatePresence>
       </div>
 
-      {/* Screen-reader slide position announcement */}
+      {/* Dot indicators */}
+      <div className="absolute bottom-16 left-0 right-0 flex justify-center gap-1.5">
+        {SLIDES.map((s, i) => (
+          <button
+            key={s.id}
+            onClick={() => { setCurrent(i); setPaused(true); }}
+            aria-label={`Go to slide ${i + 1}`}
+            className={`rounded-full transition-all duration-300 outline-none [-webkit-tap-highlight-color:transparent] ${
+              i === current ? 'w-5 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50 hover:bg-white/80'
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* Screen-reader announcement */}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
-        {`Slide ${current + 1} of ${SLIDES.length}: ${SLIDES[current].highlight}`}
+        {`Slide ${current + 1} of ${SLIDES.length}: ${SLIDES[current].alt}`}
       </div>
 
       {/* Wave divider */}

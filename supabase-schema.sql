@@ -163,3 +163,51 @@ on conflict (id) do nothing;
 -- create policy "sales_auth_update" on sales for update using (auth.role() = 'authenticated');
 -- create policy "sales_auth_delete" on sales for delete using (auth.role() = 'authenticated');
 -- ════════════════════════════════════════════════════════════════
+
+-- ════════════════════════════════════════════════════════════════
+-- Testimonials table — admin-managed, publicly readable
+-- ════════════════════════════════════════════════════════════════
+create table if not exists testimonials (
+  id          uuid primary key default gen_random_uuid(),
+  name        text not null,
+  location    text not null default '',
+  product     text not null default '',
+  text        text not null,
+  result      text not null default '',
+  visible     boolean not null default true,
+  created_at  timestamptz not null default now()
+);
+
+alter table testimonials enable row level security;
+
+-- Anyone can read visible testimonials
+create policy "testimonials_public_read"
+  on testimonials for select
+  using (visible = true);
+
+-- Only authenticated admin can write
+create policy "testimonials_auth_insert"
+  on testimonials for insert
+  with check (auth.role() = 'authenticated');
+
+create policy "testimonials_auth_update"
+  on testimonials for update
+  using (auth.role() = 'authenticated');
+
+create policy "testimonials_auth_delete"
+  on testimonials for delete
+  using (auth.role() = 'authenticated');
+
+-- Seed initial testimonials from static data
+insert into testimonials (name, location, product, text, result, visible)
+values
+  ('Amina J.', 'Dar es Salaam', 'P4 Slimming Program',
+   'I lost 8kg in 6 weeks using the P4 program. My energy levels are amazing and I feel like a new person. Highly recommend!',
+   '−8kg in 6 weeks', true),
+  ('David M.', 'Arusha', 'Splina Chlorophyll',
+   'Splina has improved my digestion and skin completely. My colleagues keep asking what my secret is. Best purchase I have made this year.',
+   'Better digestion & skin', true),
+  ('Grace N.', 'Mwanza', 'Ginseng Coffee',
+   'I switched from regular coffee to Ginseng Coffee 3 months ago. No more afternoon crashes and my focus at work has improved so much.',
+   'Sustained energy all day', true)
+on conflict do nothing;

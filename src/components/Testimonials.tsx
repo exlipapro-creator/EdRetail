@@ -1,10 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { Star, Quote, BadgeCheck } from 'lucide-react';
-import { TESTIMONIALS } from '../types';
+import { supabase } from '../lib/supabase';
+import { TESTIMONIALS as STATIC_TESTIMONIALS } from '../types';
 import { useLang } from '../context/LangContext';
 
-const CARD_W = 252;   // px — card width + gap
-const GAP    = 12;
+interface TestimonialRow {
+  id: string;
+  name: string;
+  location: string;
+  product: string;
+  text: string;
+  result: string;
+}
+
+const CARD_W  = 252;
+const GAP     = 12;
 const INTERVAL = 3200;
 
 const ACCENTS = [
@@ -13,14 +23,47 @@ const ACCENTS = [
   { bg: 'from-blue-50 to-white',   ring: 'border-blue-100',   dot: 'bg-blue-500'   },
 ];
 
+function useTestimonials() {
+  const [items, setItems]   = useState<TestimonialRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase
+      .from('testimonials')
+      .select('id, name, location, product, text, result')
+      .eq('visible', true)
+      .order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (!error && data && data.length > 0) {
+          setItems(data as TestimonialRow[]);
+        } else {
+          // Fallback to static JSON testimonials
+          setItems(
+            STATIC_TESTIMONIALS.map((t) => ({
+              id: t.id,
+              name: t.name,
+              location: t.location,
+              product: t.product,
+              text: t.text.en,   // use English for static fallback
+              result: t.result,
+            }))
+          );
+        }
+        setLoading(false);
+      });
+  }, []);
+
+  return { items, loading };
+}
+
 export function Testimonials() {
-  const { lang, t } = useLang();
+  const { lang } = useLang();
+  const { items, loading } = useTestimonials();
   const trackRef   = useRef<HTMLDivElement>(null);
-  const [active, setActive]   = useState(0);
-  const [paused, setPaused]   = useState(false);
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
   const pauseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Scroll the track to card `idx`
   const scrollTo = (idx: number) => {
     const el = trackRef.current;
     if (!el) return;
@@ -28,21 +71,19 @@ export function Testimonials() {
     setActive(idx);
   };
 
-  // Auto-advance
   useEffect(() => {
-    if (paused) return;
+    if (paused || items.length === 0) return;
     const timer = setInterval(() => {
       setActive((prev) => {
-        const next = (prev + 1) % TESTIMONIALS.length;
+        const next = (prev + 1) % items.length;
         scrollTo(next);
         return next;
       });
     }, INTERVAL);
     return () => clearInterval(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paused]);
+  }, [paused, items]);
 
-  // Pause on user touch, resume after 3 s idle
   const handleTouchStart = () => {
     setPaused(true);
     if (pauseTimer.current) clearTimeout(pauseTimer.current);
@@ -51,13 +92,14 @@ export function Testimonials() {
     pauseTimer.current = setTimeout(() => setPaused(false), 3000);
   };
 
-  // Sync active dot when user manually swipes
   const handleScroll = () => {
     const el = trackRef.current;
     if (!el) return;
     const idx = Math.round(el.scrollLeft / (CARD_W + GAP));
     setActive(idx);
   };
+
+  if (loading) return null; // silent — section appears once data is ready
 
   return (
     <section className="py-6">
@@ -99,7 +141,7 @@ export function Testimonials() {
         className="flex gap-3 overflow-x-auto px-4 pb-3 scrollbar-hide snap-x snap-mandatory"
         style={{ scrollSnapType: 'x mandatory' }}
       >
-        {TESTIMONIALS.map((item, idx) => {
+        {items.map((item, idx) => {
           const ac = ACCENTS[idx % ACCENTS.length];
           return (
             <div
@@ -107,27 +149,22 @@ export function Testimonials() {
               style={{ width: CARD_W, minWidth: CARD_W }}
               className={`snap-start bg-gradient-to-br ${ac.bg} rounded-2xl border ${ac.ring} shadow-sm p-4 flex flex-col gap-3 flex-shrink-0`}
             >
-              {/* Quote icon */}
               <div className={`w-7 h-7 ${ac.dot} rounded-lg flex items-center justify-center shadow-sm`}>
                 <Quote className="w-3.5 h-3.5 text-white" />
               </div>
 
-              {/* Review text */}
               <p className="text-[12px] text-gray-700 leading-relaxed italic line-clamp-4 flex-1">
-                "{t(item.text)}"
+                "{item.text}"
               </p>
 
-              {/* Stars */}
               <div className="flex gap-0.5">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
                 ))}
               </div>
 
-              {/* Divider */}
               <div className="h-px bg-gray-200 opacity-60" />
 
-              {/* Author */}
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <div className={`w-8 h-8 rounded-full ${ac.dot} flex items-center justify-center flex-shrink-0 shadow-sm`}>
@@ -141,25 +178,27 @@ export function Testimonials() {
                     <p className="text-[10px] text-gray-400 truncate">{item.location}</p>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold text-green-700 bg-green-100 border border-green-200 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
-                  {item.result}
-                </span>
+                {item.result && (
+                  <span className="text-[10px] font-bold text-green-700 bg-green-100 border border-green-200 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
+                    {item.result}
+                  </span>
+                )}
               </div>
 
-              {/* Product pill */}
-              <span className="self-start text-[10px] font-medium text-gray-500 bg-white border border-gray-100 px-2.5 py-0.5 rounded-full">
-                {item.product}
-              </span>
+              {item.product && (
+                <span className="self-start text-[10px] font-medium text-gray-500 bg-white border border-gray-100 px-2.5 py-0.5 rounded-full">
+                  {item.product}
+                </span>
+              )}
             </div>
           );
         })}
-        {/* Trailing spacer so last card has breathing room */}
         <div className="flex-shrink-0 w-4" aria-hidden="true" />
       </div>
 
       {/* ── Dot indicators ── */}
       <div className="flex justify-center gap-1.5 mt-2">
-        {TESTIMONIALS.map((_, i) => (
+        {items.map((_, i) => (
           <button
             key={i}
             onClick={() => { scrollTo(i); setPaused(true); }}

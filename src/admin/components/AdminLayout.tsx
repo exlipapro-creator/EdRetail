@@ -2,7 +2,7 @@ import { ReactNode, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Package, ShoppingBag, CreditCard,
-  TrendingUp, LogOut, Menu, X, ChevronRight,
+  TrendingUp, LogOut, Menu, X, ChevronRight, Star,
 } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 
@@ -12,6 +12,7 @@ const NAV = [
   { to: '/admin/sales',     icon: <ShoppingBag className="w-5 h-5" />,      label: 'Sales'     },
   { to: '/admin/loans',     icon: <CreditCard className="w-5 h-5" />,       label: 'Loans'     },
   { to: '/admin/cashflow',  icon: <TrendingUp className="w-5 h-5" />,       label: 'Cash Flow' },
+  { to: '/admin/testimonials', icon: <Star className="w-5 h-5" />,          label: 'Reviews'   },
 ];
 
 export function AdminLayout({ children }: { children: ReactNode }) {

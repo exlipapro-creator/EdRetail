@@ -8,6 +8,7 @@ import { ProductsPage }  from './admin/pages/ProductsPage';
 import { SalesPage }     from './admin/pages/SalesPage';
 import { LoansPage }     from './admin/pages/LoansPage';
 import { CashFlowPage }  from './admin/pages/CashFlowPage';
+import { TestimonialsPage } from './admin/pages/TestimonialsPage';
 import { Navigate }      from 'react-router-dom';
 import App from './App';
 
@@ -58,6 +59,7 @@ export function AppRouter() {
           <Route path="/admin/sales"     element={<Protected><SalesPage /></Protected>} />
           <Route path="/admin/loans"     element={<Protected><LoansPage /></Protected>} />
           <Route path="/admin/cashflow"  element={<Protected><CashFlowPage /></Protected>} />
+          <Route path="/admin/testimonials" element={<Protected><TestimonialsPage /></Protected>} />
           <Route path="/admin/*"         element={<Navigate to="/admin" replace />} />
         </Routes>
       </AuthProvider>
