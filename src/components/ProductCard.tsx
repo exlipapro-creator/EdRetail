@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus, ShoppingBag, Heart, X, Info } from 'lucide-react';
-import { Product } from '../types';
+import { CATEGORIES, Product } from '../types';
 import { useCartStore } from '../store/cartStore';
 import { formatPrice, formatUsd } from '../utils/whatsappCompiler';
 import { useLang } from '../context/LangContext';
@@ -19,6 +19,7 @@ const CATEGORY_BADGE_COLOR: Record<string, string> = {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { t } = useLang();
+  const categoryLabel = CATEGORIES.find((c) => c.id === product.category)?.label;
   const addItem = useCartStore((s) => s.addItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const items = useCartStore((s) => s.items);
@@ -230,6 +231,11 @@ export function ProductCard({ product }: ProductCardProps) {
                   </button>
                 </div>
 
+                <div className="flex flex-wrap gap-2 text-xs text-gray-500 mb-3">
+                  {categoryLabel && <span>{t(categoryLabel)}</span>}
+                  <span>{product.inStock ? t({ en: 'In stock', sw: 'Inapatikana' }) : t({ en: 'Out of stock', sw: 'Haipatikani' })}</span>
+                </div>
+
                 <div className="flex items-baseline gap-2 mb-4">
                   <span className="text-xl font-semibold text-gray-900">{formatPrice(product.price)}</span>
                   <span className="text-sm text-gray-400">TZS</span>
@@ -240,6 +246,17 @@ export function ProductCard({ product }: ProductCardProps) {
                   <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{t({ en: 'About', sw: 'Kuhusu' })}</h3>
                   <p className="text-sm text-gray-700 leading-relaxed">{t(product.description)}</p>
                 </div>
+
+                {product.steps?.length ? (
+                  <div className="mb-4">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{t({ en: 'Primary benefits', sw: 'Faida kuu' })}</h3>
+                    <ul className="list-disc list-inside space-y-2 text-sm text-gray-700 leading-relaxed">
+                      {product.steps.map((step) => (
+                        <li key={step}>{step}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
 
                 <div className="mb-6 p-3 bg-primary-50 rounded-md border border-primary-100">
                   <h3 className="text-xs font-semibold text-primary-700 uppercase tracking-wider mb-2">{t({ en: 'How to use', sw: 'Jinsi ya kutumia' })}</h3>

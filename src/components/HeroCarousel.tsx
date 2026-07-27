@@ -80,7 +80,7 @@ export function HeroCarousel() {
       onMouseLeave={() => setPaused(false)}
     >
       {/* Slide stack */}
-      <div className="relative w-full" style={{ aspectRatio: '1 / 1' }}>
+      <div className="relative w-full min-h-[55vw] sm:min-h-[40vw] md:min-h-[32vw] lg:min-h-[28vw]">
         <AnimatePresence mode="wait">
           {SLIDES.map((slide, i) => i === current && (
             <motion.div
@@ -91,11 +91,11 @@ export function HeroCarousel() {
               exit={{ opacity: 0 }}
               transition={motionTokens.easings.heroFade}
             >
-              {/* Campaign image — full bleed */}
+              {/* Campaign image — full width without cropping */}
               <img
                 src={slide.image}
                 alt={slide.alt}
-                className="w-full h-full object-cover object-center"
+                className="w-full h-full object-contain object-center bg-gray-950/5"
               />
 
               {/* Bottom CTA overlay — subtle dark gradient + buttons */}
