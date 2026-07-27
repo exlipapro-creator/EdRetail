@@ -15,6 +15,7 @@ import { DistributorBio } from './components/DistributorBio';
 import { P4GoalPicker } from './components/P4GoalPicker';
 import { ReferralShareButton } from './components/ReferralShare';
 import { BestSellers } from './components/BestSellers';
+import { SplashScreen } from './components/splash/SplashScreen';
 import { PRODUCTS, CATEGORIES } from './types';
 import { useCartStore } from './store/cartStore';
 import { formatPrice, DISTRIBUTOR_NAME } from './utils/whatsappCompiler';
@@ -34,6 +35,8 @@ function App() {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [search, setSearch] = useState('');
+  // Show the splash on every load (acts as a loader)
+  const [showSplash, setShowSplash] = useState(true);
 
   const totalItems = useCartStore((s) => s.getTotalItems());
   const totalPrice = useCartStore((s) => s.getTotalPrice());
@@ -60,7 +63,15 @@ function App() {
   const activeCategoryData = CATEGORIES.find((c) => c.id === activeCategory);
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans antialiased pb-0">
+    <>
+      {showSplash && (
+        <SplashScreen
+          onDone={() => {
+            setShowSplash(false);
+          }}
+        />
+      )}
+      <div className="min-h-screen bg-gray-50 font-sans antialiased pb-0">
       {/* ── HEADER ── */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-gray-100/80">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
@@ -281,7 +292,8 @@ function App() {
 
       {/* ── CHECKOUT SHEET ── */}
       <CheckoutSheet isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-    </div>
+      </div>
+    </>
   );
 }
 
