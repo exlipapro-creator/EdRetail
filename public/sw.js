@@ -1,4 +1,5 @@
-const CACHE_NAME = 'edmark-tz-v1';
+// Bump this when releasing new builds so clients install the latest service worker
+const CACHE_NAME = 'edmark-tz-v2';
 const APP_SHELL = ['/', '/index.html', '/manifest.json'];
 
 self.addEventListener('install', (event) => {
