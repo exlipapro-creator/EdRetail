@@ -84,7 +84,10 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
     });
 
     if (dbError) {
-      console.error('Order insert failed:', dbError);
+      // Security: Only log error code in development, never expose dbError details in production
+      if (import.meta.env.DEV) {
+        console.error('[DEV] Order insert failed:', dbError.message);
+      }
       setInsertError(true);
       setTimeout(() => setInsertError(false), 3000);
       // Continue — don't block WhatsApp redirect

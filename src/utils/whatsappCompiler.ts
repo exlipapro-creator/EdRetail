@@ -19,6 +19,17 @@ export const sanitisePhone = (raw: string): string => {
   return digits;
 };
 
+/** Escape special characters in user input to prevent message injection */
+export const escapeMessageText = (text: string): string => {
+  return text
+    .trim()
+    .replace(/\\/g, '\\\\')  // Escape backslashes first
+    .replace(/\*/g, '\\*')   // Escape asterisks (WhatsApp formatting)
+    .replace(/_/g, '\\_')    // Escape underscores (WhatsApp formatting)
+    .replace(/~/g, '\\~')    // Escape tildes (WhatsApp formatting)
+    .slice(0, 200);          // Enforce max length (200 chars)
+};
+
 /** Validate customer details — returns an error map */
 export const validateCustomer = (
   name: string,
@@ -26,16 +37,29 @@ export const validateCustomer = (
   location: string
 ): Record<string, string> => {
   const errors: Record<string, string> = {};
+  
+  // Name validation
   if (!name.trim() || name.trim().length < 2) {
     errors.name = 'Please enter your full name (at least 2 characters)';
   }
+  if (name.trim().length > 100) {
+    errors.name = 'Name too long (max 100 characters)';
+  }
+  
+  // Phone validation
   const sanitised = sanitisePhone(phone);
   if (!phone.trim() || sanitised.length < 10 || !/^\d+$/.test(sanitised)) {
     errors.phone = 'Please enter a valid phone number (e.g. 0712 345 678)';
   }
+  
+  // Location validation
   if (!location.trim() || location.trim().length < 3) {
     errors.location = 'Please enter your delivery location';
   }
+  if (location.trim().length > 200) {
+    errors.location = 'Location too long (max 200 characters)';
+  }
+  
   return errors;
 };
 
@@ -60,9 +84,9 @@ export const buildOrderMessage = (
     '*🛒 NEW EDMARK ORDER*',
     '─────────────────────',
     '*Customer Details:*',
-    `  • Name: ${customer.name.trim()}`,
+    `  • Name: ${escapeMessageText(customer.name)}`,
     `  • Phone: ${sanitisedPhone}`,
-    `  • Location: ${customer.location.trim()}`,
+    `  • Location: ${escapeMessageText(customer.location)}`,
     '',
     '*Order Items:*',
     itemLines,

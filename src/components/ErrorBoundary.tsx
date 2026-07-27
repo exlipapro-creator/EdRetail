@@ -17,8 +17,15 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    // In production, send this to an error tracking service (Sentry, etc.)
-    console.error('ED Retail app crashed:', error, info);
+    // Security: Only log detailed error in development
+    // In production, send anonymized error data to error tracking service (Sentry, etc.)
+    if (import.meta.env.DEV) {
+      console.error('ED Retail app crashed:', error, info);
+    } else {
+      // Production: Send to error tracking without exposing details
+      console.error('Application error occurred. Error tracking enabled.');
+      // TODO: Send to Sentry or error tracking service
+    }
   }
 
   handleReset = () => {

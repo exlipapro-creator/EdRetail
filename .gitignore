@@ -32,4 +32,10 @@ lerna-debug.log*
 # Environment
 .env
 .env.local
+.env.production.local
+.env.development.local
+
+# Environment
+.env
+.env.local
 .env.*.local
