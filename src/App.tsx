@@ -294,8 +294,7 @@ function App() {
 
       {/* ── CHECKOUT SHEET ── */}
       <CheckoutSheet isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-      </div>
-    </>
+    </div>
   );
 }
 
