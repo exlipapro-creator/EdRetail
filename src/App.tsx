@@ -62,16 +62,18 @@ function App() {
 
   const activeCategoryData = CATEGORIES.find((c) => c.id === activeCategory);
 
+  if (showSplash) {
+    return (
+      <SplashScreen
+        onDone={() => {
+          setShowSplash(false);
+        }}
+      />
+    );
+  }
+
   return (
-    <>
-      {showSplash && (
-        <SplashScreen
-          onDone={() => {
-            setShowSplash(false);
-          }}
-        />
-      )}
-      <div className="min-h-screen bg-gray-50 font-sans antialiased pb-0">
+    <div className="min-h-screen bg-gray-50 font-sans antialiased pb-0">
       {/* ── HEADER ── */}
       <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-gray-100/80">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
