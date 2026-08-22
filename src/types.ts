@@ -45,10 +45,13 @@ export interface CartItem extends Omit<Product, 'name' | 'description' | 'usage'
   quantity: number;
 }
 
+export type PaymentMethodOption = 'mpesa' | 'tigopesa' | 'airtel' | 'halopesa' | 'cash';
+
 export interface CustomerDetails {
   name: string;
   phone: string;
   location: string;
+  paymentMethod?: PaymentMethodOption;
 }
 
 export interface Category {

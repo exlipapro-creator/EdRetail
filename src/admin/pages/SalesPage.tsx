@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { formatPrice } from '../../utils/whatsappCompiler';
 import { Sale, SaleChannel, SaleStatus, SaleItem } from '../types';
 import { Plus, X, Save, Loader2, ChevronDown, CheckCircle2, Truck, Clock, XCircle } from 'lucide-react';
+import { useDistributorStore } from '../../store/distributorStore';
 
 const STATUS_CONFIG: Record<SaleStatus, { label: string; color: string; icon: React.ReactNode }> = {
   pending:   { label: 'Pending',   color: 'text-amber-400 bg-amber-950 border-amber-800',  icon: <Clock className="w-3 h-3" /> },
@@ -30,14 +31,56 @@ export function SalesPage() {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase.from('sales').select('*').order('created_at', { ascending: false });
-    setSales((data as Sale[]) ?? []);
+    let loadedFromDb = false;
+    try {
+      const { data, error } = await supabase.from('sales').select('*').order('created_at', { ascending: false });
+      if (!error && data && data.length > 0) {
+        setSales(data as Sale[]);
+        loadedFromDb = true;
+      }
+    } catch {
+      // Fallback
+    }
+
+    if (!loadedFromDb) {
+      const localSales = useDistributorStore.getState().sales;
+      const mapped: Sale[] = localSales.map((s) => ({
+        id: s.id,
+        created_at: s.createdAt,
+        updated_at: s.createdAt,
+        channel: s.source === 'web_whatsapp' ? 'app' : s.paymentType === 'credit' ? 'loan' : 'cash',
+        status: s.balanceDue === 0 ? 'delivered' : s.source === 'web_whatsapp' ? 'pending' : 'confirmed',
+        customer_name: s.customerName,
+        customer_phone: s.customerPhone,
+        customer_location: s.customerLocation,
+        subtotal: s.totalAmount,
+        amount_paid: s.amountPaid,
+        notes: s.notes || null,
+        items: [
+          {
+            product_id: s.productId,
+            product_name: s.productName,
+            quantity: s.quantity,
+            unit_price: s.unitPrice,
+            total: s.totalAmount,
+          },
+        ],
+      }));
+      setSales(mapped);
+    }
     setLoading(false);
   };
 
   useEffect(() => {
     load();
-    supabase.from('products').select('id,name_en,price').then(({ data }) => setProducts(data ?? []));
+    const liveProds = useDistributorStore.getState().getEffectiveProducts();
+    setProducts(
+      liveProds.map((p) => ({
+        id: p.id,
+        name_en: typeof p.name === 'string' ? p.name : p.name.en,
+        price: p.price,
+      }))
+    );
   }, []);
 
   const filtered = filter === 'all' ? sales : sales.filter(s => s.channel === filter);
@@ -68,35 +111,57 @@ export function SalesPage() {
   const handleSave = async () => {
     if (!form.customer_name || form.items.length === 0) return;
     setSaving(true);
-    const { error } = await supabase.from('sales').insert({
-      channel: form.channel, status: 'confirmed',
-      customer_name: form.customer_name, customer_phone: form.customer_phone,
-      customer_location: form.customer_location,
-      items: form.items, subtotal,
-      amount_paid: form.channel === 'loan' ? Number(form.amount_paid) : subtotal,
-      notes: form.notes || null,
+
+    const paidAmt = form.channel === 'loan' ? Number(form.amount_paid) : subtotal;
+
+    // 1. Log to local reactive distributorStore
+    form.items.forEach((item) => {
+      useDistributorStore.getState().addSale({
+        customerName: form.customer_name,
+        customerPhone: form.customer_phone,
+        customerLocation: form.customer_location || 'Tanzania',
+        productId: item.product_id,
+        productName: item.product_name,
+        quantity: item.quantity,
+        unitPrice: item.unit_price,
+        totalAmount: item.total,
+        paymentType: form.channel === 'loan' ? 'credit' : 'cash',
+        amountPaid: paidAmt,
+        balanceDue: Math.max(0, item.total - paidAmt),
+        status: paidAmt >= item.total ? 'paid' : paidAmt > 0 ? 'partial' : 'unpaid',
+        notes: form.notes,
+        dueDate: form.channel === 'loan' ? new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0] : undefined,
+      });
     });
-    if (!error) {
-      // If loan channel, create loan record too
-      if (form.channel === 'loan') {
-        await supabase.from('loans').insert({
-          customer_name: form.customer_name, customer_phone: form.customer_phone,
-          customer_location: form.customer_location,
-          items: form.items, total_amount: subtotal,
-          amount_paid: Number(form.amount_paid),
-          status: Number(form.amount_paid) >= subtotal ? 'cleared' : Number(form.amount_paid) > 0 ? 'partial' : 'active',
-          notes: form.notes || null,
-        });
-      }
-      await load();
-      setShowForm(false);
-      setForm({ channel: 'cash', customer_name: '', customer_phone: '', customer_location: '', amount_paid: 0, notes: '', items: [] });
+
+    try {
+      await supabase.from('sales').insert({
+        channel: form.channel, status: 'confirmed',
+        customer_name: form.customer_name, customer_phone: form.customer_phone,
+        customer_location: form.customer_location,
+        items: form.items, subtotal,
+        amount_paid: paidAmt,
+        notes: form.notes || null,
+      });
+    } catch {
+      // Offline safe
     }
+
+    await load();
+    setShowForm(false);
+    setForm({ channel: 'cash', customer_name: '', customer_phone: '', customer_location: '', amount_paid: 0, notes: '', items: [] });
     setSaving(false);
   };
 
   const updateStatus = async (id: string, status: SaleStatus) => {
-    await supabase.from('sales').update({ status }).eq('id', id);
+    if (status === 'delivered') {
+      useDistributorStore.getState().markDebtPaid(id, 99999999);
+    }
+    try {
+      await supabase.from('sales').update({ status }).eq('id', id);
+    } catch {
+      // Offline safe
+    }
     setSales(prev => prev.map(s => s.id === id ? { ...s, status } : s));
   };
 

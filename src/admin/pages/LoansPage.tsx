@@ -4,6 +4,7 @@ import { formatPrice } from '../../utils/whatsappCompiler';
 import { LoanRecord, SaleItem } from '../types';
 import { Plus, X, Save, Loader2, ChevronDown, MessageCircle, CheckCircle2 } from 'lucide-react';
 import { WHATSAPP_LINK } from '../../utils/whatsappCompiler';
+import { useDistributorStore } from '../../store/distributorStore';
 
 const STATUS_COLOR = {
   active:  'text-red-400 bg-red-950 border-red-800',
@@ -23,8 +24,47 @@ export function LoansPage() {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase.from('loans').select('*').order('created_at', { ascending: false });
-    setLoans((data as LoanRecord[]) ?? []);
+    let loadedFromDb = false;
+    try {
+      const { data, error } = await supabase.from('loans').select('*').order('created_at', { ascending: false });
+      if (!error && data && data.length > 0) {
+        setLoans(data as LoanRecord[]);
+        loadedFromDb = true;
+      }
+    } catch {
+      // Fallback
+    }
+
+    if (!loadedFromDb) {
+      const localSales = useDistributorStore.getState().sales;
+      const creditSales = localSales.filter((s) => s.paymentType === 'credit' || s.balanceDue > 0);
+      const mapped: LoanRecord[] = creditSales.map((s) => ({
+        id: s.id,
+        sale_id: s.id,
+        created_at: s.createdAt,
+        updated_at: s.createdAt,
+        customer_name: s.customerName,
+        customer_phone: s.customerPhone,
+        customer_location: s.customerLocation,
+        total_amount: s.totalAmount,
+        amount_paid: s.amountPaid,
+        balance: s.balanceDue,
+        status: s.balanceDue === 0 ? 'cleared' : s.amountPaid > 0 ? 'partial' : 'active',
+        due_date: s.dueDate || null,
+        notes: s.notes || null,
+        payments: [],
+        items: [
+          {
+            product_id: s.productId,
+            product_name: s.productName,
+            quantity: s.quantity,
+            unit_price: s.unitPrice,
+            total: s.totalAmount,
+          },
+        ],
+      }));
+      setLoans(mapped);
+    }
     setLoading(false);
   };
 
@@ -41,10 +81,17 @@ export function LoansPage() {
     const newBalance = loan.total_amount - newPaid;
     const newStatus  = newBalance <= 0 ? 'cleared' : newPaid > 0 ? 'partial' : 'active';
 
-    await Promise.all([
-      supabase.from('loan_payments').insert({ loan_id: loan.id, amount, notes: payNote || null }),
-      supabase.from('loans').update({ amount_paid: newPaid, status: newStatus }).eq('id', loan.id),
-    ]);
+    useDistributorStore.getState().markDebtPaid(loan.id, amount);
+
+    try {
+      await Promise.all([
+        supabase.from('loan_payments').insert({ loan_id: loan.id, amount, notes: payNote || null }),
+        supabase.from('loans').update({ amount_paid: newPaid, status: newStatus }).eq('id', loan.id),
+      ]);
+    } catch {
+      // Offline safe
+    }
+
     await load();
     setPayModal(null);
     setPayAmount('');

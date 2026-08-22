@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Product } from '../types';
+import { Product, Bundle } from '../types';
 import productsData from '../data/products.json';
+import bundlesData from '../data/bundles.json';
 import { EDMARK_KNOWLEDGE_BASE } from '../data/edmarkKnowledgeBase';
 import { DownlineLeg } from '../data/edmarkMaintenancePlaybook';
 
@@ -17,8 +18,41 @@ export interface DistributorProfile {
   city: string;
   bio?: string;
   isVerified?: boolean;
+  isCentral?: boolean;
   avatarUrl?: string;
+  rating?: number;
+  reviewCount?: number;
+  deliveryCoverage?: string;
+  experienceYears?: string;
 }
+
+export interface AttributionRecord {
+  slug: string;
+  distributorId: string;
+  distributorName: string;
+  city: string;
+  assignedAt: number;
+  expiresAt: number;
+}
+
+export const CENTRAL_COMPANY_HUB: DistributorProfile = {
+  id: 'central-head-office',
+  name: 'ED Retail Tanzania (Head Office)',
+  phone: '+255 783 481 416',
+  whatsappDigits: '255783481416',
+  lipaNumber: 'Lipa Namba: 543210 (Central Dispatch / ED Retail TZ)',
+  email: 'support@edretail.tz',
+  slug: 'central',
+  rank: 'Authorized Central Distribution Network',
+  city: 'Tanzania (National Dispatch Desk)',
+  bio: 'Kitovu Kikuu cha Usambazaji wa Bidhaa Halisi za Edmark Tanzania. Tunaratibu uwasilishaji wa haraka nchi nzima na kukuunganisha na viongozi wasambazaji waliothibitishwa.',
+  isVerified: true,
+  isCentral: true,
+  avatarUrl: '/logo/distributor-circle.png',
+  rating: 4.98,
+  reviewCount: 412,
+  deliveryCoverage: 'Mikoa Yote ya Tanzania & Zanzibar (Masaa 24-48)',
+};
 
 export const DEFAULT_DISTRIBUTOR: DistributorProfile = {
   id: 'dist-mwanahamisi-01',
@@ -28,14 +62,76 @@ export const DEFAULT_DISTRIBUTOR: DistributorProfile = {
   lipaNumber: 'Lipa Namba: 543210 (M-Pesa / Tigo Pesa)',
   email: 'mwanahamisi@edretail.tz',
   slug: 'mwanahamisi',
-  rank: 'Crown Manager',
+  rank: 'Crown Manager & Wellness Coach',
   city: 'Dar es Salaam',
-  bio: 'Msambazaji Rasmi wa Edmark Tanzania mwenye uzoefu wa zaidi ya miaka 8 katika afya ya asili na mifumo ya P4 Slimming.',
+  bio: 'Msambazaji Rasmi wa Edmark Tanzania mwenye uzoefu wa zaidi ya miaka 8 katika afya ya asili, uondoaji wa kitambi na mifumo ya P4 Slimming.',
   isVerified: true,
+  avatarUrl: '/logo/distributor-circle.png',
+  rating: 4.95,
+  reviewCount: 184,
+  deliveryCoverage: 'Dar es Salaam (Ndani ya masaa 2) & Mikoani kote',
 };
+
+export const INITIAL_DISTRIBUTORS_REGISTRY: DistributorProfile[] = [
+  CENTRAL_COMPANY_HUB,
+  DEFAULT_DISTRIBUTOR,
+  {
+    id: 'dist-fatuma-02',
+    name: 'Fatuma Kassim',
+    phone: '+255 714 882 109',
+    whatsappDigits: '255714882109',
+    lipaNumber: 'Lipa Namba: 882109 (Airtel Money)',
+    email: 'fatuma.edmark@gmail.com',
+    slug: 'fatuma',
+    rank: 'Diamond Star Distributor',
+    city: 'Arusha & Moshi',
+    bio: 'Kiongozi wa Edmark Kanda ya Kaskazini. Mshauri mkuu wa afya ya usagaji chakula, vidonda vya tumbo na urembo asilia.',
+    isVerified: true,
+    avatarUrl: '/logo/distributor-circle.png',
+    rating: 4.92,
+    reviewCount: 96,
+    deliveryCoverage: 'Arusha Mjini, Moshi, Kilimanjaro & Manyara',
+  },
+  {
+    id: 'dist-juma-03',
+    name: 'Juma Rashid',
+    phone: '+255 755 930 114',
+    whatsappDigits: '255755930114',
+    lipaNumber: 'Lipa Namba: 930114 (Vodacom M-Pesa)',
+    email: 'juma.edmark.mwanza@gmail.com',
+    slug: 'juma',
+    rank: 'Emerald Manager',
+    city: 'Mwanza & Kanda ya Ziwa',
+    bio: 'Mratibu mkuu wa bidhaa za Edmark Kanda ya Ziwa. Bingwa wa miongozo ya Shake Off na Splina kwa wateja wapya.',
+    isVerified: true,
+    avatarUrl: '/logo/distributor-circle.png',
+    rating: 4.89,
+    reviewCount: 78,
+    deliveryCoverage: 'Mwanza, Geita, Shinyanga, Kagera & Mara',
+  },
+  {
+    id: 'dist-grace-04',
+    name: 'Grace Kimaro',
+    phone: '+255 762 441 890',
+    whatsappDigits: '255762441890',
+    lipaNumber: 'Lipa Namba: 441890 (Tigo Pesa)',
+    email: 'grace.edmark.dodoma@gmail.com',
+    slug: 'grace',
+    rank: 'Ruby Distributor & Nutritionist',
+    city: 'Dodoma (Makao Makuu)',
+    bio: 'Mshauri wa lishe na vinywaji tiba vya Edmark. Mtaalamu wa Cafe Troika, Ginseng na CoCollagen.',
+    isVerified: true,
+    avatarUrl: '/logo/distributor-circle.png',
+    rating: 4.94,
+    reviewCount: 62,
+    deliveryCoverage: 'Dodoma Mjini, Singida & Iringa',
+  },
+];
 
 export interface OfflineSaleRecord {
   id: string;
+  source?: 'field' | 'web_whatsapp';
+  itemsSummary?: string;
   customerName: string;
   customerPhone: string;
   customerLocation: string;
@@ -89,6 +185,7 @@ interface DistributorStoreState {
   adminPin: string; // default "255" or "1234"
   currentProfile: DistributorProfile;
   activeRefSlug: string | null;
+  attribution: AttributionRecord | null;
   savedDistributors: DistributorProfile[];
   setAdminAuthenticated: (auth: boolean) => void;
   verifyPin: (pin: string) => boolean;
@@ -99,19 +196,44 @@ interface DistributorStoreState {
   logoutDistributor: () => void;
   updateCurrentProfile: (updates: Partial<DistributorProfile>) => void;
   setActiveRefSlug: (slug: string | null) => void;
+  setAttributedDistributor: (slug: string, days?: number) => void;
+  clearAttribution: () => void;
+  isAttributedToDistributor: () => boolean;
+  getAttributionExpiryDays: () => number;
+  getCertifiedDistributorsList: () => DistributorProfile[];
   getActiveDistributor: () => DistributorProfile;
 
   // Catalog live overrides
   productOverrides: Record<string, DynamicProductOverride>;
+  distributorOverrides: Record<string, Record<string, DynamicProductOverride>>;
   updateProductPrice: (productId: string, newPrice: number) => void;
   toggleProductStock: (productId: string, inStock: boolean) => void;
   toggleProductVisibility: (productId: string, hidden: boolean) => void;
   resetProductOverrides: () => void;
   getEffectiveProducts: () => Product[];
+  getEffectiveProduct: (productId: string) => Product | undefined;
+  getEffectiveBundles: () => {
+    id: string;
+    name: import('../types').I18nString;
+    description: import('../types').I18nString;
+    productIds: string[];
+    discountPercent: number;
+    originalPrice: number;
+    bundlePrice: number;
+    priceUsd: number;
+  }[];
 
   // Offline sales ledger
   sales: OfflineSaleRecord[];
   addSale: (sale: Omit<OfflineSaleRecord, 'id' | 'createdAt' | 'refillStatus'>) => OfflineSaleRecord;
+  addWebOrder: (order: {
+    customerName: string;
+    customerPhone: string;
+    customerLocation: string;
+    items: Array<{ id: string; name: string | { en: string; sw: string }; price: number; quantity: number }>;
+    totalAmount: number;
+    notes?: string;
+  }) => OfflineSaleRecord[];
   markDebtPaid: (saleId: string, amount: number) => void;
   updateRefillStatus: (saleId: string, status: OfflineSaleRecord['refillStatus']) => void;
   deleteSale: (saleId: string) => void;
@@ -177,22 +299,8 @@ export const useDistributorStore = create<DistributorStoreState>()(
       adminPin: '255', // Default distributor PIN
       currentProfile: DEFAULT_DISTRIBUTOR,
       activeRefSlug: null,
-      savedDistributors: [
-        DEFAULT_DISTRIBUTOR,
-        {
-          id: 'dist-fatuma-02',
-          name: 'Fatuma Kassim',
-          phone: '+255 714 882 109',
-          whatsappDigits: '255714882109',
-          lipaNumber: 'Lipa Namba: 882109 (Airtel Money)',
-          email: 'fatuma.edmark@gmail.com',
-          slug: 'fatuma',
-          rank: 'Diamond Star Distributor',
-          city: 'Arusha',
-          bio: 'Kiongozi wa Edmark Kanda ya Kaskazini. Mshauri mkuu wa afya ya usagaji chakula na urembo asilia.',
-          isVerified: true,
-        },
-      ],
+      attribution: null,
+      savedDistributors: INITIAL_DISTRIBUTORS_REGISTRY,
 
       setAdminAuthenticated: (auth) => set({ isAdminAuthenticated: auth }),
 
@@ -213,7 +321,11 @@ export const useDistributorStore = create<DistributorStoreState>()(
         const cleanEmail = email.trim().toLowerCase();
         const found = state.savedDistributors.find((d) => d.email.toLowerCase() === cleanEmail);
         if (found) {
-          set({ currentProfile: found, isAdminAuthenticated: true });
+          set({
+            currentProfile: found,
+            isAdminAuthenticated: true,
+            activeRefSlug: found.slug,
+          });
           return true;
         }
         // If not in saved list but has valid email format, auto-provision
@@ -230,11 +342,16 @@ export const useDistributorStore = create<DistributorStoreState>()(
             rank: 'Senior Distributor',
             city: 'Dar es Salaam',
             isVerified: true,
+            avatarUrl: '/logo/distributor-circle.png',
+            rating: 4.9,
+            reviewCount: 15,
+            deliveryCoverage: 'Dar es Salaam & Mikoani kote',
           };
           set({
             currentProfile: autoProfile,
             savedDistributors: [...state.savedDistributors, autoProfile],
             isAdminAuthenticated: true,
+            activeRefSlug: autoProfile.slug,
           });
           return true;
         }
@@ -246,7 +363,11 @@ export const useDistributorStore = create<DistributorStoreState>()(
         const cleanEmail = email.trim().toLowerCase();
         const found = state.savedDistributors.find((d) => d.email.toLowerCase() === cleanEmail);
         if (found) {
-          set({ currentProfile: found, isAdminAuthenticated: true });
+          set({
+            currentProfile: found,
+            isAdminAuthenticated: true,
+            activeRefSlug: found.slug,
+          });
           return found;
         }
         const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '') || 'distributor';
@@ -261,12 +382,17 @@ export const useDistributorStore = create<DistributorStoreState>()(
           rank: 'Manager & Wellness Consultant',
           city: 'Dar es Salaam',
           isVerified: true,
+          avatarUrl: '/logo/distributor-circle.png',
+          rating: 4.95,
+          reviewCount: 28,
+          deliveryCoverage: 'Dar es Salaam & Mikoani kote',
           bio: `Msambazaji Rasmi wa Edmark Tanzania. Wasiliana nami kupata ushauri wa kitaalamu wa bidhaa asilia za afya na uwasilishaji wa haraka.`,
         };
         set({
           currentProfile: newDist,
           savedDistributors: [...state.savedDistributors, newDist],
           isAdminAuthenticated: true,
+          activeRefSlug: newDist.slug,
         });
         return newDist;
       },
@@ -281,12 +407,22 @@ export const useDistributorStore = create<DistributorStoreState>()(
           id: 'dist-' + Date.now(),
           slug: cleanSlug || 'dist' + Date.now().toString().slice(-4),
           isVerified: true,
+          avatarUrl: profileData.avatarUrl || '/logo/distributor-circle.png',
+          rating: 5.0,
+          reviewCount: 1,
+          deliveryCoverage: profileData.city ? `${profileData.city} & Mikoani kote` : 'Tanzania Nzima',
         };
+        const updatedList = [
+          ...state.savedDistributors.filter((d) => d.email !== newDist.email && d.slug !== newDist.slug),
+          newDist,
+        ];
         set({
           currentProfile: newDist,
-          savedDistributors: [...state.savedDistributors.filter((d) => d.email !== newDist.email), newDist],
+          savedDistributors: updatedList,
           isAdminAuthenticated: true,
+          activeRefSlug: newDist.slug,
         });
+        get().setAttributedDistributor(newDist.slug, 30);
         return newDist;
       },
 
@@ -310,63 +446,188 @@ export const useDistributorStore = create<DistributorStoreState>()(
         });
       },
 
-      setActiveRefSlug: (slug) => set({ activeRefSlug: slug }),
+      setActiveRefSlug: (slug) => {
+        set({ activeRefSlug: slug });
+        if (slug) {
+          get().setAttributedDistributor(slug, 30);
+        }
+      },
+
+      setAttributedDistributor: (slug: string, days = 30) => {
+        const state = get();
+        const cleanSlug = slug.toLowerCase().replace(/^@/, '').trim();
+        const found = state.savedDistributors.find((d) => d.slug.toLowerCase() === cleanSlug);
+        if (found && !found.isCentral) {
+          const assignedAt = Date.now();
+          const expiresAt = assignedAt + days * 24 * 60 * 60 * 1000;
+          set({
+            attribution: {
+              slug: found.slug,
+              distributorId: found.id,
+              distributorName: found.name,
+              city: found.city,
+              assignedAt,
+              expiresAt,
+            },
+            activeRefSlug: found.slug,
+          });
+        }
+      },
+
+      clearAttribution: () => {
+        set({
+          attribution: null,
+          activeRefSlug: null,
+        });
+      },
+
+      isAttributedToDistributor: () => {
+        const state = get();
+        const active = state.getActiveDistributor();
+        return !active.isCentral;
+      },
+
+      getAttributionExpiryDays: () => {
+        const state = get();
+        if (!state.attribution) return 0;
+        const remainingMs = state.attribution.expiresAt - Date.now();
+        if (remainingMs <= 0) return 0;
+        return Math.ceil(remainingMs / (24 * 60 * 60 * 1000));
+      },
+
+      getCertifiedDistributorsList: () => {
+        const state = get();
+        return state.savedDistributors.filter((d) => !d.isCentral);
+      },
 
       getActiveDistributor: () => {
         const state = get();
+
+        // 1. Check explicit URL slug parameter (e.g. /@mwanahamisi or ?ref=mwanahamisi)
         if (state.activeRefSlug) {
+          const cleanSlug = state.activeRefSlug.toLowerCase().replace(/^@/, '').trim();
           const match = state.savedDistributors.find(
-            (d) => d.slug.toLowerCase() === state.activeRefSlug?.toLowerCase()
+            (d) => d.slug.toLowerCase() === cleanSlug
           );
           if (match) return match;
         }
-        return state.currentProfile || DEFAULT_DISTRIBUTOR;
+
+        // 2. Check stored 30-day attribution
+        if (state.attribution && state.attribution.expiresAt > Date.now()) {
+          const attrMatch = state.savedDistributors.find(
+            (d) => d.slug.toLowerCase() === state.attribution?.slug.toLowerCase()
+          );
+          if (attrMatch) return attrMatch;
+        }
+
+        // 3. If distributor is actively logged in, show their profile
+        if (state.isAdminAuthenticated && state.currentProfile && !state.currentProfile.isCentral) {
+          return state.currentProfile;
+        }
+
+        // 4. Default to Official Central Head Office / Network Hub
+        return CENTRAL_COMPANY_HUB;
       },
 
       productOverrides: {},
+      distributorOverrides: {},
 
       updateProductPrice: (productId, newPrice) =>
-        set((state) => ({
-          productOverrides: {
-            ...state.productOverrides,
-            [productId]: {
-              ...state.productOverrides[productId],
-              price: Math.max(0, newPrice),
+        set((state) => {
+          const distId = state.currentProfile?.id || 'central-hq';
+          const currentDistOverrides = state.distributorOverrides[distId] || {};
+          return {
+            productOverrides: {
+              ...state.productOverrides,
+              [productId]: {
+                ...state.productOverrides[productId],
+                price: Math.max(0, newPrice),
+              },
             },
-          },
-        })),
+            distributorOverrides: {
+              ...state.distributorOverrides,
+              [distId]: {
+                ...currentDistOverrides,
+                [productId]: {
+                  ...currentDistOverrides[productId],
+                  price: Math.max(0, newPrice),
+                },
+              },
+            },
+          };
+        }),
 
       toggleProductStock: (productId, inStock) =>
-        set((state) => ({
-          productOverrides: {
-            ...state.productOverrides,
-            [productId]: {
-              ...state.productOverrides[productId],
-              inStock,
+        set((state) => {
+          const distId = state.currentProfile?.id || 'central-hq';
+          const currentDistOverrides = state.distributorOverrides[distId] || {};
+          return {
+            productOverrides: {
+              ...state.productOverrides,
+              [productId]: {
+                ...state.productOverrides[productId],
+                inStock,
+              },
             },
-          },
-        })),
+            distributorOverrides: {
+              ...state.distributorOverrides,
+              [distId]: {
+                ...currentDistOverrides,
+                [productId]: {
+                  ...currentDistOverrides[productId],
+                  inStock,
+                },
+              },
+            },
+          };
+        }),
 
       toggleProductVisibility: (productId, hidden) =>
-        set((state) => ({
-          productOverrides: {
-            ...state.productOverrides,
-            [productId]: {
-              ...state.productOverrides[productId],
-              hidden,
+        set((state) => {
+          const distId = state.currentProfile?.id || 'central-hq';
+          const currentDistOverrides = state.distributorOverrides[distId] || {};
+          return {
+            productOverrides: {
+              ...state.productOverrides,
+              [productId]: {
+                ...state.productOverrides[productId],
+                hidden,
+              },
             },
-          },
-        })),
+            distributorOverrides: {
+              ...state.distributorOverrides,
+              [distId]: {
+                ...currentDistOverrides,
+                [productId]: {
+                  ...currentDistOverrides[productId],
+                  hidden,
+                },
+              },
+            },
+          };
+        }),
 
-      resetProductOverrides: () => set({ productOverrides: {} }),
+      resetProductOverrides: () =>
+        set((state) => {
+          const distId = state.currentProfile?.id || 'central-hq';
+          const newDistOverrides = { ...state.distributorOverrides };
+          delete newDistOverrides[distId];
+          return {
+            productOverrides: {},
+            distributorOverrides: newDistOverrides,
+          };
+        }),
 
       getEffectiveProducts: () => {
         const state = get();
+        const activeDistributor = state.getActiveDistributor();
+        const distId = activeDistributor?.id || state.currentProfile?.id || 'central-hq';
+        const distScoped = state.distributorOverrides?.[distId] || {};
         const initial = (productsData as unknown) as Product[];
 
         return initial
           .map((p) => {
-            const override = state.productOverrides[p.id];
+            const override = distScoped[p.id] || state.productOverrides[p.id];
             if (!override) return p;
             return {
               ...p,
@@ -375,7 +636,43 @@ export const useDistributorStore = create<DistributorStoreState>()(
               badge: override.customBadge !== undefined ? override.customBadge : p.badge,
             };
           })
-          .filter((p) => !state.productOverrides[p.id]?.hidden);
+          .filter((p) => {
+            const override = distScoped[p.id] || state.productOverrides[p.id];
+            return !override?.hidden;
+          });
+      },
+
+      getEffectiveProduct: (productId: string) => {
+        const state = get();
+        const effectiveList = state.getEffectiveProducts();
+        return effectiveList.find((p) => p.id === productId);
+      },
+
+      getEffectiveBundles: () => {
+        const state = get();
+        const liveProducts = state.getEffectiveProducts();
+        const bundles = (bundlesData as unknown) as Bundle[];
+
+        return bundles.map((bundle) => {
+          const originalPrice = bundle.productIds.reduce((sum, pId) => {
+            const p = liveProducts.find((item) => item.id === pId);
+            return sum + (p?.price || 0);
+          }, 0);
+
+          const bundlePrice = Math.round(originalPrice * (1 - bundle.discountPercent / 100));
+
+          const priceUsd = bundle.productIds.reduce((sum, pId) => {
+            const p = liveProducts.find((item) => item.id === pId);
+            return sum + (p?.priceUsd || 0);
+          }, 0) * (1 - bundle.discountPercent / 100);
+
+          return {
+            ...bundle,
+            originalPrice,
+            bundlePrice,
+            priceUsd,
+          };
+        });
       },
 
       sales: [
@@ -485,6 +782,94 @@ export const useDistributorStore = create<DistributorStoreState>()(
         });
 
         return newSale;
+      },
+
+      addWebOrder: (order) => {
+        const timestamp = Date.now();
+        const createdAt = new Date().toISOString();
+        const itemsSummary = order.items
+          .map((i) => `${typeof i.name === 'string' ? i.name : i.name.sw || i.name.en} (x${i.quantity})`)
+          .join(', ');
+
+        const createdRecords: OfflineSaleRecord[] = [];
+
+        // If multiple items, we create a primary parent ledger entry or individual item entries
+        if (order.items.length === 1) {
+          const singleItem = order.items[0];
+          const itemName = typeof singleItem.name === 'string' ? singleItem.name : singleItem.name.sw || singleItem.name.en;
+          const kb = EDMARK_KNOWLEDGE_BASE[singleItem.id];
+          const days = kb ? kb.durationDays - 2 : 14;
+          const refillDate = new Date(Date.now() + days * 86400000).toISOString().split('T')[0];
+
+          const record: OfflineSaleRecord = {
+            id: `web-sale-${timestamp}`,
+            source: 'web_whatsapp',
+            customerName: order.customerName,
+            customerPhone: order.customerPhone,
+            customerLocation: order.customerLocation,
+            productId: singleItem.id,
+            productName: itemName,
+            quantity: singleItem.quantity,
+            unitPrice: singleItem.price,
+            totalAmount: order.totalAmount,
+            paymentType: 'mobile_money',
+            amountPaid: 0,
+            balanceDue: order.totalAmount,
+            dueDate: new Date(Date.now() + 1 * 86400000).toISOString().split('T')[0],
+            status: 'unpaid',
+            createdAt,
+            notes: order.notes ? `[Oda ya Mtandao - WhatsApp] ${order.notes}` : `[Oda ya Mtandao - WhatsApp] Mahali: ${order.customerLocation}`,
+            refillFollowUpDate: refillDate,
+            refillStatus: 'pending',
+            itemsSummary,
+          };
+
+          createdRecords.push(record);
+        } else {
+          // Multi-item composite order
+          const primaryItem = order.items[0];
+          const record: OfflineSaleRecord = {
+            id: `web-sale-${timestamp}`,
+            source: 'web_whatsapp',
+            customerName: order.customerName,
+            customerPhone: order.customerPhone,
+            customerLocation: order.customerLocation,
+            productId: primaryItem.id,
+            productName: `${order.items.length} Bidhaa: ${itemsSummary}`,
+            quantity: order.items.reduce((s, i) => s + i.quantity, 0),
+            unitPrice: order.totalAmount,
+            totalAmount: order.totalAmount,
+            paymentType: 'mobile_money',
+            amountPaid: 0,
+            balanceDue: order.totalAmount,
+            dueDate: new Date(Date.now() + 1 * 86400000).toISOString().split('T')[0],
+            status: 'unpaid',
+            createdAt,
+            notes: `[Oda ya Mtandao - WhatsApp] ${itemsSummary} • Mahali: ${order.customerLocation}`,
+            refillFollowUpDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+            refillStatus: 'pending',
+            itemsSummary,
+          };
+
+          createdRecords.push(record);
+        }
+
+        set((state) => ({
+          sales: [...createdRecords, ...state.sales],
+        }));
+
+        // Add task for distributor to verify incoming payment / deliver package
+        get().addTask({
+          title: `Thibitisha Malipo & Peana Oda ya WhatsApp: ${order.customerName} (TZS ${order.totalAmount.toLocaleString()})`,
+          category: 'restock',
+          dueDate: new Date().toISOString().split('T')[0],
+          relatedSaleId: createdRecords[0]?.id,
+          customerPhone: order.customerPhone,
+          customerName: order.customerName,
+          amount: order.totalAmount,
+        });
+
+        return createdRecords;
       },
 
       markDebtPaid: (saleId, amount) => {

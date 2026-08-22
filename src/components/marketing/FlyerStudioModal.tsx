@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import { useLang } from '../../context/LangContext';
 import { useDistributorStore } from '../../store/distributorStore';
-import { PRODUCTS } from '../../types';
 import { formatPrice, getActiveWhatsAppLink } from '../../utils/whatsappCompiler';
 
 interface FlyerStudioModalProps {
@@ -161,8 +160,9 @@ export const FlyerStudioModal: React.FC<FlyerStudioModalProps> = ({ isOpen, onCl
 
   const activeTemplate =
     FLYER_TEMPLATES.find((t) => t.id === selectedTemplateId) || FLYER_TEMPLATES[0];
-  const activeProduct =
-    PRODUCTS.find((p) => p.id === activeTemplate.productId) || PRODUCTS[0];
+  const getEffectiveProduct = useDistributorStore((s) => s.getEffectiveProduct);
+  const getEffectiveProducts = useDistributorStore((s) => s.getEffectiveProducts);
+  const activeProduct = getEffectiveProduct(activeTemplate.productId) || getEffectiveProducts()[0];
 
   // Set default price based on template
   useEffect(() => {

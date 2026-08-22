@@ -23,7 +23,7 @@ export const FieldLedgerPanel: React.FC<FieldLedgerPanelProps> = ({
   const deleteSale = useDistributorStore((s) => s.deleteSale);
   const getFinancialSummary = useDistributorStore((s) => s.getFinancialSummary);
 
-  const [filter, setFilter] = useState<'all' | 'debts' | 'paid'>('all');
+  const [filter, setFilter] = useState<'all' | 'debts' | 'web' | 'paid'>('all');
   const [payingSaleId, setPayingSaleId] = useState<string | null>(null);
   const [payAmountInput, setPayAmountInput] = useState('');
 
@@ -31,6 +31,7 @@ export const FieldLedgerPanel: React.FC<FieldLedgerPanelProps> = ({
 
   const filteredSales = sales.filter((s) => {
     if (filter === 'debts') return s.balanceDue > 0;
+    if (filter === 'web') return s.source === 'web_whatsapp';
     if (filter === 'paid') return s.balanceDue === 0;
     return true;
   });
@@ -99,18 +100,26 @@ export const FieldLedgerPanel: React.FC<FieldLedgerPanelProps> = ({
 
       {/* ── ACTIONS & FILTER ROW ── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 bg-stone-200/70 p-1 rounded-xl">
+        <div className="flex items-center gap-1.5 bg-stone-200/70 p-1 rounded-xl overflow-x-auto">
           <button
             onClick={() => setFilter('all')}
-            className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${
+            className={`px-3 py-1 text-xs font-bold rounded-lg whitespace-nowrap transition-all ${
               filter === 'all' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-600 hover:text-stone-900'
             }`}
           >
             {lang === 'sw' ? 'Yote' : 'All'} ({sales.length})
           </button>
           <button
+            onClick={() => setFilter('web')}
+            className={`px-3 py-1 text-xs font-bold rounded-lg whitespace-nowrap transition-all ${
+              filter === 'web' ? 'bg-emerald-800 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900'
+            }`}
+          >
+            {lang === 'sw' ? '🌐 Oda za Mtandao' : '🌐 Web Orders'} ({sales.filter((s) => s.source === 'web_whatsapp').length})
+          </button>
+          <button
             onClick={() => setFilter('debts')}
-            className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${
+            className={`px-3 py-1 text-xs font-bold rounded-lg whitespace-nowrap transition-all ${
               filter === 'debts' ? 'bg-white text-amber-900 shadow-xs' : 'text-stone-600 hover:text-stone-900'
             }`}
           >
@@ -118,7 +127,7 @@ export const FieldLedgerPanel: React.FC<FieldLedgerPanelProps> = ({
           </button>
           <button
             onClick={() => setFilter('paid')}
-            className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${
+            className={`px-3 py-1 text-xs font-bold rounded-lg whitespace-nowrap transition-all ${
               filter === 'paid' ? 'bg-white text-emerald-900 shadow-xs' : 'text-stone-600 hover:text-stone-900'
             }`}
           >
@@ -156,8 +165,13 @@ export const FieldLedgerPanel: React.FC<FieldLedgerPanelProps> = ({
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <h4 className="font-bold text-xs text-stone-900">{sale.customerName}</h4>
+                      {sale.source === 'web_whatsapp' && (
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-100 text-blue-900 border border-blue-200">
+                          🌐 Oda ya Mtandao
+                        </span>
+                      )}
                       <span
                         className={`px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase ${
                           hasDebt ? 'bg-amber-100 text-amber-900' : 'bg-emerald-100 text-emerald-900'
@@ -167,9 +181,16 @@ export const FieldLedgerPanel: React.FC<FieldLedgerPanelProps> = ({
                       </span>
                     </div>
 
-                    <div className="text-[11px] text-stone-500 mt-0.5">
-                      {sale.productName} (x{sale.quantity}) • TZS {sale.totalAmount.toLocaleString()} • {sale.customerPhone || 'Bila Namba'}
+                    <div className="text-[11px] text-stone-600 mt-0.5 font-medium">
+                      {sale.productName} {sale.quantity > 1 ? `(x${sale.quantity})` : ''} • TZS {sale.totalAmount.toLocaleString()} • {sale.customerPhone || 'Bila Namba'}
                     </div>
+
+                    {(sale.customerLocation || sale.notes) && (
+                      <div className="text-[10px] text-stone-500 mt-1 flex items-center gap-2">
+                        {sale.customerLocation && <span>📍 {sale.customerLocation}</span>}
+                        {sale.notes && <span className="italic">{sale.notes}</span>}
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-1">
@@ -232,15 +253,21 @@ export const FieldLedgerPanel: React.FC<FieldLedgerPanelProps> = ({
                         </button>
                       </div>
                     ) : (
-                      <div className="flex justify-end pt-1">
+                      <div className="flex items-center justify-end gap-2 pt-1">
+                        <button
+                          onClick={() => markDebtPaid(sale.id, sale.balanceDue)}
+                          className="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-[11px] font-bold shadow-2xs transition-colors"
+                        >
+                          ✅ Thibitisha Imelipwa Yote
+                        </button>
                         <button
                           onClick={() => {
                             setPayingSaleId(sale.id);
                             setPayAmountInput(String(sale.balanceDue));
                           }}
-                          className="px-2.5 py-1 bg-white border border-amber-300 hover:bg-amber-100 text-amber-900 rounded-lg text-[11px] font-bold shadow-2xs"
+                          className="px-2.5 py-1 bg-white border border-amber-300 hover:bg-amber-100 text-amber-900 rounded-lg text-[11px] font-bold shadow-2xs transition-colors"
                         >
-                          + Rekodi Malipo ya Deni
+                          + Rekodi Kiasi
                         </button>
                       </div>
                     )}

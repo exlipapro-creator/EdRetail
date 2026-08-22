@@ -90,32 +90,84 @@ export const buildOrderMessage = (
   customer: CustomerDetails,
   lang: Lang = 'en'
 ): string => {
+  const active = getActiveDistributorDetails();
   const getName = (item: CartItem) =>
     typeof item.name === 'string' ? item.name : item.name[lang];
 
   const itemLines = items
-    .map((item) => `  • ${item.quantity}x ${getName(item)} — ${formatPrice(item.price * item.quantity)} TZS`)
+    .map((item) => `  - ${item.quantity}x ${getName(item)}: ${formatPrice(item.price * item.quantity)} TZS`)
     .join('\n');
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const sanitisedPhone = sanitisePhone(customer.phone);
 
+  const distributorLine = active.isCentral
+    ? `Kituo Kikuu: ED Retail Central Hub (Tanzania)`
+    : `Msambazaji Mteule: ${active.name} (${active.rank || 'Distributor'} - ${active.city})`;
+
+  const paymentMethodLabels: Record<string, { sw: string; en: string }> = {
+    mpesa: { sw: 'Vodacom M-Pesa', en: 'Vodacom M-Pesa' },
+    tigopesa: { sw: 'Tigo Pesa (Mixx by Yas)', en: 'Tigo Pesa (Mixx by Yas)' },
+    airtel: { sw: 'Airtel Money', en: 'Airtel Money' },
+    halopesa: { sw: 'Halopesa', en: 'Halopesa' },
+    cash: { sw: 'Pesa Taslimu Wakati wa Kupokea (Dar Pekee)', en: 'Cash on Delivery (Dar Only)' },
+  };
+
+  const selectedPaymentText = customer.paymentMethod && paymentMethodLabels[customer.paymentMethod]
+    ? paymentMethodLabels[customer.paymentMethod][lang]
+    : lang === 'sw' ? 'Vodacom M-Pesa / Tigo Pesa' : 'Vodacom M-Pesa / Tigo Pesa';
+
+  if (lang === 'sw') {
+    return [
+      '==============================',
+      'ED RETAIL - AGIZO LA MTANDAONI',
+      '==============================',
+      distributorLine,
+      '',
+      'TAARIFA ZA MTEJA:',
+      `  - Jina: ${escapeMessageText(customer.name)}`,
+      `  - Simu: ${sanitisedPhone}`,
+      `  - Mahali / Kituo: ${escapeMessageText(customer.location)}`,
+      `  - Njia ya Malipo Inayopendekezwa: ${selectedPaymentText}`,
+      '',
+      'ORODHA YA BIDHAA:',
+      itemLines,
+      '',
+      `Jumla ya Vitu: ${totalItems}`,
+      `Jumla ya Malipo: TZS ${formatPrice(totalPrice)}`,
+      '==============================',
+      'HATUA ZA KUKAMILISHA AGIZO:',
+      '1. Tafadhali thibitisha upatikanaji wa bidhaa hizi na gharama ya usafirishaji.',
+      `2. Unitumie Lipa Namba / Namba rasmi ya ${selectedPaymentText} yenye jina sahihi la kupokea malipo.`,
+      '3. Baada ya kulipa, nitatuma ujumbe wa muamala hapa kwa ajili ya kufungasha na kusafirisha.',
+      '==============================',
+    ].join('\n');
+  }
+
   return [
-    '*🛒 NEW EDMARK ORDER*',
-    '─────────────────────',
-    '*Customer Details:*',
-    `  • Name: ${escapeMessageText(customer.name)}`,
-    `  • Phone: ${sanitisedPhone}`,
-    `  • Location: ${escapeMessageText(customer.location)}`,
+    '==============================',
+    'ED RETAIL - WEB ORDER REQUEST',
+    '==============================',
+    distributorLine,
     '',
-    '*Order Items:*',
+    'CUSTOMER DETAILS:',
+    `  - Name: ${escapeMessageText(customer.name)}`,
+    `  - Phone: ${sanitisedPhone}`,
+    `  - Location: ${escapeMessageText(customer.location)}`,
+    `  - Preferred Payment Method: ${selectedPaymentText}`,
+    '',
+    'ORDER ITEMS:',
     itemLines,
     '',
-    `*Total Items:* ${totalItems}`,
-    `*Total Price:* ${formatPrice(totalPrice)} TZS (~$${Math.round(totalPrice / 2650)} USD)`,
-    '─────────────────────',
-    'Please confirm availability and delivery timing. Thank you! 🙏',
+    `Total Items: ${totalItems}`,
+    `Total Amount: TZS ${formatPrice(totalPrice)}`,
+    '==============================',
+    'ORDER VERIFICATION STEPS:',
+    '1. Please confirm product stock availability and delivery schedule.',
+    `2. Please provide the official verified ${selectedPaymentText} Lipa Namba and recipient name.`,
+    '3. After payment, I will send the confirmation SMS here for immediate dispatch.',
+    '==============================',
   ].join('\n');
 };
 

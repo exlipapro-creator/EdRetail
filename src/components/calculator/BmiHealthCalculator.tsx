@@ -17,7 +17,7 @@ import {
 import { useLang } from '../../context/LangContext';
 import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
-import { PRODUCTS, Product } from '../../types';
+import { Product } from '../../types';
 import { formatPrice, getActiveWhatsAppLink } from '../../utils/whatsappCompiler';
 
 interface BmiHealthCalculatorProps {
@@ -114,12 +114,15 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
   }, [bmi]);
 
   // Recommended Products based on BMI & chosen goal
+  const getEffectiveProduct = useDistributorStore((s) => s.getEffectiveProduct);
+  const productOverrides = useDistributorStore((s) => s.productOverrides);
+
   const prescription = useMemo(() => {
-    const shakeOff = PRODUCTS.find((p) => p.id === 'shake-off-phyto');
-    const mrt = PRODUCTS.find((p) => p.id === 'mrt-complex');
-    const splina = PRODUCTS.find((p) => p.id === 'splina-chlorophyll');
-    const troika = PRODUCTS.find((p) => p.id === 'cafe-troika');
-    const spirulina = PRODUCTS.find((p) => p.id === 'hawaiian-spirulina');
+    const shakeOff = getEffectiveProduct('shake-off-phyto');
+    const mrt = getEffectiveProduct('mrt-complex');
+    const splina = getEffectiveProduct('splina-chlorophyll');
+    const troika = getEffectiveProduct('cafe-troika');
+    const spirulina = getEffectiveProduct('hawaiian-spirulina');
 
     if (goal === 'ulcers') {
       const items = [splina, spirulina].filter(Boolean) as Product[];
@@ -189,7 +192,7 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
       items,
       bundleDiscountPercent: 10,
     };
-  }, [goal, bmi, excessWeight]);
+  }, [goal, bmi, excessWeight, productOverrides, getEffectiveProduct]);
 
   // Total bundle calculation
   const originalTotalPrice = prescription.items.reduce((sum, item) => sum + item.price, 0);

@@ -11,13 +11,12 @@ import {
   ShoppingBag,
   Package,
   CheckCircle2,
-  BadgeCheck,
+  ShieldCheck,
   Eye,
   EyeOff,
   Copy,
   Check,
   Truck,
-  Info,
 } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
 import {
@@ -29,10 +28,11 @@ import {
   TARGET_PHONE,
 } from '../utils/whatsappCompiler';
 import { useLang } from '../context/LangContext';
-import { PRODUCTS, DELIVERY_ZONES } from '../types';
+import { PRODUCTS, DELIVERY_ZONES, PaymentMethodOption } from '../types';
 import { ReferralShareButton } from './ReferralShare';
 import { motionTokens } from '../design/motion';
 import { supabase } from '../lib/supabase';
+import { useDistributorStore } from '../store/distributorStore';
 
 interface CheckoutSheetProps {
   isOpen: boolean;
@@ -47,6 +47,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
   const [phone, setPhone] = useState('');
   const [location, setLocation] = useState('');
   const [selectedZone, setSelectedZone] = useState('Dar es Salaam');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodOption>('mpesa');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -94,9 +95,30 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
 
     setIsSubmitting(true);
     const locWithZone = fullLocationString.trim();
-    const url = compileWhatsAppMessage(items, { name, phone, location: locWithZone }, lang);
+    const customerPayload = { name, phone, location: locWithZone, paymentMethod };
+    const url = compileWhatsAppMessage(items, customerPayload, lang);
     setOrderUrl(url);
 
+    // 1. Auto-record order into Distributor Store Field Ledger as Pending Web Order
+    try {
+      useDistributorStore.getState().addWebOrder({
+        customerName: name.trim(),
+        customerPhone: phone.trim(),
+        customerLocation: locWithZone,
+        items: items.map((i) => ({
+          id: i.id,
+          name: i.name,
+          price: i.price,
+          quantity: i.quantity,
+        })),
+        totalAmount: totalPrice,
+        notes: `Zone: ${selectedZone || 'Tanzania'} | Payment: ${paymentMethod.toUpperCase()}`,
+      });
+    } catch (e) {
+      console.warn('Local ledger sync notice:', e);
+    }
+
+    // 2. Cloud Supabase sync if configured
     try {
       const { error: dbError } = await supabase.from('sales').insert({
         channel: 'app',
@@ -123,7 +145,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSuccess(true);
-    }, 600);
+    }, 450);
   };
 
   const handleOpenWhatsApp = () => {
@@ -134,6 +156,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
     setName('');
     setPhone('');
     setLocation('');
+    setPaymentMethod('mpesa');
     setErrors({});
     setTouched({});
     setShowPreview(false);
@@ -141,7 +164,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
 
   const isValid = Object.keys(validateCustomer(name, phone, location)).length === 0 && items.length > 0;
   const previewMessage = isValid
-    ? buildOrderMessage(items, { name, phone, location: fullLocationString.trim() }, lang)
+    ? buildOrderMessage(items, { name, phone, location: fullLocationString.trim(), paymentMethod }, lang)
     : '';
 
   const handleCopyMessage = () => {
@@ -156,7 +179,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
       {isOpen && (
         <>
           <motion.div
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50"
+            className="fixed inset-0 bg-stone-950/70 backdrop-blur-xs z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -176,20 +199,21 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
             aria-label={lang === 'sw' ? 'Kikapu na Malipo ya WhatsApp' : 'Cart & WhatsApp Checkout'}
           >
             <div className="flex justify-center pt-3 pb-1">
-              <div className="w-12 h-1.5 bg-neutral-300 rounded-full" />
+              <div className="w-12 h-1.5 bg-stone-300 rounded-full" />
             </div>
 
             <div className="px-5 sm:px-6 pb-8 space-y-6">
-              <div className="flex items-center justify-between border-b border-neutral-100 pb-3.5">
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-stone-200 pb-3.5">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary-50 text-primary-600 rounded-xl flex items-center justify-center">
+                  <div className="w-10 h-10 bg-stone-100 text-stone-900 rounded-xl flex items-center justify-center border border-stone-200">
                     <ShoppingBag className="w-5 h-5" />
                   </div>
                   <div>
-                    <h2 className="text-base sm:text-lg font-bold text-neutral-900 leading-tight">
-                      {lang === 'sw' ? 'Mkoba Wako' : 'Your Wellness Cart'}
+                    <h2 className="text-base sm:text-lg font-bold text-stone-900 leading-tight">
+                      {lang === 'sw' ? 'Orodha ya Agizo Lako' : 'Your Order Cart'}
                     </h2>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-stone-500">
                       {totalItems} {lang === 'sw' ? 'bidhaa' : `item${totalItems !== 1 ? 's' : ''}`} · {formatPrice(totalPrice)} TZS
                     </p>
                   </div>
@@ -198,47 +222,80 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                 <button
                   id="checkout-close-btn"
                   onClick={onClose}
-                  className="p-2 text-neutral-400 hover:text-neutral-700 rounded-xl hover:bg-neutral-100 transition-colors"
+                  className="p-2 text-stone-400 hover:text-stone-700 rounded-xl hover:bg-stone-100 transition-colors"
                   aria-label="Close"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
+              {/* Success Stage */}
               <AnimatePresence>
                 {isSuccess && (
                   <motion.div
-                    className="flex flex-col items-center text-center py-6 space-y-4"
-                    initial={{ opacity: 0, scale: 0.92 }}
+                    className="flex flex-col items-center text-center py-4 space-y-5"
+                    initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0 }}
                   >
-                    <div className="w-16 h-16 rounded-3xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-inner">
-                      <CheckCircle2 className="w-10 h-10" />
+                    <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center">
+                      <CheckCircle2 className="w-8 h-8" />
                     </div>
 
-                    <div>
-                      <h3 className="text-xl font-extrabold text-neutral-900">
-                        {lang === 'sw' ? 'Agizo Liko Tayari Kutumwa!' : 'Order Ready for WhatsApp!'}
+                    <div className="space-y-1">
+                      <h3 className="text-lg font-extrabold text-stone-900">
+                        {lang === 'sw' ? 'Agizo Liko Tayari Kutumwa WhatsApp' : 'Order Ready to Send via WhatsApp'}
                       </h3>
-                      <p className="text-xs text-neutral-600 mt-1 max-w-sm">
+                      <p className="text-xs text-stone-600 max-w-md mx-auto">
                         {lang === 'sw'
-                          ? `Jumla ya ${formatPrice(totalPrice)} TZS kwa bidhaa ${totalItems}. Gusa kitufe hapa chini ili kufungua WhatsApp na kutuma agizo lako moja kwa moja kwa ${DISTRIBUTOR_NAME}.`
-                          : `Total: ${formatPrice(totalPrice)} TZS for ${totalItems} item${totalItems !== 1 ? 's' : ''}. Tap below to launch WhatsApp and send your order directly to ${DISTRIBUTOR_NAME}.`}
+                          ? `Jumla ya TZS ${formatPrice(totalPrice)} kwa bidhaa ${totalItems}. Bofya kitufe hapa chini ili kumtumia Msambazaji wako (${DISTRIBUTOR_NAME}) na kuthibitisha malipo.`
+                          : `Total: TZS ${formatPrice(totalPrice)} for ${totalItems} item${totalItems !== 1 ? 's' : ''}. Tap below to connect with ${DISTRIBUTOR_NAME} on WhatsApp.`}
                       </p>
+                    </div>
+
+                    {/* Verification Reminder Box */}
+                    <div className="w-full text-left bg-stone-50 border border-stone-200 rounded-2xl p-4 space-y-3">
+                      <div className="flex items-center gap-2 text-xs font-bold text-stone-900">
+                        <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                        <span>{lang === 'sw' ? 'Miongozo Muhimu ya Usalama wa Malipo' : 'Key Payment Verification Steps'}</span>
+                      </div>
+
+                      <div className="space-y-2 text-xs text-stone-700">
+                        <div className="flex items-start gap-2.5">
+                          <span className="w-5 h-5 rounded-full bg-stone-200 text-stone-800 text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                            1
+                          </span>
+                          <p>
+                            {lang === 'sw'
+                              ? 'Tuma ujumbe huu kwa WhatsApp na umwombe Msambazaji akuthibitishie upatikanaji wa bidhaa na akutumie Lipa Namba / Namba rasmi yenye jina sahihi.'
+                              : 'Send this message and ask your coach to confirm product availability and provide the verified official payment number.'}
+                          </p>
+                        </div>
+
+                        <div className="flex items-start gap-2.5">
+                          <span className="w-5 h-5 rounded-full bg-stone-200 text-stone-800 text-[11px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                            2
+                          </span>
+                          <p>
+                            {lang === 'sw'
+                              ? 'Baada ya kulipia, tuma ujumbe wa uthibitisho (SMS ya M-Pesa / Tigo Pesa) kwenye WhatsApp hiyohiyo ili kifurushi chako kipakiwe mara moja.'
+                              : 'After payment, forward the transaction confirmation SMS in the chat for instant packaging and dispatch.'}
+                          </p>
+                        </div>
+                      </div>
                     </div>
 
                     <motion.button
                       id="launch-whatsapp-success-btn"
                       onClick={handleOpenWhatsApp}
-                      className="w-full flex items-center justify-center gap-2 py-4 bg-secondary-green hover:bg-emerald-600 active:bg-emerald-700 text-white rounded-xl font-bold text-sm shadow-lg transition-transform active:scale-95"
-                      whileTap={{ scale: 0.96 }}
+                      className="w-full flex items-center justify-center gap-2.5 py-3.5 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white rounded-xl font-bold text-sm shadow-sm transition-all"
+                      whileTap={{ scale: 0.98 }}
                     >
                       <Send className="w-4 h-4" />
-                      <span>{lang === 'sw' ? 'Fungua WhatsApp Sasa' : 'Open WhatsApp & Send Order'}</span>
+                      <span>{lang === 'sw' ? 'Fungua WhatsApp & Tuma Agizo' : 'Open WhatsApp & Send Order'}</span>
                     </motion.button>
 
-                    <div className="w-full pt-2 border-t border-neutral-100">
+                    <div className="w-full pt-2 border-t border-stone-200">
                       <ReferralShareButton />
                     </div>
 
@@ -254,53 +311,54 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                         setTouched({});
                         setShowPreview(false);
                       }}
-                      className="text-xs text-neutral-400 hover:text-neutral-700 underline"
+                      className="text-xs text-stone-500 hover:text-stone-800 underline"
                     >
-                      {lang === 'sw' ? 'Futa mkoba na urudi kwenye duka' : 'Clear cart and return to storefront'}
+                      {lang === 'sw' ? 'Funga na urudi kwenye duka' : 'Close and return to storefront'}
                     </button>
                   </motion.div>
                 )}
               </AnimatePresence>
 
+              {/* Standard Checkout Form */}
               {!isSuccess && (
                 <>
                   {items.length === 0 && (
                     <div className="text-center py-10 space-y-4">
-                      <div className="w-14 h-14 rounded-2xl bg-neutral-100 text-neutral-400 mx-auto flex items-center justify-center">
+                      <div className="w-14 h-14 rounded-2xl bg-stone-100 text-stone-400 mx-auto flex items-center justify-center border border-stone-200">
                         <Package className="w-7 h-7" />
                       </div>
                       <div>
-                        <h3 className="text-sm font-bold text-neutral-800">
+                        <h3 className="text-sm font-bold text-stone-900">
                           {lang === 'sw' ? 'Mkoba wako uko tupu' : 'Your cart is empty'}
                         </h3>
-                        <p className="text-xs text-neutral-500 mt-0.5">
-                          {lang === 'sw' ? 'Ongeza bidhaa za afya ili kuanza safari yako' : 'Add products or bundle deals to get started'}
+                        <p className="text-xs text-stone-500 mt-0.5">
+                          {lang === 'sw' ? 'Ongeza bidhaa za afya ili kuanza agizo lako' : 'Add products or bundle packages to get started'}
                         </p>
                       </div>
 
                       {upsellProducts.length > 0 && (
-                        <div className="text-left pt-4 border-t border-neutral-100">
-                          <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider block mb-2.5">
+                        <div className="text-left pt-4 border-t border-stone-200">
+                          <span className="text-xs font-bold text-stone-500 uppercase tracking-wider block mb-2.5">
                             {lang === 'sw' ? 'Bidhaa Zinazopendekezwa' : 'Recommended Products'}
                           </span>
                           <div className="space-y-2">
                             {upsellProducts.map((p) => (
                               <div
                                 key={p.id}
-                                className="flex items-center justify-between p-2.5 bg-neutral-50 rounded-xl border border-neutral-200/60"
+                                className="flex items-center justify-between p-2.5 bg-stone-50 rounded-xl border border-stone-200"
                               >
                                 <div className="flex items-center gap-2.5 min-w-0">
-                                  <img src={p.image} alt={t(p.name)} className="w-10 h-10 object-contain rounded-lg bg-white p-1" />
+                                  <img src={p.image} alt={t(p.name)} className="w-10 h-10 object-contain rounded-lg bg-white p-1 border border-stone-200" />
                                   <div className="min-w-0">
-                                    <h4 className="text-xs font-bold text-neutral-900 truncate">{t(p.name)}</h4>
-                                    <span className="text-[11px] font-semibold text-neutral-500">{formatPrice(p.price)} TZS</span>
+                                    <h4 className="text-xs font-bold text-stone-900 truncate">{t(p.name)}</h4>
+                                    <span className="text-[11px] font-semibold text-stone-600">{formatPrice(p.price)} TZS</span>
                                   </div>
                                 </div>
                                 <button
                                   onClick={() => addItem({ ...p, quantity: 1 })}
-                                  className="px-3 py-1.5 bg-primary-600 text-white rounded-lg text-xs font-bold shadow-xs hover:bg-primary-700"
+                                  className="px-3 py-1.5 bg-stone-900 text-white rounded-lg text-xs font-bold hover:bg-stone-800 transition-colors"
                                 >
-                                  + {lang === 'sw' ? 'Weka' : 'Add'}
+                                  {lang === 'sw' ? 'Weka' : 'Add'}
                                 </button>
                               </div>
                             ))}
@@ -313,12 +371,12 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                   {items.length > 0 && (
                     <div className="space-y-2.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-neutral-400 uppercase tracking-wider">
+                        <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">
                           {lang === 'sw' ? 'Bidhaa Zilizochaguliwa' : 'Selected Products'}
                         </span>
                         <button
                           onClick={clearCart}
-                          className="text-[11px] font-semibold text-rose-600 hover:text-rose-700"
+                          className="text-[11px] font-semibold text-rose-700 hover:text-rose-800"
                         >
                           {lang === 'sw' ? 'Futa Yote' : 'Clear All'}
                         </button>
@@ -331,32 +389,32 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, scale: 0.95 }}
-                          className="flex items-center justify-between gap-3 p-3 bg-neutral-50 rounded-2xl border border-neutral-200/60"
+                          className="flex items-center justify-between gap-3 p-3 bg-stone-50 rounded-2xl border border-stone-200"
                         >
                           <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <div className="w-12 h-12 rounded-xl bg-white p-1 border border-neutral-200/80 flex items-center justify-center flex-shrink-0">
+                            <div className="w-12 h-12 rounded-xl bg-white p-1 border border-stone-200 flex items-center justify-center flex-shrink-0">
                               <img src={item.image} alt={t(item.name)} className="max-h-full max-w-full object-contain" />
                             </div>
                             <div className="min-w-0 flex-1">
-                              <h4 className="text-xs font-bold text-neutral-900 truncate">{t(item.name)}</h4>
-                              <p className="text-[11px] text-neutral-500 font-medium">
-                                {formatPrice(item.price)} TZS <span className="text-neutral-400 font-normal">× {item.quantity}</span>
+                              <h4 className="text-xs font-bold text-stone-900 truncate">{t(item.name)}</h4>
+                              <p className="text-[11px] text-stone-600 font-medium">
+                                {formatPrice(item.price)} TZS <span className="text-stone-400 font-normal">× {item.quantity}</span>
                               </p>
                             </div>
                           </div>
 
-                          <div className="flex items-center border border-neutral-300 bg-white rounded-xl p-1 shadow-xs">
+                          <div className="flex items-center border border-stone-300 bg-white rounded-xl p-1 shadow-2xs">
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              className="w-7 h-7 rounded-lg flex items-center justify-center text-neutral-700 hover:bg-neutral-100 transition-colors"
+                              className="w-7 h-7 rounded-lg flex items-center justify-center text-stone-700 hover:bg-stone-100 transition-colors"
                               aria-label="Decrease"
                             >
                               <Minus className="w-3 h-3" />
                             </button>
-                            <span className="w-6 text-center text-xs font-bold text-neutral-900">{item.quantity}</span>
+                            <span className="w-6 text-center text-xs font-bold text-stone-900">{item.quantity}</span>
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="w-7 h-7 rounded-lg bg-primary-600 text-white flex items-center justify-center hover:bg-primary-700 transition-colors"
+                              className="w-7 h-7 rounded-lg bg-stone-900 text-white flex items-center justify-center hover:bg-stone-800 transition-colors"
                               aria-label="Increase"
                             >
                               <Plus className="w-3 h-3" />
@@ -367,49 +425,46 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                     </div>
                   )}
 
+                  {/* Pricing Overview */}
                   {items.length > 0 && (
-                    <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-200/80 space-y-2">
-                      <div className="flex justify-between text-xs text-neutral-600">
+                    <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-2">
+                      <div className="flex justify-between text-xs text-stone-600">
                         <span>{lang === 'sw' ? 'Jumla ya Bidhaa' : 'Subtotal'}:</span>
-                        <span className="font-bold text-neutral-900">{formatPrice(totalPrice)} TZS</span>
+                        <span className="font-bold text-stone-900">{formatPrice(totalPrice)} TZS</span>
                       </div>
-                      <div className="flex justify-between text-xs text-neutral-600">
+                      <div className="flex justify-between text-xs text-stone-600">
                         <span>{lang === 'sw' ? 'Usafirishaji' : 'Delivery'}:</span>
-                        <span className="text-secondary-green font-semibold">
-                          {lang === 'sw' ? 'Inathibitishwa WhatsApp' : 'Calculated by Zone'}
+                        <span className="text-emerald-700 font-semibold">
+                          {lang === 'sw' ? 'Inathibitishwa na Msambazaji' : 'Confirmed with Coach'}
                         </span>
                       </div>
-                      <div className="pt-2 border-t border-neutral-200 flex justify-between items-baseline">
-                        <span className="text-sm font-bold text-neutral-900">
-                          {lang === 'sw' ? 'Jumla Kuu' : 'Total Price'}:
+                      <div className="pt-2 border-t border-stone-200 flex justify-between items-baseline">
+                        <span className="text-sm font-bold text-stone-900">
+                          {lang === 'sw' ? 'Jumla ya Malipo' : 'Total Price'}:
                         </span>
-                        <span className="text-xl font-extrabold text-neutral-900">
-                          {formatPrice(totalPrice)} <span className="text-xs font-normal text-neutral-500">TZS</span>
+                        <span className="text-xl font-extrabold text-stone-900">
+                          {formatPrice(totalPrice)} <span className="text-xs font-normal text-stone-500">TZS</span>
                         </span>
                       </div>
                     </div>
                   )}
 
+                  {/* Customer Inputs */}
                   {items.length > 0 && (
                     <div className="space-y-3.5">
                       <div>
-                        <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5">
-                          <User className="w-3.5 h-3.5 text-primary-600" />
-                          {lang === 'sw' ? 'Taarifa za Mteja & Usafirishaji' : 'Customer & Delivery Information'}
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
+                          <User className="w-3.5 h-3.5 text-stone-700" />
+                          {lang === 'sw' ? 'Taarifa za Mpokeaji & Usafirishaji' : 'Customer & Delivery Information'}
                         </h3>
-                        <p className="text-[11px] text-neutral-500 mt-0.5">
-                          {lang === 'sw'
-                            ? 'Taarifa hizi hazihifadhiwi kwenye kifaa chako — zinatumika tu kuunda ujumbe wa WhatsApp.'
-                            : 'Zero PII is permanently stored — inputs are only used to compile your WhatsApp message.'}
-                        </p>
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-neutral-700 mb-1">
+                        <label className="block text-xs font-bold text-stone-700 mb-1">
                           {lang === 'sw' ? 'Jina Kamili' : 'Full Name'} *
                         </label>
                         <div className="relative">
-                          <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+                          <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
                           <input
                             ref={firstInputRef}
                             id="checkout-customer-name"
@@ -421,10 +476,10 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                             }}
                             onBlur={() => handleBlur('name')}
                             placeholder={lang === 'sw' ? 'Mfano: John Mwangi' : 'e.g. John Mwangi'}
-                            className={`w-full pl-10 pr-3.5 py-2.5 bg-neutral-50 border rounded-xl text-xs sm:text-sm text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:ring-2 transition-all ${
+                            className={`w-full pl-10 pr-3.5 py-2.5 bg-stone-50 border rounded-xl text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:ring-2 transition-all ${
                               touched.name && errors.name
                                 ? 'border-red-400 focus:ring-red-100'
-                                : 'border-neutral-200/80 focus:border-primary-500 focus:ring-primary-100'
+                                : 'border-stone-200 focus:border-stone-900 focus:ring-stone-100'
                             }`}
                           />
                         </div>
@@ -434,11 +489,11 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-neutral-700 mb-1">
+                        <label className="block text-xs font-bold text-stone-700 mb-1">
                           {lang === 'sw' ? 'Namba ya Simu (WhatsApp)' : 'Phone Number (WhatsApp)'} *
                         </label>
                         <div className="relative">
-                          <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+                          <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
                           <input
                             id="checkout-customer-phone"
                             type="tel"
@@ -448,11 +503,11 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                               if (touched.phone) validate(name, e.target.value, location);
                             }}
                             onBlur={() => handleBlur('phone')}
-                            placeholder={lang === 'sw' ? 'Mfano: 0783 481 416 au 255783481416' : 'e.g. 0783 481 416 or +255 783 481 416'}
-                            className={`w-full pl-10 pr-3.5 py-2.5 bg-neutral-50 border rounded-xl text-xs sm:text-sm text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:ring-2 transition-all ${
+                            placeholder={lang === 'sw' ? 'Mfano: 0783 481 416' : 'e.g. 0783 481 416'}
+                            className={`w-full pl-10 pr-3.5 py-2.5 bg-stone-50 border rounded-xl text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:ring-2 transition-all ${
                               touched.phone && errors.phone
                                 ? 'border-red-400 focus:ring-red-100'
-                                : 'border-neutral-200/80 focus:border-primary-500 focus:ring-primary-100'
+                                : 'border-stone-200 focus:border-stone-900 focus:ring-stone-100'
                             }`}
                           />
                         </div>
@@ -462,16 +517,16 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-neutral-700 mb-1">
-                          {lang === 'sw' ? 'Eneo Kuu la Usafirishaji' : 'Delivery Zone'}
+                        <label className="block text-xs font-bold text-stone-700 mb-1">
+                          {lang === 'sw' ? 'Mkoa / Kanda ya Usafirishaji' : 'Delivery Region / Zone'}
                         </label>
                         <div className="relative">
-                          <Truck className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+                          <Truck className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
                           <select
                             id="checkout-delivery-zone"
                             value={selectedZone}
                             onChange={(e) => setSelectedZone(e.target.value)}
-                            className="w-full pl-10 pr-3.5 py-2.5 bg-neutral-50 border border-neutral-200/80 rounded-xl text-xs sm:text-sm text-neutral-900 focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all appearance-none"
+                            className="w-full pl-10 pr-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-900 focus:bg-white focus:border-stone-900 focus:ring-2 focus:ring-stone-100 transition-all appearance-none"
                           >
                             {DELIVERY_ZONES.map((zone) => (
                               <option key={zone.zone} value={zone.zone}>
@@ -483,11 +538,11 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-neutral-700 mb-1">
-                          {lang === 'sw' ? 'Mtaa / Jengo / Kituo cha Karibu' : 'Street / Landmark / Building'} *
+                        <label className="block text-xs font-bold text-stone-700 mb-1">
+                          {lang === 'sw' ? 'Mtaa / Kituo / Jengo la Karibu' : 'Street / Landmark / Bus Stop'} *
                         </label>
                         <div className="relative">
-                          <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+                          <MapPin className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
                           <input
                             id="checkout-customer-location"
                             type="text"
@@ -497,11 +552,11 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                               if (touched.location) validate(name, phone, e.target.value);
                             }}
                             onBlur={() => handleBlur('location')}
-                            placeholder={lang === 'sw' ? 'Mfano: Mwenge karibu na kituo cha mwendokasi' : 'e.g. Kinondoni, near Morocco Bus Terminal'}
-                            className={`w-full pl-10 pr-3.5 py-2.5 bg-neutral-50 border rounded-xl text-xs sm:text-sm text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:ring-2 transition-all ${
+                            placeholder={lang === 'sw' ? 'Mfano: Mwenge karibu na stendi ya daladala' : 'e.g. Kinondoni, near Morocco Bus Terminal'}
+                            className={`w-full pl-10 pr-3.5 py-2.5 bg-stone-50 border rounded-xl text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:ring-2 transition-all ${
                               touched.location && errors.location
                                 ? 'border-red-400 focus:ring-red-100'
-                                : 'border-neutral-200/80 focus:border-primary-500 focus:ring-primary-100'
+                                : 'border-stone-200 focus:border-stone-900 focus:ring-stone-100'
                             }`}
                           />
                         </div>
@@ -509,40 +564,137 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                           <span className="text-[11px] text-red-500 mt-1 block">{errors.location}</span>
                         )}
                       </div>
-                    </div>
-                  )}
 
-                  {items.length > 0 && (
-                    <div className="p-3.5 bg-neutral-50 rounded-2xl border border-neutral-200/70 text-[11px] text-neutral-600 space-y-1">
-                      <div className="flex items-center gap-1.5 font-bold text-neutral-800">
-                        <Info className="w-3.5 h-3.5 text-primary-600" />
-                        <span>{lang === 'sw' ? 'Mfumo wa Malipo' : 'Payment Arrangement'}</span>
+                      {/* Payment Method Selector */}
+                      <div>
+                        <label className="block text-xs font-bold text-stone-700 mb-1.5">
+                          {lang === 'sw' ? 'Njia ya Malipo Unayopendelea' : 'Preferred Payment Method'}
+                        </label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {[
+                            { id: 'mpesa' as PaymentMethodOption, label: 'Vodacom M-Pesa', badge: 'Lipa Namba' },
+                            { id: 'tigopesa' as PaymentMethodOption, label: 'Tigo Pesa', badge: 'Mixx by Yas' },
+                            { id: 'airtel' as PaymentMethodOption, label: 'Airtel Money', badge: 'Lipa' },
+                            { id: 'halopesa' as PaymentMethodOption, label: 'Halopesa', badge: 'Lipa' },
+                            { id: 'cash' as PaymentMethodOption, label: lang === 'sw' ? 'Pesa Mkononi' : 'Cash on Delivery', badge: 'Dar Only' },
+                          ].map((method) => {
+                            const isSelected = paymentMethod === method.id;
+                            return (
+                              <button
+                                key={method.id}
+                                type="button"
+                                id={`payment-method-${method.id}`}
+                                onClick={() => setPaymentMethod(method.id)}
+                                className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all ${
+                                  isSelected
+                                    ? 'bg-stone-900 border-stone-900 text-white shadow-2xs'
+                                    : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100'
+                                }`}
+                              >
+                                <div className="flex items-center justify-between w-full mb-1">
+                                  <span className={`text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded ${
+                                    isSelected ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-600'
+                                  }`}>
+                                    {method.badge}
+                                  </span>
+                                  {isSelected && <Check className="w-3.5 h-3.5 text-emerald-400" />}
+                                </div>
+                                <span className={`text-xs font-bold leading-tight ${isSelected ? 'text-white' : 'text-stone-900'}`}>
+                                  {method.label}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <p className="text-[11px] text-stone-500 mt-1.5">
+                          {lang === 'sw'
+                            ? 'Msambazaji atakutumia Lipa Namba au maelezo sahihi ya mtandao huu mara tu atakapopokea agizo lako WhatsApp.'
+                            : 'Your coach will share the exact merchant till / Lipa Namba for your chosen network upon receiving your order on WhatsApp.'}
+                        </p>
                       </div>
-                      <p className="leading-relaxed">
-                        {lang === 'sw'
-                          ? 'Malipo hufanyika moja kwa moja na msambazaji (M-Pesa, TigoPesa, Airtel Money au Pesa Taslimu Dar es Salaam) baada ya kuthibitisha agizo.'
-                          : 'Payment is confirmed directly with the distributor (M-Pesa, TigoPesa, Airtel Money, or cash on delivery in Dar es Salaam) upon message receipt.'}
-                      </p>
                     </div>
                   )}
 
+                  {/* Clear 3-Step High-Trust Verification Protocol Card */}
+                  {items.length > 0 && (
+                    <div className="bg-stone-50 rounded-2xl border border-stone-200 p-4 space-y-3.5">
+                      <div className="flex items-center gap-2 pb-2 border-b border-stone-200">
+                        <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                        <h4 className="text-xs font-bold text-stone-900">
+                          {lang === 'sw' ? 'Utaratibu wa Uhakiki na Malipo Salama' : 'Safe Order & Payment Protocol'}
+                        </h4>
+                      </div>
+
+                      <div className="space-y-3 text-xs text-stone-700">
+                        <div className="flex items-start gap-2.5">
+                          <div className="w-6 h-6 rounded-lg bg-stone-200 text-stone-900 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                            1
+                          </div>
+                          <div>
+                            <strong className="block text-stone-900">
+                              {lang === 'sw' ? 'Thibitisha na Msambazaji Kabla ya Kulipa' : 'Confirm Stock & Lipa Namba with Coach'}
+                            </strong>
+                            <p className="text-[11px] text-stone-600 mt-0.5 leading-relaxed">
+                              {lang === 'sw'
+                                ? 'Usiwalipe kabla ya kuthibitisha upatikanaji wa bidhaa na kupewa Lipa Namba rasmi yenye jina sahihi la msambazaji.'
+                                : 'Always verify product availability and receive the confirmed Lipa Namba and recipient name from your coach before sending funds.'}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-2.5">
+                          <div className="w-6 h-6 rounded-lg bg-stone-200 text-stone-900 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                            2
+                          </div>
+                          <div>
+                            <strong className="block text-stone-900">
+                              {lang === 'sw' ? 'Lipa Kupitia Mitandao ya Simu' : 'Pay via Mobile Money (M-Pesa / Tigo / Airtel)'}
+                            </strong>
+                            <p className="text-[11px] text-stone-600 mt-0.5 leading-relaxed">
+                              {lang === 'sw'
+                                ? 'Tumia Lipa Namba au namba iliyothibitishwa moja kwa moja kutoka kwenye simu yako.'
+                                : 'Pay directly via M-Pesa, Tigo Pesa, or Airtel Money to the confirmed merchant number.'}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-2.5">
+                          <div className="w-6 h-6 rounded-lg bg-stone-200 text-stone-900 font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                            3
+                          </div>
+                          <div>
+                            <strong className="block text-stone-900">
+                              {lang === 'sw' ? 'Thibitisha Baada ya Kulipa & Pokea Mzigo' : 'Send Payment SMS for Immediate Dispatch'}
+                            </strong>
+                            <p className="text-[11px] text-stone-600 mt-0.5 leading-relaxed">
+                              {lang === 'sw'
+                                ? 'Tuma ujumbe wa muamala kwenye WhatsApp ili mzigo ufungashwe na risiti ya usafirishaji ikutumie.'
+                                : 'Share the confirmation SMS in the chat so your coach dispatches the parcel with a live tracking receipt.'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Message Preview */}
                   {items.length > 0 && (
                     <div className="space-y-2">
                       <button
                         type="button"
                         id="toggle-message-preview-btn"
                         onClick={() => setShowPreview(!showPreview)}
-                        className="w-full py-2 px-3 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-xs font-semibold flex items-center justify-between transition-colors"
+                        className="w-full py-2 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold flex items-center justify-between transition-colors"
                       >
                         <div className="flex items-center gap-2">
                           {showPreview ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                           <span>
                             {showPreview
-                              ? (lang === 'sw' ? 'Ficha Muhtasari wa WhatsApp' : 'Hide WhatsApp Message Preview')
+                              ? (lang === 'sw' ? 'Ficha Muhtasari wa Ujumbe' : 'Hide WhatsApp Message Preview')
                               : (lang === 'sw' ? 'Ona Ujumbe Utakaotumwa WhatsApp' : 'Preview WhatsApp Order Message')}
                           </span>
                         </div>
-                        <span className="text-[10px] text-neutral-400">
+                        <span className="text-[10px] text-stone-400">
                           {showPreview ? '▲' : '▼'}
                         </span>
                       </button>
@@ -555,21 +707,21 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                             exit={{ opacity: 0, height: 0 }}
                             className="overflow-hidden space-y-2"
                           >
-                            <div className="bg-[#E7F8E8] border border-[#C5E8C8] rounded-2xl rounded-tr-xs p-4 text-xs font-mono text-neutral-800 shadow-xs relative">
-                              <div className="flex items-center justify-between mb-2 pb-2 border-b border-[#B0DDB5]">
-                                <span className="font-bold text-emerald-900 text-[11px] flex items-center gap-1 font-sans">
-                                  <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
-                                  WhatsApp Message Payload
+                            <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 text-xs font-mono text-stone-800 shadow-2xs relative">
+                              <div className="flex items-center justify-between mb-2 pb-2 border-b border-stone-200">
+                                <span className="font-bold text-stone-900 text-[11px] flex items-center gap-1 font-sans">
+                                  <ShieldCheck className="w-3.5 h-3.5 text-stone-700" />
+                                  WhatsApp Message
                                 </span>
                                 <button
                                   onClick={handleCopyMessage}
-                                  className="text-[11px] font-sans font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1 bg-white/80 px-2 py-0.5 rounded-md shadow-2xs"
+                                  className="text-[11px] font-sans font-bold text-stone-800 hover:text-stone-950 flex items-center gap-1 bg-white border border-stone-200 px-2 py-0.5 rounded-md shadow-2xs"
                                 >
-                                  {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                                  <span>{copied ? (lang === 'sw' ? 'Imenakiliwa' : 'Copied!') : (lang === 'sw' ? 'Nakili' : 'Copy Text')}</span>
+                                  {copied ? <Check className="w-3 h-3 text-emerald-700" /> : <Copy className="w-3 h-3" />}
+                                  <span>{copied ? (lang === 'sw' ? 'Imenakiliwa' : 'Copied') : (lang === 'sw' ? 'Nakili' : 'Copy Text')}</span>
                                 </button>
                               </div>
-                              <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-neutral-800">
+                              <pre className="whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-stone-800">
                                 {previewMessage || (lang === 'sw' ? 'Jaza jina na eneo lako kuona muhtasari...' : 'Fill in your name and location above to view the message...')}
                               </pre>
                             </div>
@@ -579,13 +731,14 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                     </div>
                   )}
 
+                  {/* Submission Action */}
                   {items.length > 0 && (
                     <div className="space-y-2 pt-2">
-                      <div className="flex items-center justify-center gap-1.5 text-xs text-neutral-500">
-                        <BadgeCheck className="w-4 h-4 text-emerald-600" />
+                      <div className="flex items-center justify-center gap-1.5 text-xs text-stone-500">
+                        <ShieldCheck className="w-4 h-4 text-emerald-700" />
                         <span>
                           {lang === 'sw' ? 'Msambazaji Mpokeaji:' : 'Recipient:'}{' '}
-                          <strong className="text-neutral-800">{DISTRIBUTOR_NAME}</strong> (+{TARGET_PHONE})
+                          <strong className="text-stone-900">{DISTRIBUTOR_NAME}</strong> (+{TARGET_PHONE})
                         </span>
                       </div>
 
@@ -593,11 +746,11 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                         id="submit-whatsapp-order-btn"
                         onClick={handleSubmit}
                         disabled={!isValid || isSubmitting}
-                        whileTap={{ scale: isValid && !isSubmitting ? 0.97 : 1 }}
-                        className={`w-full py-4 px-5 rounded-2xl font-bold text-sm text-white shadow-lg transition-all flex items-center justify-center gap-2.5 ${
+                        whileTap={{ scale: isValid && !isSubmitting ? 0.98 : 1 }}
+                        className={`w-full py-4 px-5 rounded-2xl font-bold text-sm text-white shadow-sm transition-all flex items-center justify-center gap-2.5 ${
                           isValid && !isSubmitting
-                            ? 'bg-secondary-green hover:bg-emerald-600 active:bg-emerald-700 cursor-pointer'
-                            : 'bg-neutral-300 text-neutral-500 cursor-not-allowed shadow-none'
+                            ? 'bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 cursor-pointer'
+                            : 'bg-stone-300 text-stone-500 cursor-not-allowed shadow-none'
                         }`}
                       >
                         {isSubmitting ? (
@@ -605,16 +758,16 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                         ) : (
                           <>
                             <Send className="w-4 h-4" />
-                            <span>{lang === 'sw' ? 'Tuma Agizo kwa WhatsApp' : 'Send Order via WhatsApp'}</span>
+                            <span>{lang === 'sw' ? 'Tuma Agizo & Thibitisha WhatsApp' : 'Send Order & Confirm via WhatsApp'}</span>
                           </>
                         )}
                       </motion.button>
 
                       {!isValid && (
-                        <p className="text-center text-[11px] text-neutral-400">
+                        <p className="text-center text-[11px] text-stone-500">
                           {lang === 'sw'
                             ? 'Tafadhali kamilisha jina, simu, na eneo la uwasilishaji ili kuendelea.'
-                            : 'Please enter your name, phone, and delivery address to enable WhatsApp checkout.'}
+                            : 'Please enter your name, phone, and delivery address to continue.'}
                         </p>
                       )}
                     </div>

@@ -10,18 +10,64 @@ import {
   HeartHandshake,
   CheckCircle2,
   Sparkles,
+  MapPin,
 } from 'lucide-react';
-import { DISTRIBUTOR_NAME, TARGET_PHONE, WHATSAPP_LINK } from '../../utils/whatsappCompiler';
+import { useDistributorStore } from '../../store/distributorStore';
+import { getActiveWhatsAppLink } from '../../utils/whatsappCompiler';
 import { TESTIMONIALS } from '../../types';
 import { useLang } from '../../context/LangContext';
+import { RegionalDistributorLocator } from '../distributor/RegionalDistributorLocator';
 
-export function DistributorView() {
+interface DistributorViewProps {
+  onOpenBackOffice?: () => void;
+}
+
+export function DistributorView({ onOpenBackOffice }: DistributorViewProps) {
   const { lang, t } = useLang();
+  const distributor = useDistributorStore((s) => s.getActiveDistributor());
+  const isAdminAuthenticated = useDistributorStore((s) => s.isAdminAuthenticated);
+  const waConsultLink = getActiveWhatsAppLink(
+    `Habari ${distributor.name}, nina swali kuhusu bidhaa za Edmark na uwasilishaji:`
+  );
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8 space-y-8 animate-fadeIn">
+    <div className="max-w-5xl mx-auto px-4 py-6 sm:py-8 space-y-8 animate-fadeIn">
+      {/* ── DISTRIBUTOR LEADER BACK-OFFICE QUICK LAUNCH BANNER ── */}
+      {onOpenBackOffice && (
+        <div className="p-4 sm:p-5 bg-gradient-to-r from-[#0C271E] via-[#164132] to-[#1F5441] rounded-3xl text-white shadow-md flex flex-col sm:flex-row items-center justify-between gap-4 border border-[#235844]">
+          <div className="flex items-center gap-3 text-center sm:text-left">
+            <div className="w-11 h-11 rounded-2xl bg-[#C5A059] text-stone-950 flex items-center justify-center font-black flex-shrink-0 shadow-xs">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center justify-center sm:justify-start gap-2">
+                <h3 className="font-extrabold text-sm sm:text-base text-white">
+                  {lang === 'sw' ? 'Ofisi ya Msambazaji (Leader Portal)' : 'Distributor Leader Back-Office'}
+                </h3>
+                <span className="px-2 py-0.5 rounded-md bg-white/20 text-[#E5C378] text-[10px] font-black uppercase">
+                  {isAdminAuthenticated ? 'Unlocked' : 'PIN Access'}
+                </span>
+              </div>
+              <p className="text-xs text-stone-300 mt-0.5">
+                {lang === 'sw'
+                  ? 'Tazama 3-Month Fund (2,000 SV), Daftari la Mauzo & Madeni, Bei za Bidhaa, na WhatsApp Automations.'
+                  : 'Manage 3-Month Fund Pacing (2,000 SV), Sales Ledger, Price Overrides, and Follow-up Automations.'}
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={onOpenBackOffice}
+            className="w-full sm:w-auto px-5 py-2.5 bg-[#C5A059] hover:bg-[#d6b068] text-stone-950 font-black text-xs rounded-xl shadow-xs transition-transform active:scale-95 whitespace-nowrap cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>{isAdminAuthenticated ? (lang === 'sw' ? 'Fungua Ofisi Yangu' : 'Open Back-Office') : (lang === 'sw' ? 'Ingia Ofisini (PIN)' : 'Unlock Leader Portal')}</span>
+            <Sparkles className="w-3.5 h-3.5 text-stone-900" />
+          </button>
+        </div>
+      )}
+
       {/* ── DISTRIBUTOR HERO CARD ── */}
-      <section className="bg-gradient-to-br from-primary-800 via-primary-700 to-indigo-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+      <section className="bg-gradient-to-br from-primary-900 via-primary-800 to-indigo-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
         <div className="absolute top-0 right-0 -mt-12 -mr-12 w-72 h-72 bg-white/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
@@ -30,22 +76,21 @@ export function DistributorView() {
             <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-gradient-to-tr from-amber-400 via-orange-300 to-amber-200 p-1 shadow-xl">
               <div className="w-full h-full bg-primary-900 rounded-[22px] overflow-hidden flex items-center justify-center relative">
                 <img
-                  src="/logo/distributor-circle.png"
-                  alt={DISTRIBUTOR_NAME}
+                  src={distributor.avatarUrl || '/logo/distributor-circle.png'}
+                  alt={distributor.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    // Fallback to stylized monogram if circle image fails
                     e.currentTarget.style.display = 'none';
                     const fb = e.currentTarget.nextElementSibling as HTMLElement | null;
                     if (fb) fb.style.display = 'flex';
                   }}
                 />
                 <div className="hidden w-full h-full bg-gradient-to-br from-primary-600 to-indigo-800 items-center justify-center text-white font-extrabold text-3xl">
-                  ML
+                  {distributor.name.slice(0, 2).toUpperCase()}
                 </div>
               </div>
             </div>
-            <div className="absolute -bottom-2 -right-2 bg-amber-400 text-amber-950 p-1.5 rounded-full shadow-lg border-2 border-white" title="Verified Crown Manager">
+            <div className="absolute -bottom-2 -right-2 bg-amber-400 text-amber-950 p-1.5 rounded-full shadow-lg border-2 border-white" title="Verified Distributor Leader">
               <Award className="w-4 h-4" />
             </div>
           </div>
@@ -55,7 +100,7 @@ export function DistributorView() {
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2">
               <span className="px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-xs font-bold text-amber-300 flex items-center gap-1.5 border border-white/10">
                 <Sparkles className="w-3.5 h-3.5" />
-                Crown Manager
+                {distributor.rank || 'Crown Manager'}
               </span>
               <span className="px-3 py-1 bg-emerald-500/20 backdrop-blur-md rounded-full text-xs font-bold text-emerald-300 flex items-center gap-1.5 border border-emerald-400/20">
                 <BadgeCheck className="w-3.5 h-3.5" />
@@ -64,11 +109,12 @@ export function DistributorView() {
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
-              {DISTRIBUTOR_NAME}
+              {distributor.name}
             </h1>
 
             <p className="text-xs sm:text-sm text-primary-100 mt-1 flex items-center justify-center sm:justify-start gap-1.5">
-              <span>Dar es Salaam, Tanzania</span>
+              <MapPin className="w-3.5 h-3.5 text-primary-300" />
+              <span>{distributor.city}, Tanzania</span>
               <span>·</span>
               <span className="text-emerald-300 font-semibold flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -77,26 +123,26 @@ export function DistributorView() {
             </p>
 
             <p className="text-xs text-primary-100/90 mt-3 leading-relaxed max-w-xl">
-              {lang === 'sw'
-                ? 'Karibu! Mimi ni Mwanahamisi Lissu, Msambazaji Mkuu wa Edmark International nchini Tanzania. Niko hapa kukusaidia kupata bidhaa halisi 100%, ratiba sahihi ya matumizi, na ushauri wa bure wa safari yako ya afya.'
-                : 'Welcome! I am Mwanahamisi Lissu, an authorized Crown Manager for Edmark International in Tanzania. I am dedicated to providing you with 100% genuine wellness solutions, customized dosage coaching, and fast nationwide delivery.'}
+              {distributor.bio || (lang === 'sw'
+                ? `Karibu! Mimi ni ${distributor.name}, Msambazaji Mkuu wa Edmark nchini Tanzania. Niko hapa kukusaidia kupata bidhaa halisi 100%, ratiba sahihi ya matumizi, na ushauri wa bure wa safari yako ya afya.`
+                : `Welcome! I am ${distributor.name}, an authorized Edmark distributor leader in Tanzania. I am dedicated to providing you with 100% genuine wellness solutions, customized dosage coaching, and fast nationwide delivery.`)}
             </p>
 
             {/* CTAs */}
             <div className="mt-5 flex flex-wrap items-center justify-center sm:justify-start gap-3">
               <a
                 id="distributor-whatsapp-cta-btn"
-                href={`${WHATSAPP_LINK}?text=${encodeURIComponent('Hello Mwanahamisi, I would like to consult with you regarding Edmark products:')}`}
+                href={waConsultLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-3 bg-secondary-green hover:bg-emerald-600 active:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-lg transition-transform active:scale-95"
+                className="inline-flex items-center gap-2 px-5 py-3 bg-secondary-green hover:bg-emerald-600 active:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-lg transition-transform active:scale-95 cursor-pointer"
               >
                 <Phone className="w-4 h-4" />
-                <span>{lang === 'sw' ? 'Ongea Nami Kupitia WhatsApp' : 'Chat on WhatsApp with Mwanahamisi'}</span>
+                <span>{lang === 'sw' ? `Ongea na ${distributor.name.split(' ')[0]} WhatsApp` : `Chat on WhatsApp with ${distributor.name.split(' ')[0]}`}</span>
               </a>
 
               <span className="text-xs text-primary-200 font-medium">
-                +{TARGET_PHONE}
+                {distributor.phone}
               </span>
             </div>
           </div>
@@ -110,7 +156,7 @@ export function DistributorView() {
             <Award className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-lg font-extrabold text-neutral-900 block leading-tight">5+ Years</span>
+            <span className="text-lg font-extrabold text-neutral-900 block leading-tight">{distributor.experienceYears || '5+'} Years</span>
             <span className="text-[11px] text-neutral-500">{lang === 'sw' ? 'Uzoefu wa Edmark' : 'Edmark Experience'}</span>
           </div>
         </div>
@@ -121,7 +167,7 @@ export function DistributorView() {
           </div>
           <div>
             <span className="text-lg font-extrabold text-neutral-900 block leading-tight">500+</span>
-            <span className="text-[11px] text-neutral-500">{lang === 'sw' ? 'Wateja Waliofanikiwa' : 'Happy Clients'}</span>
+            <span className="text-[11px] text-neutral-500">{lang === 'sw' ? 'Wateja Waliohudumiwa' : 'Clients Guided'}</span>
           </div>
         </div>
 
@@ -130,7 +176,7 @@ export function DistributorView() {
             <Star className="w-5 h-5 fill-amber-400" />
           </div>
           <div>
-            <span className="text-lg font-extrabold text-neutral-900 block leading-tight">4.9 / 5.0</span>
+            <span className="text-lg font-extrabold text-neutral-900 block leading-tight">{distributor.rating || '4.95'} / 5.0</span>
             <span className="text-[11px] text-neutral-500">{lang === 'sw' ? 'Kiwango cha Kuridhika' : 'Customer Rating'}</span>
           </div>
         </div>
@@ -194,12 +240,17 @@ export function DistributorView() {
         </div>
       </section>
 
+      {/* ── REGIONAL DIRECTORY & NETWORK ── */}
+      <section>
+        <RegionalDistributorLocator />
+      </section>
+
       {/* ── CLIENT TESTIMONIALS ── */}
       <section className="bg-white rounded-3xl border border-neutral-200/80 p-6 sm:p-8 shadow-xs space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold text-neutral-900">
-              {lang === 'sw' ? 'Wanachosema Wateja Wangu' : 'Customer Stories & Reviews'}
+              {lang === 'sw' ? 'Wanachosema Wateja' : 'Customer Stories & Reviews'}
             </h2>
             <p className="text-xs text-neutral-500 mt-0.5">
               {lang === 'sw' ? 'Uzoefu halisi kutoka kwa wateja waliohudumiwa' : 'Real feedback from clients guided through the wellness programs'}
@@ -246,3 +297,4 @@ export function DistributorView() {
     </div>
   );
 }
+

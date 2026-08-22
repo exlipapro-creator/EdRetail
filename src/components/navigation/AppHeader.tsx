@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ShoppingCart, Heart, Search, ShieldCheck, ArrowLeft, Sparkles, Globe } from 'lucide-react';
+import { ShoppingCart, Heart, Search, ShieldCheck, ArrowLeft, Sparkles, Globe, MapPin, CheckCircle2, RotateCcw } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
 import { CartBadge } from '../CartBadge';
@@ -17,6 +17,7 @@ interface AppHeaderProps {
   onSearchChange?: (v: string) => void;
   onOpenFlyerStudio?: () => void;
   onOpenDistributorAuth?: () => void;
+  onOpenBackOffice?: () => void;
   onOpenStoreLinkModal?: () => void;
 }
 
@@ -28,6 +29,7 @@ export function AppHeader({
   onSearchChange,
   onOpenFlyerStudio,
   onOpenDistributorAuth,
+  onOpenBackOffice,
   onOpenStoreLinkModal,
 }: AppHeaderProps) {
   const { lang, setLang } = useLang();
@@ -35,6 +37,8 @@ export function AppHeader({
   const favouritesCount = useCartStore((s) => s.favourites.length);
   const distributor = useDistributorStore((s) => s.getActiveDistributor());
   const isAdminAuthenticated = useDistributorStore((s) => s.isAdminAuthenticated);
+  const attributionDays = useDistributorStore((s) => s.getAttributionExpiryDays());
+  const clearAttribution = useDistributorStore((s) => s.clearAttribution);
 
   const navLinks: { id: ScreenId; labelEn: string; labelSw: string }[] = [
     { id: 'home', labelEn: 'Home', labelSw: 'Mwanzo' },
@@ -44,6 +48,19 @@ export function AppHeader({
     { id: 'distributor', labelEn: 'Distributor', labelSw: 'Msambazaji' },
     { id: 'help', labelEn: 'Orders & Help', labelSw: 'Maagizo & Msaada' },
   ];
+
+  const handleResetToCentral = () => {
+    clearAttribution();
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('ref');
+      url.searchParams.delete('distributor');
+      url.searchParams.delete('dist');
+      window.history.replaceState({}, '', url.pathname);
+    } catch {
+      // safe fallback
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b border-neutral-200/80 shadow-xs">
@@ -111,7 +128,7 @@ export function AppHeader({
           )}
 
           {/* Distributor Storefront link button */}
-          {onOpenStoreLinkModal && (
+          {onOpenStoreLinkModal && !distributor.isCentral && (
             <button
               id="header-store-link-btn"
               onClick={onOpenStoreLinkModal}
@@ -192,24 +209,34 @@ export function AppHeader({
             <CartBadge count={totalItems} />
           </motion.button>
 
-          {/* Distributor Auth / Profile Hub Trigger */}
-          {onOpenDistributorAuth && (
+          {/* Distributor Leader Portal / Back-Office Cockpit Trigger */}
+          {(onOpenBackOffice || onOpenDistributorAuth) && (
             <button
               id="distributor-auth-trigger-btn"
-              onClick={onOpenDistributorAuth}
-              className={`p-2 rounded-xl border transition-all ${
+              onClick={() => {
+                if (onOpenBackOffice) onOpenBackOffice();
+                else if (onOpenDistributorAuth) onOpenDistributorAuth();
+              }}
+              className={`p-2 rounded-xl border transition-all flex items-center gap-1.5 ${
                 isAdminAuthenticated
-                  ? 'bg-emerald-600 text-white border-emerald-700 shadow-2xs'
+                  ? 'bg-emerald-700 text-white border-emerald-800 shadow-2xs'
                   : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-700 border-neutral-200'
               }`}
-              title={isAdminAuthenticated ? `Distributor: ${distributor.name}` : 'Distributor Sign In'}
-              aria-label="Distributor Account"
+              title={
+                isAdminAuthenticated
+                  ? `${distributor.name} • ${lang === 'sw' ? 'Fungua Ofisi ya Msambazaji' : 'Leader Back-Office'}`
+                  : (lang === 'sw' ? 'Kuingia Msambazaji (Leader PIN)' : 'Distributor Leader Portal')
+              }
+              aria-label="Distributor Account & Back-Office"
             >
-              <ShieldCheck className="w-4 h-4" />
+              <ShieldCheck className="w-4 h-4 text-amber-400" />
+              <span className="hidden xl:inline text-[11px] font-extrabold">
+                {isAdminAuthenticated ? (lang === 'sw' ? 'Ofisi Yangu' : 'Back-Office') : (lang === 'sw' ? 'Msambazaji' : 'Distributor')}
+              </span>
             </button>
           )}
 
-          {/* Direct Admin link if already verified */}
+          {/* Direct Admin link if verified */}
           <Link
             to="/admin"
             id="admin-portal-link"
@@ -221,6 +248,83 @@ export function AppHeader({
           </Link>
         </div>
       </div>
+
+      {/* ── DYNAMIC CONTEXT BAR: REPLICATED STOREFRONT VS. CENTRAL NETWORK HUB ── */}
+      <div className={`px-4 py-1.5 text-xs border-t transition-colors ${
+        !distributor.isCentral
+          ? 'bg-emerald-50/90 border-emerald-200/80 text-emerald-950'
+          : 'bg-neutral-100/90 border-neutral-200/70 text-neutral-700'
+      }`}>
+        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
+          {!distributor.isCentral ? (
+            <>
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px] flex-shrink-0">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                </div>
+                <div className="flex items-center gap-1.5 truncate">
+                  <span className="font-bold truncate">
+                    {lang === 'sw' ? 'Duka Rasmi la Msambazaji:' : 'Shopping with:'} {distributor.name}
+                  </span>
+                  <span className="text-[10px] text-emerald-700 hidden sm:inline">
+                    ({distributor.rank || 'Certified Coach'} · {distributor.city})
+                  </span>
+                  {attributionDays > 0 && (
+                    <span className="hidden md:inline-block px-2 py-0.2 bg-emerald-200/60 text-emerald-900 text-[10px] rounded-full font-semibold">
+                      {attributionDays} {lang === 'sw' ? 'siku zilizobaki' : 'days left'}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 ml-auto">
+                <button
+                  type="button"
+                  onClick={handleResetToCentral}
+                  className="text-[11px] font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1 underline underline-offset-2 cursor-pointer"
+                  title="Switch to Central Head Office"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>{lang === 'sw' ? 'Rudi Makao Makuu' : 'Switch to Central'}</span>
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-2">
+                <span className="text-sm">🇹🇿</span>
+                <span className="font-semibold text-[11px] sm:text-xs">
+                  {lang === 'sw'
+                    ? 'Kitovu Kikuu cha ED Retail Tanzania · Mtandao Rasmi wa Wasambazaji'
+                    : 'ED Retail Tanzania Central Hub · Authorized National Distribution'}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 ml-auto">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById('regional-distributor-locator');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                      onNavigate('home');
+                      setTimeout(() => {
+                        document.getElementById('regional-distributor-locator')?.scrollIntoView({ behavior: 'smooth' });
+                      }, 250);
+                    }
+                  }}
+                  className="text-[11px] font-bold text-primary-700 hover:text-primary-900 flex items-center gap-1 cursor-pointer"
+                >
+                  <MapPin className="w-3 h-3 text-primary-600" />
+                  <span>{lang === 'sw' ? 'Tafuta Msambazaji wa Mkoani' : 'Find Local Leader'}</span>
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
     </header>
   );
 }
+

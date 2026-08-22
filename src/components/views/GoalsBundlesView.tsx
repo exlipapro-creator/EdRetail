@@ -8,8 +8,9 @@ import {
   Target,
   Package,
 } from 'lucide-react';
-import { BUNDLES, Bundle, Product, PRODUCTS } from '../../types';
+import { Bundle, Product } from '../../types';
 import { useCartStore } from '../../store/cartStore';
+import { useDistributorStore } from '../../store/distributorStore';
 import { formatPrice, formatUsd, WHATSAPP_LINK, DISTRIBUTOR_NAME } from '../../utils/whatsappCompiler';
 import { useLang } from '../../context/LangContext';
 
@@ -66,35 +67,40 @@ const GOALS: GoalOption[] = [
   },
 ];
 
-function getBundleMetrics(bundle: Bundle) {
-  const originalPrice = bundle.productIds.reduce((sum, pId) => {
-    const p = PRODUCTS.find((item) => item.id === pId);
-    return sum + (p?.price || 0);
-  }, 0);
-
-  const bundlePrice = Math.round(originalPrice * (1 - bundle.discountPercent / 100));
-
-  const priceUsd = bundle.productIds.reduce((sum, pId) => {
-    const p = PRODUCTS.find((item) => item.id === pId);
-    return sum + (p?.priceUsd || 0);
-  }, 0) * (1 - bundle.discountPercent / 100);
-
-  return { originalPrice, bundlePrice, priceUsd };
-}
-
 export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
   const { lang, t } = useLang();
   const [selectedGoalId, setSelectedGoalId] = useState<string>('weight-loss');
   const addItem = useCartStore((s) => s.addItem);
   const [addedBundleId, setAddedBundleId] = useState<string | null>(null);
 
+  const getEffectiveBundles = useDistributorStore((s) => s.getEffectiveBundles);
+  const getEffectiveProduct = useDistributorStore((s) => s.getEffectiveProduct);
+
+  const liveBundles = getEffectiveBundles();
+
+  const getBundleMetrics = (bundle: Bundle) => {
+    const originalPrice = bundle.productIds.reduce((sum, pId) => {
+      const p = getEffectiveProduct(pId);
+      return sum + (p?.price || 0);
+    }, 0);
+
+    const bundlePrice = Math.round(originalPrice * (1 - bundle.discountPercent / 100));
+
+    const priceUsd = bundle.productIds.reduce((sum, pId) => {
+      const p = getEffectiveProduct(pId);
+      return sum + (p?.priceUsd || 0);
+    }, 0) * (1 - bundle.discountPercent / 100);
+
+    return { originalPrice, bundlePrice, priceUsd };
+  };
+
   const activeGoal = GOALS.find((g) => g.id === selectedGoalId) || GOALS[0];
-  const recommendedBundle = BUNDLES.find((b) => b.id === activeGoal.recommendedBundleId) || BUNDLES[0];
+  const recommendedBundle = liveBundles.find((b) => b.id === activeGoal.recommendedBundleId) || liveBundles[0];
   const recMetrics = recommendedBundle ? getBundleMetrics(recommendedBundle) : null;
 
   const handleAddBundleToCart = (bundle: Bundle) => {
     bundle.productIds.forEach((productId) => {
-      const product = PRODUCTS.find((p) => p.id === productId);
+      const product = getEffectiveProduct(productId);
       if (product) {
         addItem({ ...product, quantity: 1 });
       }
@@ -226,7 +232,7 @@ export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
                   </span>
                   <div className="flex flex-wrap gap-2">
                     {recommendedBundle.productIds.map((pId) => {
-                      const prod = PRODUCTS.find((p) => p.id === pId);
+                      const prod = getEffectiveProduct(pId);
                       if (!prod) return null;
                       return (
                         <button
@@ -305,7 +311,7 @@ export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {BUNDLES.map((bundle) => {
+          {liveBundles.map((bundle) => {
             const isAdded = addedBundleId === bundle.id;
             const metrics = getBundleMetrics(bundle);
 
@@ -319,7 +325,7 @@ export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
                     <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 uppercase">
                       {lang === 'sw' ? 'Pakiti ya Afya' : 'Wellness Pack'}
                     </span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">
                       {bundle.discountPercent}% OFF
                     </span>
                   </div>
@@ -337,7 +343,7 @@ export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       {bundle.productIds.map((pId) => {
-                        const p = PRODUCTS.find((item) => item.id === pId);
+                        const p = getEffectiveProduct(pId);
                         if (!p) return null;
                         return (
                           <button

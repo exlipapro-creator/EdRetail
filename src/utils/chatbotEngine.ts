@@ -1,7 +1,15 @@
 import { EDMARK_KNOWLEDGE_BASE } from '../data/edmarkKnowledgeBase';
 import { useDistributorStore } from '../store/distributorStore';
-import { PRODUCTS } from '../types';
 import { WHATSAPP_LINK, DISTRIBUTOR_NAME } from './whatsappCompiler';
+
+// Helper to retrieve live dynamic catalog with admin price/stock overrides applied
+const getLiveProducts = () => {
+  try {
+    return useDistributorStore.getState().getEffectiveProducts();
+  } catch {
+    return [];
+  }
+};
 
 export interface ChatMessage {
   id: string;
@@ -235,9 +243,10 @@ export function parseCustomerOrDistributorIntent(
     text.includes('mwani') ||
     text.includes('spiro')
   ) {
-    const spirulina = PRODUCTS.find((p) => p.id === 'hawaiian-spirulina');
-    const spiro = PRODUCTS.find((p) => p.id === 'spiro-cereal');
-    const splina = PRODUCTS.find((p) => p.id === 'splina-chlorophyll');
+    const live = getLiveProducts();
+    const spirulina = live.find((p) => p.id === 'hawaiian-spirulina');
+    const spiro = live.find((p) => p.id === 'spiro-cereal');
+    const splina = live.find((p) => p.id === 'splina-chlorophyll');
 
     return {
       id: msgId,
@@ -266,9 +275,9 @@ export function parseCustomerOrDistributorIntent(
             `• Optimizes gastrointestinal absorption efficiency so your digestive system absorbs all vitamins and proteins from your daily meals.\n\n` +
             `Would you like to add Hawaiian Spirulina to your cart or consult directly on WhatsApp?`,
       options: [
-        { label: lang === 'sw' ? 'Weka Hawaiian Spirulina Mkobani (TZS 32,000)' : 'Add Hawaiian Spirulina to Cart', action: 'add_to_cart', payload: spirulina },
-        { label: lang === 'sw' ? 'Weka SpiRO Cereal (TZS 26,000)' : 'Add SpiRO Cereal', action: 'add_to_cart', payload: spiro },
-        { label: lang === 'sw' ? 'Weka Splina Chlorophyll (TZS 28,000)' : 'Add Splina Chlorophyll', action: 'add_to_cart', payload: splina },
+        { label: lang === 'sw' ? `Weka Hawaiian Spirulina (${spirulina ? `TZS ${spirulina.price.toLocaleString()}` : 'Agiza'})` : `Add Hawaiian Spirulina (${spirulina ? `TZS ${spirulina.price.toLocaleString()}` : 'Order'})`, action: 'add_to_cart', payload: spirulina },
+        { label: lang === 'sw' ? `Weka SpiRO Cereal (${spiro ? `TZS ${spiro.price.toLocaleString()}` : 'Agiza'})` : `Add SpiRO Cereal (${spiro ? `TZS ${spiro.price.toLocaleString()}` : 'Order'})`, action: 'add_to_cart', payload: spiro },
+        { label: lang === 'sw' ? `Weka Splina Chlorophyll (${splina ? `TZS ${splina.price.toLocaleString()}` : 'Agiza'})` : `Add Splina Chlorophyll (${splina ? `TZS ${splina.price.toLocaleString()}` : 'Order'})`, action: 'add_to_cart', payload: splina },
         { label: lang === 'sw' ? 'Ongea na Msambazaji WhatsApp' : 'Consult on WhatsApp', action: 'open_whatsapp_consult' },
       ],
     };
@@ -285,8 +294,9 @@ export function parseCustomerOrDistributorIntent(
     text.includes('nursing') ||
     text.includes('mtoto mchanga')
   ) {
-    const splina = PRODUCTS.find((p) => p.id === 'splina-chlorophyll');
-    const spirulina = PRODUCTS.find((p) => p.id === 'hawaiian-spirulina');
+    const live = getLiveProducts();
+    const splina = live.find((p) => p.id === 'splina-chlorophyll');
+    const spirulina = live.find((p) => p.id === 'hawaiian-spirulina');
 
     return {
       id: msgId,
@@ -331,8 +341,9 @@ export function parseCustomerOrDistributorIntent(
     text.includes('tumbo kuwaka') ||
     text.includes('goal_ulcers')
   ) {
-    const splina = PRODUCTS.find((p) => p.id === 'splina-chlorophyll');
-    const spirulina = PRODUCTS.find((p) => p.id === 'hawaiian-spirulina');
+    const live = getLiveProducts();
+    const splina = live.find((p) => p.id === 'splina-chlorophyll');
+    const spirulina = live.find((p) => p.id === 'hawaiian-spirulina');
 
     return {
       id: msgId,
@@ -354,7 +365,7 @@ export function parseCustomerOrDistributorIntent(
             `• Relieves Bloating & Gas: Restores balanced enzymatic digestive motility.\n\n` +
             `Dosage: Mix 1 capful in room-temperature water twice daily on an empty stomach.`,
       options: [
-        { label: lang === 'sw' ? 'Weka Splina Mkobani (TZS 28,000)' : 'Add Splina to Cart', action: 'add_to_cart', payload: splina },
+        { label: lang === 'sw' ? `Weka Splina Mkobani (${splina ? `TZS ${splina.price.toLocaleString()}` : 'Agiza'})` : `Add Splina to Cart (${splina ? `TZS ${splina.price.toLocaleString()}` : 'Order'})`, action: 'add_to_cart', payload: splina },
         { label: lang === 'sw' ? 'Weka Spirulina ya Vidonda' : 'Add Spirulina', action: 'add_to_cart', payload: spirulina },
         { label: lang === 'sw' ? 'Ongea na Mwanahamisi WhatsApp' : 'Chat on WhatsApp', action: 'open_whatsapp_consult' },
       ],
@@ -374,8 +385,9 @@ export function parseCustomerOrDistributorIntent(
     text.includes('shake off') ||
     text.includes('goal_weight_loss')
   ) {
-    const shakeOff = PRODUCTS.find((p) => p.id === 'shake-off-phyto');
-    const mrt = PRODUCTS.find((p) => p.id === 'mrt-complex');
+    const live = getLiveProducts();
+    const shakeOff = live.find((p) => p.id === 'shake-off-phyto');
+    const mrt = live.find((p) => p.id === 'mrt-complex');
 
     return {
       id: msgId,
@@ -401,8 +413,8 @@ export function parseCustomerOrDistributorIntent(
             `Expected result: 3–7 kg healthy weight loss within 14 to 21 days.`,
       options: [
         { label: lang === 'sw' ? 'Weka Pakiti ya P4 (Punguzo la 10%)' : 'Add P4 Bundle (10% Off)', action: 'add_p4_bundle' },
-        { label: lang === 'sw' ? 'Weka Shake Off Tu (TZS 35,000)' : 'Add Shake Off Only', action: 'add_to_cart', payload: shakeOff },
-        { label: lang === 'sw' ? 'Weka MRT Complex Tu (TZS 45,000)' : 'Add MRT Complex Only', action: 'add_to_cart', payload: mrt },
+        { label: lang === 'sw' ? `Weka Shake Off Tu (${shakeOff ? `TZS ${shakeOff.price.toLocaleString()}` : 'Agiza'})` : `Add Shake Off Only (${shakeOff ? `TZS ${shakeOff.price.toLocaleString()}` : 'Order'})`, action: 'add_to_cart', payload: shakeOff },
+        { label: lang === 'sw' ? `Weka MRT Complex Tu (${mrt ? `TZS ${mrt.price.toLocaleString()}` : 'Agiza'})` : `Add MRT Complex Only (${mrt ? `TZS ${mrt.price.toLocaleString()}` : 'Order'})`, action: 'add_to_cart', payload: mrt },
         { label: lang === 'sw' ? 'Tazama Ratiba ya Dozi ya P4' : 'View P4 Dosage Schedule', action: 'show_p4_schedule' },
       ],
     };
@@ -417,8 +429,9 @@ export function parseCustomerOrDistributorIntent(
     text.includes('tumbo kujaa') ||
     text.includes('bloating')
   ) {
-    const shakeOff = PRODUCTS.find((p) => p.id === 'shake-off-phyto');
-    const splina = PRODUCTS.find((p) => p.id === 'splina-chlorophyll');
+    const live = getLiveProducts();
+    const shakeOff = live.find((p) => p.id === 'shake-off-phyto');
+    const splina = live.find((p) => p.id === 'splina-chlorophyll');
 
     return {
       id: msgId,
@@ -460,8 +473,9 @@ export function parseCustomerOrDistributorIntent(
     text.includes('male energy') ||
     text.includes('goal_energy')
   ) {
-    const troika = PRODUCTS.find((p) => p.id === 'cafe-troika');
-    const ginseng = PRODUCTS.find((p) => p.id === 'ginseng-coffee');
+    const live = getLiveProducts();
+    const troika = live.find((p) => p.id === 'cafe-troika');
+    const ginseng = live.find((p) => p.id === 'ginseng-coffee');
 
     return {
       id: msgId,
@@ -503,9 +517,10 @@ export function parseCustomerOrDistributorIntent(
     text.includes('kahawa ipi') ||
     text.includes('which coffee')
   ) {
-    const troika = PRODUCTS.find((p) => p.id === 'cafe-troika');
-    const ginseng = PRODUCTS.find((p) => p.id === 'ginseng-coffee');
-    const cafe73 = PRODUCTS.find((p) => p.id === 'cafe-73');
+    const live = getLiveProducts();
+    const troika = live.find((p) => p.id === 'cafe-troika');
+    const ginseng = live.find((p) => p.id === 'ginseng-coffee');
+    const cafe73 = live.find((p) => p.id === 'cafe-73');
 
     return {
       id: msgId,
@@ -545,9 +560,10 @@ export function parseCustomerOrDistributorIntent(
     text.includes('hypertension') ||
     text.includes('blood pressure')
   ) {
-    const splina = PRODUCTS.find((p) => p.id === 'splina-chlorophyll');
-    const spirulina = PRODUCTS.find((p) => p.id === 'hawaiian-spirulina');
-    const cafe73 = PRODUCTS.find((p) => p.id === 'cafe-73');
+    const live = getLiveProducts();
+    const splina = live.find((p) => p.id === 'splina-chlorophyll');
+    const spirulina = live.find((p) => p.id === 'hawaiian-spirulina');
+    const cafe73 = live.find((p) => p.id === 'cafe-73');
 
     return {
       id: msgId,
@@ -622,8 +638,8 @@ export function parseCustomerOrDistributorIntent(
       (key === 'bubble-c' && (text.includes('bubble c') || text.includes('vitamini c'))) ||
       (key === 'bio-elixir' && (text.includes('bio elixir') || text.includes('elixir') || text.includes('hgh')))
     ) {
-      const pObj = PRODUCTS.find((p) => p.id === key);
-      const effectivePrice = pObj ? useDistributorStore.getState().getEffectiveProducts().find((p) => p.id === key)?.price || pObj.price : kb.suggestedRetailTzs;
+      const pObj = getLiveProducts().find((p) => p.id === key);
+      const effectivePrice = pObj ? pObj.price : kb.suggestedRetailTzs;
 
       return {
         id: msgId,

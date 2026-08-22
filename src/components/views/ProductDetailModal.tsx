@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Product, CATEGORIES } from '../../types';
 import { useCartStore } from '../../store/cartStore';
+import { useDistributorStore } from '../../store/distributorStore';
 import { formatPrice, formatUsd, WHATSAPP_LINK, DISTRIBUTOR_NAME } from '../../utils/whatsappCompiler';
 import { useLang } from '../../context/LangContext';
 import { motionTokens } from '../../design/motion';
@@ -57,30 +58,35 @@ export function ProductDetailModal({
   const [justAdded, setJustAdded] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
-  if (!product) return null;
+  const getEffectiveProduct = useDistributorStore((s) => s.getEffectiveProduct);
+  const liveProduct = product ? getEffectiveProduct(product.id) || product : null;
 
-  const categoryLabel = CATEGORIES.find((c) => c.id === product.category)?.label;
-  const cartItem = items.find((i) => i.id === product.id);
+  if (!liveProduct) return null;
+
+  const effectiveProduct = liveProduct;
+
+  const categoryLabel = CATEGORIES.find((c) => c.id === effectiveProduct.category)?.label;
+  const cartItem = items.find((i) => i.id === effectiveProduct.id);
   const currentInCart = cartItem?.quantity ?? 0;
-  const chips = BENEFIT_CHIPS[product.id] || ['100% Authentic', 'Distributor Backed', 'Tanzania Delivery'];
+  const chips = BENEFIT_CHIPS[effectiveProduct.id] || ['100% Authentic', 'Distributor Backed', 'Tanzania Delivery'];
 
   const handleAddToCart = () => {
-    if (!product.inStock) return;
+    if (!effectiveProduct.inStock) return;
     if (currentInCart === 0) {
-      addItem({ ...product, quantity: selectedQty });
+      addItem({ ...effectiveProduct, quantity: selectedQty });
     } else {
-      updateQuantity(product.id, currentInCart + selectedQty);
+      updateQuantity(effectiveProduct.id, currentInCart + selectedQty);
     }
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 2000);
   };
 
   const handleShare = async () => {
-    const shareText = `Check out ${t(product.name)} at ED Retail (Tanzania): ${formatPrice(product.price)} TZS`;
+    const shareText = `Check out ${t(effectiveProduct.name)} at ED Retail (Tanzania): ${formatPrice(effectiveProduct.price)} TZS`;
     if (navigator.share) {
       try {
         await navigator.share({
-          title: t(product.name),
+          title: t(effectiveProduct.name),
           text: shareText,
           url: window.location.href,
         });
@@ -96,7 +102,7 @@ export function ProductDetailModal({
 
   return (
     <AnimatePresence>
-      {isOpen && (
+      {isOpen && product && (
         <>
           {/* Backdrop */}
           <motion.div
@@ -179,15 +185,15 @@ export function ProductDetailModal({
             <div className="p-5 sm:p-6 overflow-y-auto space-y-5">
               {/* Product Visual Area */}
               <div className="relative bg-gradient-to-b from-neutral-50 to-neutral-100/70 rounded-2xl h-56 sm:h-64 flex items-center justify-center p-6 border border-neutral-200/60 overflow-hidden">
-                {product.badge && (
+                {effectiveProduct.badge && (
                   <span className="absolute top-3 left-3 z-10 px-3 py-1 rounded-full text-xs font-bold bg-white/90 backdrop-blur-xs text-primary-700 border border-primary-200/80 shadow-xs uppercase tracking-wide">
-                    {product.badge}
+                    {effectiveProduct.badge}
                   </span>
                 )}
 
                 <img
-                  src={product.image}
-                  alt={t(product.name)}
+                  src={effectiveProduct.image}
+                  alt={t(effectiveProduct.name)}
                   className="max-h-full max-w-full object-contain drop-shadow-md hover:scale-105 transition-transform duration-300"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
@@ -204,7 +210,7 @@ export function ProductDetailModal({
               <div>
                 <div className="flex items-center gap-2 mb-1.5">
                   {categoryLabel && (
-                    <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${CATEGORY_TAG_COLORS[product.category] || 'bg-neutral-100 text-neutral-700'}`}>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${CATEGORY_TAG_COLORS[effectiveProduct.category] || 'bg-neutral-100 text-neutral-700'}`}>
                       {t(categoryLabel)}
                     </span>
                   )}
@@ -216,28 +222,28 @@ export function ProductDetailModal({
                 </div>
 
                 <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 leading-snug">
-                  {t(product.name)}
+                  {t(effectiveProduct.name)}
                 </h2>
 
                 {/* Price & Stock */}
                 <div className="flex items-baseline justify-between gap-2 mt-2 pt-2 border-t border-neutral-100">
                   <div className="flex items-baseline gap-2">
                     <span className="text-2xl font-extrabold text-neutral-900">
-                      {formatPrice(product.price)}
+                      {formatPrice(effectiveProduct.price)}
                     </span>
                     <span className="text-sm font-semibold text-neutral-500">TZS</span>
-                    <span className="text-xs text-neutral-400">({formatUsd(product.priceUsd)})</span>
+                    <span className="text-xs text-neutral-400">({formatUsd(effectiveProduct.priceUsd)})</span>
                   </div>
 
                   <span
                     className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${
-                      product.inStock
+                      effectiveProduct.inStock
                         ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                         : 'bg-red-50 text-red-700 border border-red-200'
                     }`}
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full ${product.inStock ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                    {product.inStock
+                    <span className={`w-1.5 h-1.5 rounded-full ${effectiveProduct.inStock ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                    {effectiveProduct.inStock
                       ? (lang === 'sw' ? 'Ipo Stoo' : 'In Stock')
                       : (lang === 'sw' ? 'Imeisha' : 'Out of Stock')}
                   </span>
@@ -267,7 +273,7 @@ export function ProductDetailModal({
                   {lang === 'sw' ? 'Maelezo ya Bidhaa' : 'Product Description'}
                 </h4>
                 <p className="text-sm text-neutral-700 leading-relaxed">
-                  {t(product.description)}
+                  {t(effectiveProduct.description)}
                 </p>
               </div>
 
@@ -278,7 +284,7 @@ export function ProductDetailModal({
                   {lang === 'sw' ? 'Jinsi ya Kutumia' : 'How to Use & Dosage'}
                 </h4>
                 <p className="text-xs text-primary-950 leading-relaxed font-medium">
-                  {t(product.usage)}
+                  {t(effectiveProduct.usage)}
                 </p>
               </div>
 
@@ -323,10 +329,10 @@ export function ProductDetailModal({
               <motion.button
                 id="modal-add-to-cart-btn"
                 onClick={handleAddToCart}
-                disabled={!product.inStock}
+                disabled={!effectiveProduct.inStock}
                 whileTap={{ scale: 0.96 }}
                 className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl text-sm font-bold text-white shadow-sm transition-all ${
-                  product.inStock
+                  effectiveProduct.inStock
                     ? justAdded
                       ? 'bg-emerald-600'
                       : 'bg-primary-600 hover:bg-primary-700 active:bg-primary-800'
@@ -341,8 +347,8 @@ export function ProductDetailModal({
                 ) : (
                   <>
                     <ShoppingBag className="w-4 h-4" />
-                    {product.inStock
-                      ? `${lang === 'sw' ? 'Ongeza kwenye Mkoba' : 'Add to Cart'} · ${formatPrice(product.price * selectedQty)} TZS`
+                    {effectiveProduct.inStock
+                      ? `${lang === 'sw' ? 'Ongeza kwenye Mkoba' : 'Add to Cart'} · ${formatPrice(effectiveProduct.price * selectedQty)} TZS`
                       : (lang === 'sw' ? 'Haipatikani Sasa' : 'Out of Stock')}
                   </>
                 )}
@@ -351,7 +357,7 @@ export function ProductDetailModal({
               {/* Ask on WhatsApp button */}
               <a
                 id="modal-whatsapp-ask-btn"
-                href={`${WHATSAPP_LINK}?text=${encodeURIComponent(`Hello ${DISTRIBUTOR_NAME}, I have a question about ${t(product.name)}:`)}`}
+                href={`${WHATSAPP_LINK}?text=${encodeURIComponent(`Hello ${DISTRIBUTOR_NAME}, I have a question about ${t(effectiveProduct.name)}:`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-3.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition-colors flex items-center justify-center flex-shrink-0"

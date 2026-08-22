@@ -17,7 +17,8 @@ import { HeroCarousel } from '../HeroCarousel';
 import { Testimonials } from '../Testimonials';
 import { ReferralShareButton } from '../ReferralShare';
 import { BmiHealthCalculator } from '../calculator/BmiHealthCalculator';
-import { PRODUCTS, CATEGORIES, Product } from '../../types';
+import { RegionalDistributorLocator } from '../distributor/RegionalDistributorLocator';
+import { CATEGORIES, Product } from '../../types';
 import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
 import { formatPrice, formatUsd, getActiveWhatsAppLink } from '../../utils/whatsappCompiler';
@@ -28,6 +29,7 @@ interface HomePageProps {
   onNavigate: (screen: ScreenId) => void;
   onSelectProduct: (product: Product) => void;
   onOpenFlyerStudio?: () => void;
+  onOpenDistributorAuth?: () => void;
 }
 
 const CATEGORY_ICONS: Record<string, typeof Activity> = {
@@ -36,7 +38,12 @@ const CATEGORY_ICONS: Record<string, typeof Activity> = {
   'lifestyle-beverages': Coffee,
 };
 
-export function HomePage({ onNavigate, onSelectProduct, onOpenFlyerStudio }: HomePageProps) {
+export function HomePage({
+  onNavigate,
+  onSelectProduct,
+  onOpenFlyerStudio,
+  onOpenDistributorAuth,
+}: HomePageProps) {
   const { lang, t } = useLang();
   const getEffectiveProducts = useDistributorStore((s) => s.getEffectiveProducts);
   const distributor = useDistributorStore((s) => s.getActiveDistributor());
@@ -123,7 +130,7 @@ export function HomePage({ onNavigate, onSelectProduct, onOpenFlyerStudio }: Hom
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
           {CATEGORIES.map((cat) => {
             const Icon = CATEGORY_ICONS[cat.id] || Leaf;
-            const count = PRODUCTS.filter((p) => p.category === cat.id).length;
+            const count = liveProducts.filter((p) => p.category === cat.id).length;
 
             return (
               <button
@@ -319,12 +326,26 @@ export function HomePage({ onNavigate, onSelectProduct, onOpenFlyerStudio }: Hom
         />
       </section>
 
-      {/* ── 6. DISTRIBUTOR TEASER ── */}
-      <section className="bg-white rounded-3xl border border-neutral-200 p-6 sm:p-8 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-6">
+      {/* ── 6. REGIONAL DISTRIBUTOR DIRECTORY & LOCATOR ── */}
+      <section>
+        <RegionalDistributorLocator
+          onSelectDistributor={() => {
+            // Distributor activated, state and URL updated
+          }}
+          onOpenJoinModal={onOpenDistributorAuth}
+        />
+      </section>
+
+      {/* ── 7. ACTIVE DISTRIBUTOR / CENTRAL SUPPORT TEASER ── */}
+      <section className={`rounded-3xl border p-6 sm:p-8 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-6 ${
+        !distributor.isCentral
+          ? 'bg-emerald-50/80 border-emerald-200'
+          : 'bg-white border-neutral-200'
+      }`}>
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-stone-100 border border-stone-200 p-0.5 flex-shrink-0">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border border-neutral-200 p-0.5 flex-shrink-0 overflow-hidden shadow-2xs">
             <img
-              src="/logo/distributor-circle.png"
+              src={distributor.avatarUrl || '/logo/distributor-circle.png'}
               alt={distributor.name}
               className="w-full h-full object-cover rounded-[14px]"
               onError={(e) => {
@@ -333,14 +354,24 @@ export function HomePage({ onNavigate, onSelectProduct, onOpenFlyerStudio }: Hom
             />
           </div>
           <div>
-            <span className="text-[10px] font-bold text-amber-900 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200 uppercase tracking-wider">
-              {distributor.rank || 'Official Edmark Distributor'} · Edmark Tanzania
-            </span>
+            <div className="flex items-center gap-2">
+              <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${
+                !distributor.isCentral
+                  ? 'text-emerald-900 bg-emerald-100 border-emerald-300'
+                  : 'text-amber-900 bg-amber-50 border-amber-200'
+              }`}>
+                {!distributor.isCentral
+                  ? `${distributor.rank || 'Official Edmark Leader'} · ${distributor.city}`
+                  : 'Central Head Office Desk · Tanzania'}
+              </span>
+            </div>
             <h3 className="text-base sm:text-lg font-bold text-neutral-900 mt-1">
               {distributor.name}
             </h3>
-            <p className="text-xs text-neutral-500 mt-0.5">
-              {lang === 'sw' ? `Msambazaji aliyethibitishwa · Simu / WhatsApp: ${distributor.phone}` : `Authorized Distributor · Phone / WhatsApp: ${distributor.phone}`}
+            <p className="text-xs text-neutral-600 mt-0.5">
+              {lang === 'sw'
+                ? `Msaada & Ushauri wa Moja kwa Moja · Simu / WhatsApp: ${distributor.phone}`
+                : `Verified Consultation & Support · Phone / WhatsApp: ${distributor.phone}`}
             </p>
           </div>
         </div>
@@ -357,7 +388,7 @@ export function HomePage({ onNavigate, onSelectProduct, onOpenFlyerStudio }: Hom
           )}
           <button
             onClick={() => onNavigate('distributor')}
-            className="flex-1 sm:flex-initial px-4 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+            className="flex-1 sm:flex-initial px-4 py-2.5 bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-200 rounded-xl text-xs font-bold transition-colors cursor-pointer shadow-2xs"
           >
             {lang === 'sw' ? 'Tazama Wasifu' : 'View Profile'}
           </button>
@@ -373,7 +404,7 @@ export function HomePage({ onNavigate, onSelectProduct, onOpenFlyerStudio }: Hom
         </div>
       </section>
 
-      {/* ── 7. TESTIMONIALS SLIDER ── */}
+      {/* ── 8. TESTIMONIALS SLIDER ── */}
       <Testimonials />
 
       {/* ── 8. DELIVERY TIMELINE FOOTNOTE ── */}

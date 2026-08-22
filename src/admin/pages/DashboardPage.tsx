@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { formatPrice } from '../../utils/whatsappCompiler';
 import { TrendingUp, ShoppingBag, CreditCard, Package, AlertTriangle } from 'lucide-react';
+import { useDistributorStore } from '../../store/distributorStore';
 
 interface Stats {
   totalRevenue: number;
@@ -24,27 +25,56 @@ export function DashboardPage() {
       today.setHours(0, 0, 0, 0);
       const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
-      const [salesRes, loansRes, productsRes] = await Promise.all([
-        supabase.from('sales').select('subtotal,amount_paid,status,created_at').neq('status','cancelled'),
-        supabase.from('loans').select('balance,status'),
-        supabase.from('products').select('stock_qty,in_stock'),
-      ]);
+      let loadedFromDb = false;
+      try {
+        const [salesRes, loansRes, productsRes] = await Promise.all([
+          supabase.from('sales').select('subtotal,amount_paid,status,created_at').neq('status','cancelled'),
+          supabase.from('loans').select('balance,status'),
+          supabase.from('products').select('stock_qty,in_stock'),
+        ]);
 
-      const sales = salesRes.data ?? [];
-      const loans = loansRes.data ?? [];
-      const products = productsRes.data ?? [];
+        const sales = salesRes.data ?? [];
+        const loans = loansRes.data ?? [];
+        const products = productsRes.data ?? [];
 
-      const delivered = sales.filter(s => s.status === 'delivered');
-      setStats({
-        totalRevenue:    delivered.reduce((s, x) => s + (x.amount_paid ?? 0), 0),
-        todayRevenue:    delivered.filter(s => new Date(s.created_at) >= today).reduce((s, x) => s + (x.amount_paid ?? 0), 0),
-        monthRevenue:    delivered.filter(s => new Date(s.created_at) >= monthStart).reduce((s, x) => s + (x.amount_paid ?? 0), 0),
-        totalSales:      sales.length,
-        pendingSales:    sales.filter(s => s.status === 'pending').length,
-        outstandingLoans: loans.filter(l => l.status !== 'cleared').reduce((s, x) => s + (x.balance ?? 0), 0),
-        activeLoans:     loans.filter(l => l.status !== 'cleared').length,
-        lowStockCount:   products.filter(p => p.in_stock && p.stock_qty <= 5).length,
-      });
+        if (sales.length > 0 || loans.length > 0 || products.length > 0) {
+          const delivered = sales.filter(s => s.status === 'delivered');
+          setStats({
+            totalRevenue:    delivered.reduce((s, x) => s + (x.amount_paid ?? 0), 0),
+            todayRevenue:    delivered.filter(s => new Date(s.created_at) >= today).reduce((s, x) => s + (x.amount_paid ?? 0), 0),
+            monthRevenue:    delivered.filter(s => new Date(s.created_at) >= monthStart).reduce((s, x) => s + (x.amount_paid ?? 0), 0),
+            totalSales:      sales.length,
+            pendingSales:    sales.filter(s => s.status === 'pending').length,
+            outstandingLoans: loans.filter(l => l.status !== 'cleared').reduce((s, x) => s + (x.balance ?? 0), 0),
+            activeLoans:     loans.filter(l => l.status !== 'cleared').length,
+            lowStockCount:   products.filter(p => p.in_stock && p.stock_qty <= 5).length,
+          });
+          loadedFromDb = true;
+        }
+      } catch {
+        // Fallback
+      }
+
+      if (!loadedFromDb) {
+        const localSales = useDistributorStore.getState().sales;
+        const financial = useDistributorStore.getState().getFinancialSummary('all');
+        const prods = useDistributorStore.getState().getEffectiveProducts();
+
+        const pendingCount = localSales.filter((s) => s.source === 'web_whatsapp' && s.balanceDue > 0).length;
+        const activeCreditSales = localSales.filter((s) => s.balanceDue > 0);
+
+        setStats({
+          totalRevenue: financial.cashCollected,
+          todayRevenue: financial.cashCollected,
+          monthRevenue: financial.cashCollected,
+          totalSales: localSales.length,
+          pendingSales: pendingCount,
+          outstandingLoans: financial.creditOutstanding,
+          activeLoans: activeCreditSales.length,
+          lowStockCount: prods.filter((p) => !p.inStock).length,
+        });
+      }
+
       setLoading(false);
     };
     load();

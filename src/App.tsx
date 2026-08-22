@@ -20,6 +20,7 @@ import { SplashScreen } from './components/splash/SplashScreen';
 import { FlyerStudioModal } from './components/marketing/FlyerStudioModal';
 import { DistributorAuthModal } from './components/auth/DistributorAuthModal';
 import { DistributorStoreLinkModal } from './components/distributor/DistributorStoreLinkModal';
+import { DistributorBackOfficeModal } from './components/distributor/DistributorBackOfficeModal';
 import { Product } from './types';
 import { useCartStore } from './store/cartStore';
 import { useDistributorStore } from './store/distributorStore';
@@ -32,6 +33,7 @@ function App() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isBackOfficeOpen, setIsBackOfficeOpen] = useState(false);
   const [isFlyerStudioOpen, setIsFlyerStudioOpen] = useState(false);
   const [isDistributorAuthOpen, setIsDistributorAuthOpen] = useState(false);
   const [isStoreLinkOpen, setIsStoreLinkOpen] = useState(false);
@@ -87,6 +89,7 @@ function App() {
         onOpenCart={() => setIsCartOpen(true)}
         onOpenFlyerStudio={() => setIsFlyerStudioOpen(true)}
         onOpenDistributorAuth={() => setIsDistributorAuthOpen(true)}
+        onOpenBackOffice={() => setIsBackOfficeOpen(true)}
         onOpenStoreLinkModal={() => setIsStoreLinkOpen(true)}
       />
 
@@ -110,6 +113,7 @@ function App() {
                 onNavigate={setCurrentScreen}
                 onSelectProduct={setSelectedProduct}
                 onOpenFlyerStudio={() => setIsFlyerStudioOpen(true)}
+                onOpenDistributorAuth={() => setIsDistributorAuthOpen(true)}
               />
             </motion.div>
           )}
@@ -158,7 +162,7 @@ function App() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2 }}
             >
-              <DistributorView />
+              <DistributorView onOpenBackOffice={() => setIsBackOfficeOpen(true)} />
             </motion.div>
           )}
 
@@ -244,12 +248,19 @@ function App() {
       {/* ── FLOATING CHATBOT TRIGGER & PROACTIVE BUBBLE ── */}
       <FloatingChatbotTrigger onOpenChat={() => setIsChatOpen(true)} />
 
-      {/* ── DUAL-MODE SMART ASSISTANT MODAL (CUSTOMER CONCIERGE & ADMIN COCKPIT) ── */}
+      {/* ── DEDICATED CUSTOMER WELLNESS SMART ASSISTANT MODAL ── */}
       <SmartAssistantModal
         isOpen={isChatOpen}
         onClose={() => setIsChatOpen(false)}
         onNavigateToScreen={(s) => setCurrentScreen(s as any)}
         onSelectProduct={setSelectedProduct}
+        onOpenFlyerStudio={() => setIsFlyerStudioOpen(true)}
+      />
+
+      {/* ── DEDICATED DISTRIBUTOR LEADER BACK-OFFICE / PORTAL ── */}
+      <DistributorBackOfficeModal
+        isOpen={isBackOfficeOpen}
+        onClose={() => setIsBackOfficeOpen(false)}
         onOpenFlyerStudio={() => setIsFlyerStudioOpen(true)}
       />
 

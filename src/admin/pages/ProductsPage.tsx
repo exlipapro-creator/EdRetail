@@ -3,6 +3,8 @@ import { supabase } from '../../lib/supabase';
 import { formatPrice } from '../../utils/whatsappCompiler';
 import { AdminProduct } from '../types';
 import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Loader2, X, Save } from 'lucide-react';
+import { useDistributorStore } from '../../store/distributorStore';
+import { PRODUCTS } from '../../types';
 
 const EMPTY: Omit<AdminProduct, 'created_at' | 'updated_at'> = {
   id: '', name_en: '', name_sw: '', category: 'health-wellness',
@@ -19,8 +21,39 @@ export function ProductsPage() {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase.from('products').select('*').order('category').order('name_en');
-    setProducts(data ?? []);
+    let loadedFromDb = false;
+    try {
+      const { data, error } = await supabase.from('products').select('*').order('category').order('name_en');
+      if (!error && data && data.length > 0) {
+        setProducts(data);
+        loadedFromDb = true;
+      }
+    } catch {
+      // Fallback
+    }
+
+    if (!loadedFromDb) {
+      const live = useDistributorStore.getState().getEffectiveProducts();
+      const mapped: AdminProduct[] = (live.length > 0 ? live : PRODUCTS).map((p) => ({
+        id: p.id,
+        name_en: typeof p.name === 'string' ? p.name : p.name.en,
+        name_sw: typeof p.name === 'string' ? p.name : p.name.sw,
+        category: p.category as any,
+        price: p.price,
+        price_usd: p.priceUsd,
+        description_en: typeof p.description === 'string' ? p.description : p.description.en,
+        description_sw: typeof p.description === 'string' ? p.description : p.description.sw,
+        usage_en: typeof p.usage === 'string' ? p.usage : p.usage?.en || '',
+        usage_sw: typeof p.usage === 'string' ? p.usage : p.usage?.sw || '',
+        image: p.image,
+        badge: (p.badge as any) || null,
+        in_stock: p.inStock,
+        stock_qty: p.inStock ? 20 : 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }));
+      setProducts(mapped);
+    }
     setLoading(false);
   };
 
@@ -52,20 +85,33 @@ export function ProductsPage() {
       stock_qty: Number(editing.stock_qty),
     };
 
-    const isNew = !products.find(p => p.id === payload.id);
-    const { error: err } = isNew
-      ? await supabase.from('products').insert(payload)
-      : await supabase.from('products').update(payload).eq('id', payload.id);
+    // 1. Sync directly to distributorStore so storefront sees changes immediately
+    useDistributorStore.getState().updateProductPrice(payload.id, payload.price);
+    useDistributorStore.getState().toggleProductStock(payload.id, Boolean(payload.in_stock));
 
-    if (err) { setError(err.message); setSaving(false); return; }
+    try {
+      const isNew = !products.find(p => p.id === payload.id);
+      await (isNew
+        ? supabase.from('products').insert(payload)
+        : supabase.from('products').update(payload).eq('id', payload.id));
+    } catch {
+      // Offline safe
+    }
+
     await load();
     close();
     setSaving(false);
   };
 
   const toggleStock = async (p: AdminProduct) => {
-    await supabase.from('products').update({ in_stock: !p.in_stock }).eq('id', p.id);
-    setProducts(prev => prev.map(x => x.id === p.id ? { ...x, in_stock: !p.in_stock } : x));
+    const nextStock = !p.in_stock;
+    useDistributorStore.getState().toggleProductStock(p.id, nextStock);
+    try {
+      await supabase.from('products').update({ in_stock: nextStock }).eq('id', p.id);
+    } catch {
+      // Offline safe
+    }
+    setProducts(prev => prev.map(x => x.id === p.id ? { ...x, in_stock: nextStock } : x));
   };
 
   const handleDelete = async (id: string) => {
