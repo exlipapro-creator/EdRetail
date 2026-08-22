@@ -1,9 +1,30 @@
 import { CartItem, CustomerDetails, Lang } from '../types';
+import { useDistributorStore, DEFAULT_DISTRIBUTOR } from '../store/distributorStore';
 
-// Distributor contact details
+// Default distributor contact details (fallback)
 export const TARGET_PHONE = '255783481416';
+export const DISTRIBUTOR_PHONE = '+255 783 481 416';
 export const WHATSAPP_LINK = `https://wa.me/${TARGET_PHONE}`;
 export const DISTRIBUTOR_NAME = 'Mwanahamisi Lissu';
+
+/** Get the active distributor based on login session or URL referral */
+export const getActiveDistributorDetails = () => {
+  try {
+    return useDistributorStore.getState().getActiveDistributor();
+  } catch {
+    return DEFAULT_DISTRIBUTOR;
+  }
+};
+
+/** Get the dynamic WhatsApp link for the currently active distributor */
+export const getActiveWhatsAppLink = (customText?: string) => {
+  const active = getActiveDistributorDetails();
+  const phone = active.whatsappDigits || TARGET_PHONE;
+  if (!customText) {
+    return `https://wa.me/${phone}`;
+  }
+  return `https://wa.me/${phone}?text=${encodeURIComponent(customText)}`;
+};
 
 /** Sanitise a phone string to digits-only international format */
 export const sanitisePhone = (raw: string): string => {
@@ -105,7 +126,9 @@ export const compileWhatsAppMessage = (
 ): string => {
   const message = buildOrderMessage(items, customer, lang);
   const encodedMessage = encodeURIComponent(message);
-  return `https://wa.me/${TARGET_PHONE}?text=${encodedMessage}`;
+  const active = getActiveDistributorDetails();
+  const phone = active.whatsappDigits || TARGET_PHONE;
+  return `https://wa.me/${phone}?text=${encodedMessage}`;
 };
 
 export const formatPrice = (price: number): string =>

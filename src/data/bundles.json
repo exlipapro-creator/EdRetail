@@ -1,7 +1,7 @@
 [
   {
     "id": "p4-complete",
-    "name": { "en": "Complete P4 Bundle", "sw": "Pakiti Kamili ya P4" },
+    "name": { "en": "Complete P4 Slimming Bundle", "sw": "Pakiti Kamili ya P4 Kupunguza Uzito" },
     "description": {
       "en": "The full P4 Slimming System — MRT Complex + Shake Off Phyto Fiber. Everything you need to start your weight management journey.",
       "sw": "Mfumo kamili wa P4 wa kupunguza uzito — MRT Complex + Shake Off Phyto Fiber. Kila kitu unachohitaji kuanza safari yako ya usimamizi wa uzito."
@@ -10,13 +10,33 @@
     "discountPercent": 10
   },
   {
-    "id": "wellness-duo",
-    "name": { "en": "Wellness Duo", "sw": "Mchanganyiko wa Afya" },
+    "id": "detox-duo",
+    "name": { "en": "Detox & Cleanse Duo", "sw": "Pakiti ya Kusafisha Tumbo & Sumu" },
     "description": {
-      "en": "Splina Chlorophyll + Hawaiian Spirulina — the ultimate daily detox and immunity stack.",
-      "sw": "Splina Klorofili + Spirulina ya Hawaii — mchanganyiko bora wa kila siku wa kusafisha sumu na kinga."
+      "en": "Shake Off Phyto Fiber + Splina Chlorophyll for complete colon detox and natural body alkalisation.",
+      "sw": "Shake Off Phyto Fiber + Splina Liquid Chlorophyll kwa usafi kamili wa utumbo na kuondoa asidi mwilini."
+    },
+    "productIds": ["shake-off-phyto", "splina-chlorophyll"],
+    "discountPercent": 8
+  },
+  {
+    "id": "wellness-duo",
+    "name": { "en": "Daily Immunity & Vitality Stack", "sw": "Mchanganyiko wa Kinga & Nguvu" },
+    "description": {
+      "en": "Splina Chlorophyll + Hawaiian Spirulina — the ultimate daily detox and cellular immunity booster.",
+      "sw": "Splina Klorofili + Spirulina ya Hawaii — mchanganyiko bora wa kila siku wa kusafisha sumu na kuimarisha kinga."
     },
     "productIds": ["splina-chlorophyll", "hawaiian-spirulina"],
+    "discountPercent": 8
+  },
+  {
+    "id": "beauty-glow",
+    "name": { "en": "Youthful Glow & Energy Pack", "sw": "Pakiti ya Ngozi & Nishati" },
+    "description": {
+      "en": "CoCollagen + Ginseng Coffee — pure marine collagen for skin rejuvenation and smooth sustained alertness.",
+      "sw": "CoCollagen + Kahawa ya Ginseng — collagen safi ya baharini kwa ngozi laini na kahawa yenye nishati bila madhara."
+    },
+    "productIds": ["cocollagen", "ginseng-coffee"],
     "discountPercent": 8
   }
 ]

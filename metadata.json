@@ -1,0 +1,8 @@
+{
+  "name": "ED Retail",
+  "description": "Authorized Edmark wellness products storefront and admin portal with WhatsApp ordering for delivery across Tanzania.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
