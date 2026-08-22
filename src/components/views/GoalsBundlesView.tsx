@@ -107,19 +107,19 @@ export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 sm:py-8 space-y-8 animate-fadeIn">
       {/* ── HEADER BANNER ── */}
-      <div className="bg-gradient-to-br from-primary-900 via-primary-800 to-indigo-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+      <div className="bg-[#0C271E] border border-[#1A3D31] rounded-3xl p-6 sm:p-8 text-stone-100 shadow-sm relative overflow-hidden">
         <div className="relative z-10 max-w-2xl space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs font-semibold uppercase tracking-wider text-amber-300">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full text-xs font-semibold uppercase tracking-wider text-[#E5C378]">
             <Sparkles className="w-3.5 h-3.5" />
             <span>{lang === 'sw' ? 'Mwelekeo wa Malengo & Pakiti' : 'Goal Matcher & Bundles'}</span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight text-white">
             {lang === 'sw'
               ? 'Tafuta Mchanganyiko Sahihi wa Malengo Yako ya Afya'
               : 'Targeted Solutions for Your Specific Health Goals'}
           </h1>
-          <p className="text-xs sm:text-sm text-primary-100/90 leading-relaxed max-w-xl">
+          <p className="text-xs sm:text-sm text-stone-300 leading-relaxed max-w-xl">
             {lang === 'sw'
               ? 'Chagua lengo lako hapa chini ili upate pakiti iliyojumuishwa kwa uangalifu na msambazaji ikiwa na punguzo na mpango kamili wa matumizi.'
               : 'Select your wellness focus to discover curated product combinations, bundled savings, and structured dosage plans.'}

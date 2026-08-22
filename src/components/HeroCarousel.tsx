@@ -103,9 +103,9 @@ export function HeroCarousel() {
                 <div className="flex gap-3 max-w-lg mx-auto">
                   <a
                     href={slide.ctaHref}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-colors shadow-md"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-[#0C271E] hover:bg-[#164132] text-white border border-[#235844] rounded-xl text-sm font-bold transition-colors shadow-md"
                   >
-                    <ShoppingCart className="w-4 h-4" />
+                    <ShoppingCart className="w-4 h-4 text-[#E5C378]" />
                     {slide.ctaLabel}
                   </a>
                   <a

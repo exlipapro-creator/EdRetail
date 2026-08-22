@@ -269,16 +269,16 @@ export function HomePage({ onNavigate, onSelectProduct, onOpenFlyerStudio }: Hom
       </section>
 
       {/* ── 5. GOAL FINDER & BUNDLES TEASER CARD ── */}
-      <section className="bg-gradient-to-br from-neutral-900 via-neutral-800 to-primary-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
+      <section className="bg-[#0C271E] rounded-3xl p-6 sm:p-8 text-stone-100 border border-[#1A3D31] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
         <div className="space-y-2 max-w-lg">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-400/20 text-amber-300 rounded-full text-xs font-bold border border-amber-400/30">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 text-[#E5C378] rounded-full text-xs font-bold border border-white/10">
             <Sparkles className="w-3.5 h-3.5" />
             <span>{lang === 'sw' ? 'Mtaalamu wa Malengo ya Afya' : 'Interactive Goal Matcher'}</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-extrabold leading-tight">
+          <h2 className="text-xl sm:text-2xl font-black text-white leading-tight">
             {lang === 'sw' ? 'Hujui pa kuanzia? Pata pakiti inayokufaa.' : 'Unsure where to begin? Match your personal goal.'}
           </h2>
-          <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed">
+          <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
             {lang === 'sw'
               ? 'Jibu maswali 3 rahisi ili upate mchanganyiko sahihi wa bidhaa za kusafisha sumu, kupunguza uzito, au kuongeza nishati kwa punguzo la hadi 10%.'
               : 'Discover whether the P4 Slimming System, Detox Stack, or Vitality Duo matches your personal lifestyle goals with pre-calculated bundle savings.'}
@@ -288,7 +288,7 @@ export function HomePage({ onNavigate, onSelectProduct, onOpenFlyerStudio }: Hom
         <button
           id="home-goal-finder-cta-btn"
           onClick={() => onNavigate('goals')}
-          className="w-full sm:w-auto px-6 py-3.5 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-bold text-xs sm:text-sm shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2 flex-shrink-0 cursor-pointer"
+          className="w-full sm:w-auto px-6 py-3.5 bg-[#C5A059] hover:bg-[#d6b068] text-stone-950 rounded-xl font-black text-xs sm:text-sm shadow-xs transition-transform active:scale-95 flex items-center justify-center gap-2 flex-shrink-0 cursor-pointer"
         >
           <span>{lang === 'sw' ? 'Anza Kutafuta Mpango Wako' : 'Open Goal Finder & Bundles'}</span>
           <ArrowRight className="w-4 h-4" />
@@ -320,9 +320,9 @@ export function HomePage({ onNavigate, onSelectProduct, onOpenFlyerStudio }: Hom
       </section>
 
       {/* ── 6. DISTRIBUTOR TEASER ── */}
-      <section className="bg-white rounded-3xl border border-neutral-200/80 p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6">
+      <section className="bg-white rounded-3xl border border-neutral-200 p-6 sm:p-8 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-200 p-0.5 flex-shrink-0">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-stone-100 border border-stone-200 p-0.5 flex-shrink-0">
             <img
               src="/logo/distributor-circle.png"
               alt={distributor.name}
@@ -333,7 +333,7 @@ export function HomePage({ onNavigate, onSelectProduct, onOpenFlyerStudio }: Hom
             />
           </div>
           <div>
-            <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+            <span className="text-[10px] font-bold text-amber-900 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200 uppercase tracking-wider">
               {distributor.rank || 'Official Edmark Distributor'} · Edmark Tanzania
             </span>
             <h3 className="text-base sm:text-lg font-bold text-neutral-900 mt-1">
@@ -365,7 +365,7 @@ export function HomePage({ onNavigate, onSelectProduct, onOpenFlyerStudio }: Hom
             href={getActiveWhatsAppLink(`Habari ${distributor.name}, nahitaji ushauri wa afya kuhusu bidhaa za Edmark:`)}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 sm:flex-initial px-4 py-2.5 bg-secondary-green hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+            className="flex-1 sm:flex-initial px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-xs"
           >
             <MessageCircle className="w-3.5 h-3.5" />
             <span>{lang === 'sw' ? 'Ongea WhatsApp' : 'WhatsApp'}</span>

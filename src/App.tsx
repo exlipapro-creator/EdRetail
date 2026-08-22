@@ -248,7 +248,7 @@ function App() {
       <SmartAssistantModal
         isOpen={isChatOpen}
         onClose={() => setIsChatOpen(false)}
-        onNavigateToScreen={setCurrentScreen}
+        onNavigateToScreen={(s) => setCurrentScreen(s as any)}
         onSelectProduct={setSelectedProduct}
         onOpenFlyerStudio={() => setIsFlyerStudioOpen(true)}
       />
