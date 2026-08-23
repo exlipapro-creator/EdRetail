@@ -28,8 +28,8 @@ export function BottomNavigation({ currentScreen, onNavigate }: BottomNavigation
     {
       id: 'goals' as ScreenId,
       icon: Sparkles,
-      labelEn: 'Goals & Deals',
-      labelSw: 'Pakiti',
+      labelEn: 'Goals',
+      labelSw: 'Malengo',
     },
     {
       id: 'delivery' as ScreenId,

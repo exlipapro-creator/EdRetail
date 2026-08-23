@@ -7,12 +7,18 @@ import {
   ShoppingBag,
   Target,
   Package,
+  Calculator,
 } from 'lucide-react';
 import { Bundle, Product } from '../../types';
 import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
 import { formatPrice, formatUsd, WHATSAPP_LINK, DISTRIBUTOR_NAME } from '../../utils/whatsappCompiler';
 import { useLang } from '../../context/LangContext';
+import { BmiHealthCalculator } from '../calculator/BmiHealthCalculator';
+
+interface GoalsBundlesViewProps {
+  onSelectProduct: (product: Product) => void;
+}
 
 interface GoalsBundlesViewProps {
   onSelectProduct: (product: Product) => void;
@@ -69,6 +75,7 @@ const GOALS: GoalOption[] = [
 
 export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
   const { lang, t } = useLang();
+  const [activeTab, setActiveTab] = useState<'matcher' | 'assessment'>('matcher');
   const [selectedGoalId, setSelectedGoalId] = useState<string>('weight-loss');
   const addItem = useCartStore((s) => s.addItem);
   const [addedBundleId, setAddedBundleId] = useState<string | null>(null);
@@ -111,9 +118,9 @@ export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 sm:py-8 space-y-8 animate-fadeIn">
-      {/* ── HEADER BANNER ── */}
-      <div className="bg-[#0C271E] border border-[#1A3D31] rounded-3xl p-6 sm:p-8 text-stone-100 shadow-sm relative overflow-hidden">
+    <div className="max-w-6xl mx-auto px-4 py-6 sm:py-8 space-y-6 sm:space-y-8 animate-fadeIn">
+      {/* ── HEADER BANNER & TAB TOGGLE ── */}
+      <div className="bg-[#0C271E] border border-[#1A3D31] rounded-3xl p-6 sm:p-8 text-stone-100 shadow-sm relative overflow-hidden space-y-5">
         <div className="relative z-10 max-w-2xl space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full text-xs font-semibold uppercase tracking-wider text-[#E5C378]">
             <Sparkles className="w-3.5 h-3.5" />
@@ -131,7 +138,44 @@ export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
               : 'Select your wellness focus to discover curated product combinations, bundled savings, and structured dosage plans.'}
           </p>
         </div>
+
+        {/* Tab Controls */}
+        <div className="flex items-center gap-2 pt-2 border-t border-white/10">
+          <button
+            onClick={() => setActiveTab('matcher')}
+            className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer ${
+              activeTab === 'matcher'
+                ? 'bg-[#C5A059] text-stone-950 shadow-xs font-black'
+                : 'bg-white/10 hover:bg-white/20 text-stone-200'
+            }`}
+          >
+            <Target className="w-4 h-4" />
+            <span>{lang === 'sw' ? 'Mlingano wa Malengo (Goal Matcher)' : 'Goal Matcher & Bundles'}</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('assessment')}
+            className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer ${
+              activeTab === 'assessment'
+                ? 'bg-[#C5A059] text-stone-950 shadow-xs font-black'
+                : 'bg-white/10 hover:bg-white/20 text-stone-200'
+            }`}
+          >
+            <Calculator className="w-4 h-4" />
+            <span>{lang === 'sw' ? 'Pima BMI & Ratiba ya Afya' : 'BMI & Body Assessment'}</span>
+          </button>
+        </div>
       </div>
+
+      {activeTab === 'assessment' ? (
+        <section className="space-y-4">
+          <BmiHealthCalculator
+            onSelectProduct={onSelectProduct}
+            onOpenGoalFinder={() => setActiveTab('matcher')}
+          />
+        </section>
+      ) : (
+        <>
 
       {/* ── STEP 1: SELECT GOAL ── */}
       <section className="space-y-4">
@@ -398,6 +442,8 @@ export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
           })}
         </div>
       </section>
+      </>
+      )}
 
       {/* ── DISTRIBUTOR ASSISTANCE BANNER ── */}
       <div className="p-5 bg-neutral-100 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-neutral-700 text-xs">
