@@ -672,6 +672,37 @@ export function DistributorView({
               )}
             </div>
 
+            {/* ── DISTRIBUTOR DEDICATED PORTAL LAUNCH CARD ── */}
+            <div className="bg-gradient-to-r from-[#0C2A20] via-[#10382B] to-[#081C15] border border-emerald-500/40 rounded-3xl p-5 sm:p-6 text-white shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-white flex items-center gap-2">
+                      <span>{lang === 'sw' ? 'Ofisi Kamili ya Msambazaji' : 'Dedicated Distributor Back-Office Portal'}</span>
+                      <span className="px-1.5 py-0.5 rounded-md bg-amber-400 text-stone-950 text-[10px] font-black">NEW</span>
+                    </h3>
+                    <p className="text-[11px] text-emerald-200/80">
+                      {lang === 'sw' ? 'Fungua ofisi ya skrini nzima yenye menyu ya stoo, madeni, na malengo ya 2,000 SV.' : 'Launch the full-screen leadership suite with inventory, CRM, and 2,000 SV tracker.'}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-[11px] text-stone-400 font-mono mt-1">
+                  Portal URL: <span className="text-[#E5C378] underline font-bold">edretail.store/portal</span>
+                </p>
+              </div>
+
+              <Link
+                to="/portal"
+                className="px-4 py-2.5 bg-[#C5A059] hover:bg-[#d6b068] text-stone-950 font-black text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 flex-shrink-0 cursor-pointer self-stretch sm:self-auto justify-center"
+              >
+                <span>{lang === 'sw' ? 'Fungua Portal' : 'Open Portal'}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
             {/* ── SUPER ADMIN PORTAL GATEWAY CARD ── */}
             <div className="bg-gray-900 border border-indigo-500/30 rounded-3xl p-5 sm:p-6 text-white shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="space-y-1">

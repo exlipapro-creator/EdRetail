@@ -206,20 +206,27 @@ export function AppHeader({
 
           {/* Distributor Portal Link */}
           <Link
+            to="/portal"
+            id="distributor-portal-link"
+            className="hidden sm:flex p-2 px-3 rounded-xl border border-emerald-800/40 bg-emerald-900/10 hover:bg-emerald-900/20 text-emerald-900 transition-all items-center gap-1.5 cursor-pointer shadow-2xs"
+            title="Distributor Back-Office"
+            aria-label="Distributor Back-Office"
+          >
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <span className="text-xs font-black">
+              {isAdminAuthenticated ? (lang === 'sw' ? 'Ofisi Yangu' : 'My Portal') : (lang === 'sw' ? 'Wasambazaji' : 'Distributor')}
+            </span>
+          </Link>
+
+          {/* Super Admin Link */}
+          <Link
             to="/admin"
             id="admin-portal-link"
-            className={`hidden sm:flex p-2 px-3 rounded-xl border transition-all items-center gap-1.5 cursor-pointer ${
-              isAdminAuthenticated
-                ? 'bg-[#123B6D] text-white border-[#0D315D] shadow-2xs hover:bg-[#0D315D]'
-                : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-700 border-neutral-200'
-            }`}
-            title="Distributor & Admin Portal"
-            aria-label="Distributor & Admin Portal"
+            className="hidden lg:flex p-2 px-2.5 rounded-xl border border-neutral-200 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 transition-all items-center gap-1 cursor-pointer text-xs font-bold"
+            title="Super Admin"
+            aria-label="Super Admin"
           >
-            <ShieldCheck className="w-4 h-4 text-amber-500" />
-            <span className="text-xs font-bold">
-              {isAdminAuthenticated ? (lang === 'sw' ? 'Ofisi Yangu' : 'Portal') : (lang === 'sw' ? 'Portal' : 'Portal')}
-            </span>
+            <span className="text-stone-500 font-bold">Admin</span>
           </Link>
         </div>
       </div>
