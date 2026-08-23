@@ -1,24 +1,23 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Minus, ShoppingBag, Heart, X, Info } from 'lucide-react';
+import { Plus, Minus, ShoppingBag, Heart, X, Info, Check } from 'lucide-react';
 import { CATEGORIES, Product } from '../types';
 import { useCartStore } from '../store/cartStore';
 import { formatPrice, formatUsd } from '../utils/whatsappCompiler';
 import { useLang } from '../context/LangContext';
-import { motionTokens } from '../design/motion';
 
 interface ProductCardProps {
   product: Product;
 }
 
 const CATEGORY_BADGE_COLOR: Record<string, string> = {
-  'p4-slimming':         'bg-blue-100 text-blue-700 border-blue-200',
-  'health-wellness':     'bg-green-100 text-green-700 border-green-200',
-  'lifestyle-beverages': 'bg-amber-100 text-amber-700 border-amber-200',
+  'p4-slimming':         'bg-emerald-50 text-emerald-800 border-emerald-200',
+  'health-wellness':     'bg-emerald-50 text-emerald-800 border-emerald-200',
+  'lifestyle-beverages': 'bg-amber-50 text-amber-800 border-amber-200',
 };
 
 export function ProductCard({ product }: ProductCardProps) {
-  const { t } = useLang();
+  const { lang, t } = useLang();
   const categoryLabel = CATEGORIES.find((c) => c.id === product.category)?.label;
   const addItem = useCartStore((s) => s.addItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
@@ -46,129 +45,157 @@ export function ProductCard({ product }: ProductCardProps) {
     updateQuantity(product.id, qty - 1);
   };
 
-  const badgeColor = CATEGORY_BADGE_COLOR[product.category] ?? 'bg-gray-100 text-gray-600 border-gray-200';
+  const badgeColor = CATEGORY_BADGE_COLOR[product.category] ?? 'bg-stone-100 text-stone-700 border-stone-200';
 
   return (
     <>
       <div
-        className="relative bg-white rounded-lg overflow-hidden border border-gray-100 hover:border-gray-200 transition-colors cursor-pointer"
+        className="relative bg-white rounded-2xl overflow-hidden border border-stone-200/90 hover:border-emerald-300 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
         onClick={() => setShowDetail(true)}
       >
-        {/* Favourite */}
+        {/* Favourite Button */}
         <button
-          onClick={(e) => { e.stopPropagation(); toggleFavourite(product.id); }}
-          className="absolute top-2 right-2 z-20 p-2 rounded-md bg-white/80 backdrop-blur-sm outline-none [-webkit-tap-highlight-color:transparent]"
-          aria-label={isFavourite ? t({ en: 'Remove from favourites', sw: 'Ondoa kwenye vipendwa' }) : t({ en: 'Add to favourites', sw: 'Ongeza kwenye vipendwa' })}
-          style={{ minWidth: 44, minHeight: 44 }}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFavourite(product.id);
+          }}
+          className={`absolute top-2.5 right-2.5 z-20 p-2 rounded-xl border backdrop-blur-xs transition-colors ${
+            isFavourite
+              ? 'bg-rose-50 text-rose-600 border-rose-200'
+              : 'bg-white/90 text-stone-400 hover:text-stone-700 border-stone-200 shadow-2xs'
+          }`}
+          aria-label={
+            isFavourite
+              ? t({ en: 'Remove from favourites', sw: 'Ondoa kwenye vipendwa' })
+              : t({ en: 'Add to favourites', sw: 'Ongeza kwenye vipendwa' })
+          }
+          style={{ minWidth: 40, minHeight: 40 }}
         >
-          <Heart className={`w-3.5 h-3.5 transition-colors ${isFavourite ? 'fill-rose-500 text-rose-500' : 'text-gray-300'}`} />
+          <Heart className={`w-3.5 h-3.5 ${isFavourite ? 'fill-rose-500 text-rose-500' : ''}`} />
         </button>
 
-        {/* Badge */}
+        {/* Product Badge */}
         {product.badge && (
-          <div className={`absolute top-3 left-3 z-20 px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${badgeColor} uppercase tracking-wide`}>
+          <div
+            className={`absolute top-2.5 left-2.5 z-20 px-2 py-0.5 rounded-md text-[9px] font-black border uppercase tracking-wider ${badgeColor}`}
+          >
             {product.badge}
           </div>
         )}
 
-        {/* Out of stock overlay */}
+        {/* Out of Stock Overlay */}
         {!product.inStock && (
           <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[2px] flex items-center justify-center">
-            <span className="text-xs font-semibold text-gray-500 bg-white border border-gray-200 px-3 py-1 rounded-full">
+            <span className="text-xs font-bold text-stone-500 bg-white border border-stone-200 px-3 py-1 rounded-full shadow-2xs">
               {t({ en: 'Out of stock', sw: 'Haipatikani' })}
             </span>
           </div>
         )}
 
-        {/* Image */}
-        <div className="relative h-40 bg-gray-50 flex items-center justify-center overflow-hidden">
+        {/* Product Image */}
+        <div className="relative h-36 sm:h-44 bg-stone-50 flex items-center justify-center p-3 overflow-hidden border-b border-stone-100">
           <img
             src={product.image}
             alt={t(product.name)}
-            className="w-full h-full object-contain p-3"
+            className="max-h-full max-w-full object-contain hover:scale-105 transition-transform duration-300"
             onError={(e) => {
-              const t = e.currentTarget;
-              t.style.display = 'none';
-              const fallback = t.nextElementSibling as HTMLElement | null;
+              const el = e.currentTarget;
+              el.style.display = 'none';
+              const fallback = el.nextElementSibling as HTMLElement | null;
               if (fallback) fallback.style.display = 'flex';
             }}
           />
-          <div className="w-24 h-24 rounded-lg bg-gray-100 items-center justify-center hidden">
-            <ShoppingBag className="w-9 h-9 text-gray-300" />
+          <div className="w-20 h-20 rounded-xl bg-stone-100 items-center justify-center hidden">
+            <ShoppingBag className="w-8 h-8 text-stone-300" />
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-3">
-          <h3 className="font-semibold text-gray-900 text-sm leading-tight mb-1 line-clamp-2">
-            {t(product.name)}
-          </h3>
-          <p className="text-[11px] text-gray-400 mb-2 line-clamp-2 leading-relaxed">
-            {t(product.description)}
-          </p>
-
-          {/* Price row */}
-          <div className="flex items-baseline gap-1.5 mb-3">
-            <span className="text-lg font-bold text-gray-900">{formatPrice(product.price)}</span>
-            <span className="text-xs text-gray-400 font-medium">TZS</span>
-            <span className="text-[10px] text-gray-300 ml-auto">{formatUsd(product.priceUsd)}</span>
+        {/* Product Content */}
+        <div className="p-3.5 flex flex-col justify-between flex-grow">
+          <div>
+            {categoryLabel && (
+              <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-tight block mb-0.5">
+                {t(categoryLabel)}
+              </span>
+            )}
+            {/* 2-line title support with line clamp to prevent aggressive truncation */}
+            <h3 className="font-extrabold text-stone-900 text-xs sm:text-sm leading-snug line-clamp-2 min-h-[2.4rem]">
+              {t(product.name)}
+            </h3>
+            <p className="text-[11px] text-stone-500 mt-1 line-clamp-2 leading-relaxed">
+              {t(product.description)}
+            </p>
           </div>
 
-          {/* Add / qty control */}
-          <div className="flex items-center justify-between">
-            <button
-              onClick={(e) => { e.stopPropagation(); setShowDetail(true); }}
-              className="p-2 rounded-md text-gray-300 hover:text-primary-500 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
-              aria-label={t({ en: 'View details', sw: 'Ona maelezo' })}
-              style={{ minWidth: 44, minHeight: 44 }}
-            >
-              <Info className="w-4 h-4" />
-            </button>
+          {/* Pricing and Action row */}
+          <div className="pt-3 mt-3 border-t border-stone-100">
+            <div className="flex items-baseline justify-between gap-1 mb-2.5">
+              <div>
+                <span className="text-sm sm:text-base font-black text-stone-900 leading-tight">
+                  {formatPrice(product.price)}
+                </span>
+                <span className="text-[10px] text-stone-500 font-semibold ml-1">TZS</span>
+              </div>
+              <span className="text-[10px] text-stone-400 font-medium">
+                ({formatUsd(product.priceUsd)})
+              </span>
+            </div>
 
-            <AnimatePresence mode="wait">
-              {qty === 0 ? (
-                <motion.button
-                  key="add"
-                  onClick={handleAdd}
-                  disabled={!product.inStock}
-                  className="flex items-center gap-1.5 px-3.5 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 active:bg-indigo-800 transition-colors outline-none disabled:opacity-40 shadow-sm"
-                  initial={{ opacity: 0, scale: 0.85 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.85 }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ duration: motionTokens.durations.hover }}
-                  style={{ minHeight: 40 }}
-                >
-                  <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
-                  Add
-                </motion.button>
-              ) : (
-                <motion.div
-                  key="qty"
-                  className="flex items-center gap-1"
-                  initial={{ opacity: 0, scale: 0.85 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.85 }}
-                  transition={{ duration: motionTokens.durations.hover }}
-                >
+            <div className="flex items-center justify-between gap-1.5">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDetail(true);
+                }}
+                className="p-1.5 text-stone-400 hover:text-stone-700 rounded-lg hover:bg-stone-100 transition-colors"
+                aria-label={t({ en: 'View details', sw: 'Ona maelezo' })}
+                title="View full details"
+              >
+                <Info className="w-4 h-4" />
+              </button>
+
+              <AnimatePresence mode="wait">
+                {qty === 0 ? (
                   <motion.button
-                    onClick={handleMinus}
-                    className="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-md hover:bg-gray-200 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    <Minus className="w-3 h-3 text-gray-700" strokeWidth={2.5} />
-                  </motion.button>
-                  <span className="w-8 text-center text-sm font-semibold text-gray-900">{qty}</span>
-                  <motion.button
+                    key="add"
                     onClick={handleAdd}
-                    className="w-10 h-10 flex items-center justify-center bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors outline-none [-webkit-tap-highlight-color:transparent]"
-                    whileTap={{ scale: 0.9 }}
+                    disabled={!product.inStock}
+                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-extrabold shadow-2xs transition-colors disabled:opacity-40"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    <Plus className="w-3 h-3 text-white" strokeWidth={2.5} />
+                    <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                    <span>{lang === 'sw' ? 'Weka' : 'Add'}</span>
                   </motion.button>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                ) : (
+                  <motion.div
+                    key="qty"
+                    className="flex-1 flex items-center justify-between border border-emerald-300 bg-emerald-50 rounded-xl p-0.5"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                  >
+                    <button
+                      onClick={handleMinus}
+                      className="w-7 h-7 bg-white rounded-lg flex items-center justify-center text-emerald-900 font-black text-xs shadow-2xs hover:bg-stone-50"
+                      aria-label="Decrease quantity"
+                    >
+                      <Minus className="w-3 h-3" />
+                    </button>
+                    <span className="text-xs font-black text-emerald-950 px-2">{qty}</span>
+                    <button
+                      onClick={handleAdd}
+                      className="w-7 h-7 bg-emerald-700 text-white rounded-lg flex items-center justify-center font-black text-xs shadow-2xs hover:bg-emerald-800"
+                      aria-label="Increase quantity"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </div>
@@ -178,128 +205,80 @@ export function ProductCard({ product }: ProductCardProps) {
         {showDetail && (
           <>
             <motion.div
-              className="fixed inset-0 bg-black/50 z-50"
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowDetail(false)}
             />
             <motion.div
-              className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl max-w-lg mx-auto max-h-[85vh] overflow-y-auto"
+              className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl max-w-lg mx-auto max-h-[85vh] overflow-y-auto shadow-2xl p-5"
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 350 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex justify-center pt-3 pb-1">
-                <div className="w-10 h-1 bg-gray-200 rounded-full" />
+              <div className="flex justify-center -mt-2 pb-3">
+                <div className="w-12 h-1 bg-stone-300 rounded-full" />
               </div>
 
-              {/* Image area */}
-              <div className="h-48 bg-gray-50 flex items-center justify-center mx-5 mt-2 rounded-xl relative overflow-hidden">
-                <img
-                  src={product.image}
-                  alt={t(product.name)}
-                  className="w-full h-full object-contain p-4"
-                  onError={(e) => {
-                    const el = e.currentTarget;
-                    el.style.display = 'none';
-                    const fallback = el.nextElementSibling as HTMLElement | null;
-                    if (fallback) fallback.style.display = 'flex';
-                  }}
-                />
-                <div className="absolute inset-0 items-center justify-center hidden">
-                  <ShoppingBag className="w-16 h-16 text-gray-200" />
-                </div>
+              <div className="flex items-center justify-between mb-3">
                 {product.badge && (
-                  <span className={`absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${badgeColor} uppercase tracking-wide`}>
+                  <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase ${badgeColor}`}>
                     {product.badge}
                   </span>
                 )}
+                <button
+                  onClick={() => setShowDetail(false)}
+                  className="p-1.5 rounded-full hover:bg-stone-100 text-stone-500 ml-auto"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
 
-              <div className="px-5 pt-4 pb-8">
-                <div className="flex items-start justify-between gap-3 mb-1">
-                  <h2 className="text-lg font-semibold text-gray-900 leading-tight">{t(product.name)}</h2>
-                  <button
-                    onClick={() => setShowDetail(false)}
-                    className="p-2 text-gray-400 hover:text-gray-600 flex-shrink-0 outline-none [-webkit-tap-highlight-color:transparent]"
-                    style={{ minWidth: 44, minHeight: 44 }}
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+              {/* Detail Image */}
+              <div className="h-52 bg-stone-50 rounded-2xl flex items-center justify-center p-4 border border-stone-200/60 mb-4">
+                <img
+                  src={product.image}
+                  alt={t(product.name)}
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
+
+              <h2 className="text-lg font-black text-stone-900 mb-1 leading-snug">
+                {t(product.name)}
+              </h2>
+              <div className="text-emerald-700 font-extrabold text-sm mb-3">
+                {formatPrice(product.price)} TZS <span className="text-xs text-stone-400">({formatUsd(product.priceUsd)})</span>
+              </div>
+
+              <p className="text-xs text-stone-600 leading-relaxed mb-4">
+                {t(product.description)}
+              </p>
+
+              {product.usage && (
+                <div className="space-y-2 mb-4 bg-stone-50 p-3.5 rounded-2xl border border-stone-200/60">
+                  <h4 className="text-xs font-black text-stone-900 uppercase tracking-wider">
+                    {lang === 'sw' ? 'Matumizi na Maelekezo' : 'How to Use'}
+                  </h4>
+                  <p className="text-xs text-stone-700 leading-relaxed flex items-start gap-2">
+                    <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <span>{t(product.usage)}</span>
+                  </p>
                 </div>
+              )}
 
-                <div className="flex flex-wrap gap-2 text-xs text-gray-500 mb-3">
-                  {categoryLabel && <span>{t(categoryLabel)}</span>}
-                  <span>{product.inStock ? t({ en: 'In stock', sw: 'Inapatikana' }) : t({ en: 'Out of stock', sw: 'Haipatikani' })}</span>
-                </div>
-
-                <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-xl font-semibold text-gray-900">{formatPrice(product.price)}</span>
-                  <span className="text-sm text-gray-400">TZS</span>
-                  <span className="text-sm text-gray-300 ml-1">{formatUsd(product.priceUsd)}</span>
-                </div>
-
-                <div className="mb-4">
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{t({ en: 'About', sw: 'Kuhusu' })}</h3>
-                  <p className="text-sm text-gray-700 leading-relaxed">{t(product.description)}</p>
-                </div>
-
-                {product.steps?.length ? (
-                  <div className="mb-4">
-                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{t({ en: 'Primary benefits', sw: 'Faida kuu' })}</h3>
-                    <ul className="list-disc list-inside space-y-2 text-sm text-gray-700 leading-relaxed">
-                      {product.steps.map((step) => (
-                        <li key={step}>{step}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-
-                <div className="mb-6 p-3 bg-primary-50 rounded-md border border-primary-100">
-                  <h3 className="text-xs font-semibold text-primary-700 uppercase tracking-wider mb-2">{t({ en: 'How to use', sw: 'Jinsi ya kutumia' })}</h3>
-                  <p className="text-sm text-primary-900 leading-relaxed">{t(product.usage)}</p>
-                </div>
-
-                <AnimatePresence mode="wait">
-                  {qty === 0 ? (
-                    <motion.button
-                      key="add-detail"
-                      onClick={(e) => { handleAdd(e); setShowDetail(false); }}
-                      disabled={!product.inStock}
-                      className="w-full flex items-center justify-center gap-2 py-3.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors disabled:opacity-50 outline-none shadow-sm"
-                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                      whileTap={{ scale: 0.97 }}
-                    >
-                      <Plus className="w-4 h-4" strokeWidth={2.5} />
-                      {product.inStock ? t({ en: 'Add to Cart', sw: 'Ongeza kwenye Mkoba' }) : t({ en: 'Out of Stock', sw: 'Haipatikani' })}
-                    </motion.button>
-                  ) : (
-                    <motion.div
-                      key="qty-detail"
-                      className="flex items-center justify-between bg-gray-50 rounded-md p-2 border border-gray-100"
-                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    >
-                      <motion.button
-                        onClick={handleMinus}
-                        className="w-10 h-10 flex items-center justify-center bg-white rounded-md border border-gray-200 outline-none [-webkit-tap-highlight-color:transparent]"
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        <Minus className="w-4 h-4 text-gray-700" />
-                      </motion.button>
-                      <span className="text-base font-semibold text-gray-900">{qty} in cart</span>
-                      <motion.button
-                        onClick={handleAdd}
-                        className="w-10 h-10 flex items-center justify-center bg-indigo-600 rounded-lg hover:bg-indigo-700 outline-none [-webkit-tap-highlight-color:transparent]"
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        <Plus className="w-4 h-4 text-white" strokeWidth={2.5} />
-                      </motion.button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+              {/* Bottom Sticky Action */}
+              <div className="pt-3 border-t border-stone-200 flex items-center gap-3">
+                <button
+                  onClick={handleAdd}
+                  disabled={!product.inStock}
+                  className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs sm:text-sm font-extrabold shadow-xs transition-colors flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-4 h-4 stroke-[3]" />
+                  <span>{lang === 'sw' ? 'Weka kwenye Mkoba' : 'Add to Cart'}</span>
+                </button>
               </div>
             </motion.div>
           </>

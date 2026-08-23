@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ShoppingCart, Heart, Search, ShieldCheck, ArrowLeft, Sparkles, Globe, MapPin, CheckCircle2, RotateCcw } from 'lucide-react';
+import { ShoppingCart, Heart, Search, ShieldCheck, ArrowLeft, Sparkles, Globe } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
 import { CartBadge } from '../CartBadge';
@@ -35,8 +35,6 @@ export function AppHeader({
   const favouritesCount = useCartStore((s) => s.favourites.length);
   const distributor = useDistributorStore((s) => s.getActiveDistributor());
   const isAdminAuthenticated = useDistributorStore((s) => s.isAdminAuthenticated);
-  const attributionDays = useDistributorStore((s) => s.getAttributionExpiryDays());
-  const clearAttribution = useDistributorStore((s) => s.clearAttribution);
 
   const navLinks: { id: ScreenId; labelEn: string; labelSw: string }[] = [
     { id: 'home', labelEn: 'Home', labelSw: 'Mwanzo' },
@@ -46,19 +44,6 @@ export function AppHeader({
     { id: 'distributor', labelEn: 'Distributor', labelSw: 'Msambazaji' },
     { id: 'help', labelEn: 'Orders & Help', labelSw: 'Maagizo & Msaada' },
   ];
-
-  const handleResetToCentral = () => {
-    clearAttribution();
-    try {
-      const url = new URL(window.location.href);
-      url.searchParams.delete('ref');
-      url.searchParams.delete('distributor');
-      url.searchParams.delete('dist');
-      window.history.replaceState({}, '', url.pathname);
-    } catch {
-      // safe fallback
-    }
-  };
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b border-neutral-200/80 shadow-xs">
@@ -110,8 +95,18 @@ export function AppHeader({
           })}
         </nav>
 
-        {/* Right: Actions (Flyer Studio, Store Link, Search, Favourites, Language, Cart, Admin) */}
+        {/* Right: Actions (Search shortcut on mobile, Favourites, Language, Cart, Distributor) */}
         <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Mobile search icon trigger */}
+          <button
+            id="mobile-search-btn"
+            onClick={() => onNavigate('products')}
+            className="flex sm:hidden p-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-700 transition-colors"
+            aria-label={lang === 'sw' ? 'Tafuta bidhaa' : 'Search products'}
+          >
+            <Search className="w-4 h-4" />
+          </button>
+
           {/* 1-Tap Flyer Studio Generator button */}
           {onOpenFlyerStudio && (
             <button
@@ -158,11 +153,11 @@ export function AppHeader({
             </div>
           )}
 
-          {/* Favourites button */}
+          {/* Favourites button - visible on tablet and desktop */}
           <motion.button
             id="favourites-toggle-btn"
             onClick={() => onNavigate('favourites')}
-            className={`relative p-2 rounded-xl transition-colors ${
+            className={`hidden sm:flex relative p-2 rounded-xl transition-colors ${
               currentScreen === 'favourites'
                 ? 'bg-rose-50 text-rose-600 border border-rose-200'
                 : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-700'
@@ -182,20 +177,22 @@ export function AppHeader({
             )}
           </motion.button>
 
-          {/* Language toggle */}
+          {/* Language toggle with clear label */}
           <button
             id="language-switch-btn"
             onClick={() => setLang(lang === 'en' ? 'sw' : 'en')}
-            className="px-2 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-xs font-bold text-neutral-800 transition-colors border border-neutral-200/50"
+            className="px-2.5 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-xs font-bold text-neutral-800 transition-colors border border-neutral-200/50 flex items-center gap-1"
             aria-label={lang === 'en' ? 'Badilisha kwenda Kiswahili' : 'Switch to English'}
+            title={lang === 'en' ? 'Switch language to Swahili' : 'Badilisha lugha kwenda Kiingereza'}
           >
-            {lang === 'en' ? 'SW' : 'EN'}
+            <span className="text-[10px] text-neutral-500 font-normal">Lang:</span>
+            <span className="font-extrabold">{lang === 'en' ? 'SW' : 'EN'}</span>
           </button>
 
           {/* Cart button */}
           <motion.button
             id="header-cart-btn"
-            className="relative p-2 sm:px-3 sm:py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl shadow-xs transition-colors flex items-center gap-2"
+            className="relative p-2 sm:px-3 sm:py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl shadow-xs transition-colors flex items-center gap-2"
             onClick={onOpenCart}
             whileTap={{ scale: 0.92 }}
             aria-label={lang === 'sw' ? `Kikapu chenye bidhaa ${totalItems}` : `Cart with ${totalItems} items`}
@@ -207,11 +204,11 @@ export function AppHeader({
             <CartBadge count={totalItems} />
           </motion.button>
 
-          {/* Distributor Leader Portal / Back-Office Cockpit Trigger */}
+          {/* Distributor Leader Portal Trigger - hidden on small mobile to avoid icon overload */}
           <button
             id="distributor-auth-trigger-btn"
             onClick={() => onNavigate('distributor')}
-            className={`p-2 rounded-xl border transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`hidden sm:flex p-2 rounded-xl border transition-all items-center gap-1.5 cursor-pointer ${
               currentScreen === 'distributor'
                 ? 'bg-emerald-800 text-white border-emerald-900 shadow-xs'
                 : isAdminAuthenticated
@@ -220,8 +217,8 @@ export function AppHeader({
             }`}
             title={
               isAdminAuthenticated
-                ? `${distributor.name} • ${lang === 'sw' ? 'Fungua Ofisi ya Msambazaji (Full Page)' : 'Leader Back-Office (Full Page)'}`
-                : (lang === 'sw' ? 'Ofisi ya Msambazaji (Leader PIN)' : 'Distributor Leader Portal')
+                ? `${distributor.name} • ${lang === 'sw' ? 'Fungua Ofisi ya Msambazaji' : 'Leader Back-Office'}`
+                : (lang === 'sw' ? 'Ofisi ya Msambazaji' : 'Distributor Leader Portal')
             }
             aria-label="Distributor Account & Back-Office"
           >
@@ -241,82 +238,6 @@ export function AppHeader({
           >
             <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Hub</span>
           </Link>
-        </div>
-      </div>
-
-      {/* ── DYNAMIC CONTEXT BAR: REPLICATED STOREFRONT VS. CENTRAL NETWORK HUB ── */}
-      <div className={`px-4 py-1.5 text-xs border-t transition-colors ${
-        !distributor.isCentral
-          ? 'bg-emerald-50/90 border-emerald-200/80 text-emerald-950'
-          : 'bg-neutral-100/90 border-neutral-200/70 text-neutral-700'
-      }`}>
-        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
-          {!distributor.isCentral ? (
-            <>
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px] flex-shrink-0">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                </div>
-                <div className="flex items-center gap-1.5 truncate">
-                  <span className="font-bold truncate">
-                    {lang === 'sw' ? 'Duka Rasmi la Msambazaji:' : 'Shopping with:'} {distributor.name}
-                  </span>
-                  <span className="text-[10px] text-emerald-700 hidden sm:inline">
-                    ({distributor.rank || 'Certified Coach'} · {distributor.city})
-                  </span>
-                  {attributionDays > 0 && (
-                    <span className="hidden md:inline-block px-2 py-0.2 bg-emerald-200/60 text-emerald-900 text-[10px] rounded-full font-semibold">
-                      {attributionDays} {lang === 'sw' ? 'siku zilizobaki' : 'days left'}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 ml-auto">
-                <button
-                  type="button"
-                  onClick={handleResetToCentral}
-                  className="text-[11px] font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1 underline underline-offset-2 cursor-pointer"
-                  title="Switch to Central Head Office"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  <span>{lang === 'sw' ? 'Rudi Makao Makuu' : 'Switch to Central'}</span>
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="flex items-center gap-2">
-                <span className="text-sm">🇹🇿</span>
-                <span className="font-semibold text-[11px] sm:text-xs">
-                  {lang === 'sw'
-                    ? 'Kitovu Kikuu cha ED Retail Tanzania · Mtandao Rasmi wa Wasambazaji'
-                    : 'ED Retail Tanzania Central Hub · Authorized National Distribution'}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2 ml-auto">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const el = document.getElementById('regional-distributor-locator');
-                    if (el) {
-                      el.scrollIntoView({ behavior: 'smooth' });
-                    } else {
-                      onNavigate('home');
-                      setTimeout(() => {
-                        document.getElementById('regional-distributor-locator')?.scrollIntoView({ behavior: 'smooth' });
-                      }, 250);
-                    }
-                  }}
-                  className="text-[11px] font-bold text-primary-700 hover:text-primary-900 flex items-center gap-1 cursor-pointer"
-                >
-                  <MapPin className="w-3 h-3 text-primary-600" />
-                  <span>{lang === 'sw' ? 'Tafuta Msambazaji wa Mkoani' : 'Find Local Leader'}</span>
-                </button>
-              </div>
-            </>
-          )}
         </div>
       </div>
     </header>
