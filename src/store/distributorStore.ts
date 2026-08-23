@@ -20,6 +20,7 @@ export interface DistributorProfile {
   bio?: string;
   isVerified?: boolean;
   isCentral?: boolean;
+  status?: 'active' | 'suspended';
   avatarUrl?: string;
   rating?: number;
   reviewCount?: number;
@@ -311,11 +312,19 @@ interface DistributorStoreState {
   activeRefSlug: string | null;
   attribution: AttributionRecord | null;
   savedDistributors: DistributorProfile[];
+
+  // Super Admin Role & State
+  isSuperAdminAuthenticated: boolean;
+  superAdminUser: { id: string; email: string; name: string } | null;
+  loginSuperAdmin: (emailOrKey: string, passOrPin: string) => boolean;
+  logoutSuperAdmin: () => void;
+
   setAdminAuthenticated: (auth: boolean) => void;
   verifyPin: (pin: string) => boolean;
   changePin: (newPin: string) => void;
   loginWithEmail: (email: string, pass: string) => boolean;
   loginWithGoogle: (email?: string, name?: string) => DistributorProfile;
+  loginWithApple: (email?: string, name?: string) => DistributorProfile;
   registerNewDistributor: (profile: Omit<DistributorProfile, 'id'>, pass?: string) => DistributorProfile;
   logoutDistributor: () => void;
   updateCurrentProfile: (updates: Partial<DistributorProfile>) => void;
@@ -326,6 +335,46 @@ interface DistributorStoreState {
   getAttributionExpiryDays: () => number;
   getCertifiedDistributorsList: () => DistributorProfile[];
   getActiveDistributor: () => DistributorProfile;
+
+  // Master Catalog (Super Admin) & Distributor-Scoped Custom Products
+  masterProducts: Product[];
+  addMasterProduct: (product: Product) => void;
+  updateMasterProduct: (id: string, updates: Partial<Product>) => void;
+  deleteMasterProduct: (id: string) => void;
+
+  customProductsByDistributor: Record<string, Product[]>;
+  addDistributorCustomProduct: (product: Product) => void;
+  updateDistributorCustomProduct: (productId: string, updates: Partial<Product>) => void;
+  deleteDistributorCustomProduct: (productId: string) => void;
+
+  // Super Admin Distributor Oversight & Verification
+  toggleDistributorVerification: (distId: string) => void;
+  toggleDistributorStatus: (distId: string, status: 'active' | 'suspended') => void;
+  updateDistributorProfileAdmin: (distId: string, updates: Partial<DistributorProfile>) => void;
+  addDistributorAdmin: (distributor: DistributorProfile) => void;
+  deleteDistributorAdmin: (distId: string) => void;
+
+  // Platform Settings & Master Logistics
+  platformSettings: {
+    maintenanceMode: boolean;
+    broadcastNotice: string;
+    nationalCommission: number;
+    contactEmail: string;
+    emergencyPhone: string;
+    darExpressFee: number;
+    upcountryBusFee: number;
+    zanzibarFerryFee: number;
+  };
+  updatePlatformSettings: (updates: Partial<{
+    maintenanceMode: boolean;
+    broadcastNotice: string;
+    nationalCommission: number;
+    contactEmail: string;
+    emergencyPhone: string;
+    darExpressFee: number;
+    upcountryBusFee: number;
+    zanzibarFerryFee: number;
+  }>) => void;
 
   // Catalog live overrides
   productOverrides: Record<string, DynamicProductOverride>;

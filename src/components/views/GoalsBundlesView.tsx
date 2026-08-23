@@ -8,6 +8,7 @@ import {
   Target,
   Package,
   Calculator,
+  MessageCircle,
 } from 'lucide-react';
 import { Bundle, Product } from '../../types';
 import { useCartStore } from '../../store/cartStore';
@@ -446,8 +447,8 @@ export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
       )}
 
       {/* ── DISTRIBUTOR ASSISTANCE BANNER ── */}
-      <div className="p-5 bg-neutral-100 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-neutral-700 text-xs">
-        <p className="leading-relaxed text-center sm:text-left">
+      <div className="p-5 bg-neutral-100 rounded-2xl border border-neutral-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-neutral-800 text-xs">
+        <p className="leading-relaxed text-center sm:text-left font-medium text-neutral-700">
           {lang === 'sw'
             ? `Je, unahitaji mpango uliotengenezwa mahususi kwako? Wasiliana na ${DISTRIBUTOR_NAME} moja kwa moja kwa ushauri wa bure.`
             : `Need a personalized plan tailored to your medical history? Chat directly with ${DISTRIBUTOR_NAME} on WhatsApp.`}
@@ -456,9 +457,10 @@ export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
           href={`${WHATSAPP_LINK}?text=${encodeURIComponent('Hello Mwanahamisi, I would like a personalized wellness recommendation:')}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="px-4 py-2 bg-secondary-green hover:bg-emerald-600 text-white rounded-xl font-bold whitespace-nowrap shadow-xs"
+          className="px-5 py-2.5 bg-[#0E6B52] hover:bg-[#082F28] active:bg-[#06241E] text-white rounded-xl font-bold whitespace-nowrap shadow-xs transition-colors flex items-center gap-2"
         >
-          {lang === 'sw' ? 'Ongea na Msambazaji' : 'Chat with Coach'}
+          <MessageCircle className="w-4 h-4 text-emerald-200" />
+          <span>{lang === 'sw' ? 'Ongea na Msambazaji' : 'Chat with Coach'}</span>
         </a>
       </div>
     </div>

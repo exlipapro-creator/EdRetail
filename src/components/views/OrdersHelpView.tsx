@@ -74,7 +74,7 @@ export function OrdersHelpView() {
               href={`${WHATSAPP_LINK}?text=${encodeURIComponent('Hello Mwanahamisi, I would like to check on my order / ask for assistance:')}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-secondary-green hover:bg-emerald-600 active:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md transition-transform active:scale-95"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0E6B52] hover:bg-[#082F28] active:bg-[#06241E] text-white rounded-xl text-xs font-bold shadow-md transition-transform active:scale-95"
             >
               <Phone className="w-4 h-4" />
               <span>{lang === 'sw' ? 'Wasiliana na Msambazaji WhatsApp' : 'Contact Distributor on WhatsApp'}</span>

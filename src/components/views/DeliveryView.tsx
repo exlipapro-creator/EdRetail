@@ -51,7 +51,7 @@ export function DeliveryView() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-primary-700 hover:bg-primary-50 rounded-xl text-xs font-bold shadow-md transition-transform active:scale-95"
             >
-              <Phone className="w-4 h-4 text-secondary-green" />
+              <Phone className="w-4 h-4 text-[#0E6B52]" />
               <span>{lang === 'sw' ? 'Uliza Gharama za Usafirishaji' : 'Inquire Delivery Rates'}</span>
             </a>
           </div>

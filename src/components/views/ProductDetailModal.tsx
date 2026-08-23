@@ -290,7 +290,7 @@ export function ProductDetailModal({
 
               {/* Distributor Direct Guarantee Notice */}
               <div className="flex items-center gap-3 p-3 bg-neutral-50 rounded-xl border border-neutral-200/80 text-xs text-neutral-600">
-                <CheckCircle2 className="w-5 h-5 text-secondary-green flex-shrink-0" />
+                <CheckCircle2 className="w-5 h-5 text-[#0E6B52] flex-shrink-0" />
                 <p className="leading-snug">
                   {lang === 'sw'
                     ? `Imethibitishwa na ${DISTRIBUTOR_NAME}. Uwasilishaji salama na mwongozo wa bure wa afya kupitia WhatsApp.`
