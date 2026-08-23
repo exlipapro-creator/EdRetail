@@ -470,9 +470,9 @@ export const useDistributorStore = create<DistributorStoreState>()(
   persist(
     (set, get) => ({
       isAdminAuthenticated: false,
-      adminPin: '255', // Default distributor PIN
-      currentProfile: CENTRAL_COMPANY_HUB,
-      activeRefSlug: null,
+      adminPin: '2580', // Default distributor PIN
+      currentProfile: DEFAULT_DISTRIBUTOR,
+      activeRefSlug: 'mwanahamisi',
       attribution: null,
       savedDistributors: INITIAL_DISTRIBUTORS_REGISTRY,
 
@@ -686,8 +686,8 @@ export const useDistributorStore = create<DistributorStoreState>()(
       logoutDistributor: () => {
         set({
           isAdminAuthenticated: false,
-          currentProfile: CENTRAL_COMPANY_HUB,
-          activeRefSlug: null,
+          currentProfile: DEFAULT_DISTRIBUTOR,
+          activeRefSlug: 'mwanahamisi',
           attribution: null,
         });
         try {
@@ -791,13 +791,13 @@ export const useDistributorStore = create<DistributorStoreState>()(
           if (attrMatch) return attrMatch;
         }
 
-        // 3. If distributor is actively logged in, show their profile
-        if (state.isAdminAuthenticated && state.currentProfile && !state.currentProfile.isCentral) {
+        // 3. If distributor profile is set, return it
+        if (state.currentProfile) {
           return state.currentProfile;
         }
 
-        // 4. Default to Official Central Head Office / Network Hub
-        return CENTRAL_COMPANY_HUB;
+        // 4. Default to Authorized Distributor Mwanahamisi Lissu
+        return DEFAULT_DISTRIBUTOR;
       },
 
       // Master Catalog (Super Admin) & Distributor-Scoped Custom Products

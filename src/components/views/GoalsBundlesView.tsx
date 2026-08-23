@@ -13,13 +13,9 @@ import {
 import { Bundle, Product } from '../../types';
 import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
-import { formatPrice, formatUsd, WHATSAPP_LINK, DISTRIBUTOR_NAME } from '../../utils/whatsappCompiler';
+import { formatPrice, formatUsd, WHATSAPP_LINK } from '../../utils/whatsappCompiler';
 import { useLang } from '../../context/LangContext';
 import { BmiHealthCalculator } from '../calculator/BmiHealthCalculator';
-
-interface GoalsBundlesViewProps {
-  onSelectProduct: (product: Product) => void;
-}
 
 interface GoalsBundlesViewProps {
   onSelectProduct: (product: Product) => void;

@@ -1,24 +1,24 @@
 import { CartItem, CustomerDetails, Lang } from '../types';
-import { useDistributorStore, CENTRAL_COMPANY_HUB } from '../store/distributorStore';
+import { useDistributorStore, DEFAULT_DISTRIBUTOR } from '../store/distributorStore';
 
-// Default contact details (fallback to Central Hub)
+// Default contact details (Authorized Distributor: Mwanahamisi Lissu)
 export const TARGET_PHONE = '255783481416';
 export const DISTRIBUTOR_PHONE = '+255 783 481 416';
 export const WHATSAPP_LINK = `https://wa.me/${TARGET_PHONE}`;
-export const DISTRIBUTOR_NAME = 'ED Retail Tanzania';
+export const DISTRIBUTOR_NAME = 'Mwanahamisi Lissu (ED Retail)';
 
 /** Get the active distributor based on login session or URL referral */
 export const getActiveDistributorDetails = () => {
   try {
     return useDistributorStore.getState().getActiveDistributor();
   } catch {
-    return CENTRAL_COMPANY_HUB;
+    return DEFAULT_DISTRIBUTOR;
   }
 };
 
 export const getActiveDistributorName = () => {
   const active = getActiveDistributorDetails();
-  return active?.name || 'ED Retail Tanzania';
+  return active?.name || 'Mwanahamisi Lissu';
 };
 
 /** Get the dynamic WhatsApp link for the currently active distributor */

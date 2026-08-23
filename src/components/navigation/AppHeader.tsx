@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ShoppingCart, Heart, Search, ShieldCheck, ArrowLeft, Sparkles, Globe } from 'lucide-react';
+import { ShoppingCart, Search, ShieldCheck, ArrowLeft, Sparkles } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
 import { CartBadge } from '../CartBadge';
@@ -25,15 +25,14 @@ export function AppHeader({
   currentScreen,
   onNavigate,
   onOpenCart,
-  searchValue = '',
-  onSearchChange,
+  searchValue: _searchValue = '',
+  onSearchChange: _onSearchChange,
   onOpenFlyerStudio,
-  onOpenStoreLinkModal,
+  onOpenStoreLinkModal: _onOpenStoreLinkModal,
 }: AppHeaderProps) {
   const { lang, setLang } = useLang();
   const navigate = useNavigate();
   const totalItems = useCartStore((s) => s.getTotalItems());
-  const favouritesCount = useCartStore((s) => s.favourites.length);
   const distributor = useDistributorStore((s) => s.getActiveDistributor());
   const isAdminAuthenticated = useDistributorStore((s) => s.isAdminAuthenticated);
 
@@ -65,13 +64,22 @@ export function AppHeader({
           <button
             id="brand-logo-btn"
             onClick={() => onNavigate('home')}
-            className="flex items-center gap-2 focus:outline-none text-left cursor-pointer"
+            className="flex items-center gap-2.5 focus:outline-none text-left cursor-pointer group"
           >
             <img
               src="/logo/wordmark.png"
               alt="ED Retail"
               className="h-8 sm:h-9 w-auto object-contain"
             />
+            <div className="hidden sm:flex flex-col">
+              <span className="text-[10px] font-black text-emerald-800 uppercase tracking-wider flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-emerald-600 inline" />
+                {lang === 'sw' ? 'Msambazaji Rasmi' : 'Authorized Distributor'}
+              </span>
+              <span className="text-[10px] text-neutral-500 font-medium leading-none">
+                {distributor.name}
+              </span>
+            </div>
           </button>
         </div>
 
@@ -127,68 +135,11 @@ export function AppHeader({
             </button>
           )}
 
-          {/* Distributor Storefront link button */}
-          {onOpenStoreLinkModal && !distributor.isCentral && (
-            <button
-              id="header-store-link-btn"
-              onClick={onOpenStoreLinkModal}
-              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold shadow-2xs transition-all"
-              title="Share My Storefront"
-            >
-              <Globe className="w-3.5 h-3.5 text-emerald-600" />
-              <span>@{distributor.slug}</span>
-            </button>
-          )}
-
-          {/* Desktop inline search */}
-          {onSearchChange && (
-            <div className="hidden xl:flex items-center relative w-44">
-              <Search className="w-3.5 h-3.5 absolute left-3 text-neutral-400 pointer-events-none" />
-              <input
-                id="desktop-header-search"
-                type="text"
-                value={searchValue}
-                onChange={(e) => {
-                  onSearchChange(e.target.value);
-                  if (currentScreen !== 'products' && e.target.value.trim().length > 0) {
-                    onNavigate('products');
-                  }
-                }}
-                placeholder={lang === 'sw' ? 'Tafuta bidhaa...' : 'Search products...'}
-                className="w-full pl-8 pr-3 py-1.5 bg-neutral-100 border border-neutral-200 rounded-lg text-xs text-neutral-800 placeholder:text-neutral-400 focus:bg-white focus:border-primary-500 focus:ring-1 focus:ring-primary-200 transition-all"
-              />
-            </div>
-          )}
-
-          {/* Favourites button - visible on tablet and desktop */}
-          <motion.button
-            id="favourites-toggle-btn"
-            onClick={() => onNavigate('favourites')}
-            className={`hidden sm:flex relative p-2 rounded-xl transition-colors ${
-              currentScreen === 'favourites'
-                ? 'bg-rose-50 text-rose-600 border border-rose-200'
-                : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-700'
-            }`}
-            whileTap={{ scale: 0.92 }}
-            aria-label={lang === 'sw' ? 'Vipendwa vyangu' : 'My Favourites'}
-          >
-            <Heart
-              className={`w-4 h-4 sm:w-4.5 sm:h-4.5 ${
-                favouritesCount > 0 && currentScreen === 'favourites' ? 'fill-rose-500 text-rose-500' : ''
-              }`}
-            />
-            {favouritesCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
-                {favouritesCount}
-              </span>
-            )}
-          </motion.button>
-
           {/* Language toggle with clear label */}
           <button
             id="language-switch-btn"
             onClick={() => setLang(lang === 'en' ? 'sw' : 'en')}
-            className="px-2.5 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-xs font-bold text-neutral-800 transition-colors border border-neutral-200/50 flex items-center gap-1"
+            className="px-2.5 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-xs font-bold text-neutral-800 transition-colors border border-neutral-200/50 flex items-center gap-1 cursor-pointer"
             aria-label={lang === 'en' ? 'Badilisha kwenda Kiswahili' : 'Switch to English'}
             title={lang === 'en' ? 'Switch language to Swahili' : 'Badilisha lugha kwenda Kiingereza'}
           >
@@ -199,7 +150,7 @@ export function AppHeader({
           {/* Cart button */}
           <motion.button
             id="header-cart-btn"
-            className="relative p-2 sm:px-3.5 sm:py-2 bg-[#123B6D] hover:bg-[#0D315D] text-white rounded-xl shadow-xs transition-colors flex items-center gap-2"
+            className="relative p-2 sm:px-3.5 sm:py-2 bg-[#123B6D] hover:bg-[#0D315D] text-white rounded-xl shadow-xs transition-colors flex items-center gap-2 cursor-pointer"
             onClick={onOpenCart}
             whileTap={{ scale: 0.92 }}
             aria-label={lang === 'sw' ? `Kikapu chenye bidhaa ${totalItems}` : `Cart with ${totalItems} items`}
@@ -211,29 +162,22 @@ export function AppHeader({
             <CartBadge count={totalItems} />
           </motion.button>
 
-          {/* Distributor Portal Link */}
+          {/* Dedicated Distributor Back-Office Direct Access */}
           <Link
             to="/portal"
             id="distributor-portal-link"
-            className="hidden sm:flex p-2 px-3 rounded-xl border border-emerald-800/40 bg-emerald-900/10 hover:bg-emerald-900/20 text-emerald-900 transition-all items-center gap-1.5 cursor-pointer shadow-2xs"
-            title="Distributor Back-Office"
+            className={`hidden sm:flex p-2 px-3 rounded-xl border transition-all items-center gap-1.5 cursor-pointer shadow-2xs ${
+              isAdminAuthenticated
+                ? 'border-emerald-600 bg-emerald-50 text-emerald-900 hover:bg-emerald-100'
+                : 'border-neutral-300 bg-neutral-100/80 hover:bg-neutral-200 text-neutral-800'
+            }`}
+            title="Distributor Back-Office Login"
             aria-label="Distributor Back-Office"
           >
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <ShieldCheck className={`w-4 h-4 ${isAdminAuthenticated ? 'text-emerald-600' : 'text-neutral-600'}`} />
             <span className="text-xs font-black">
-              {isAdminAuthenticated ? (lang === 'sw' ? 'Ofisi Yangu' : 'My Portal') : (lang === 'sw' ? 'Wasambazaji' : 'Distributor')}
+              {isAdminAuthenticated ? (lang === 'sw' ? 'Ofisi Yangu' : 'My Back-Office') : (lang === 'sw' ? 'Msambazaji' : 'Distributor Portal')}
             </span>
-          </Link>
-
-          {/* Super Admin Link */}
-          <Link
-            to="/admin"
-            id="admin-portal-link"
-            className="hidden lg:flex p-2 px-2.5 rounded-xl border border-neutral-200 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 transition-all items-center gap-1 cursor-pointer text-xs font-bold"
-            title="Super Admin"
-            aria-label="Super Admin"
-          >
-            <span className="text-stone-500 font-bold">Admin</span>
           </Link>
         </div>
       </div>
