@@ -3,6 +3,7 @@ import { useAuth } from '../AuthContext';
 import { ShieldCheck, Eye, EyeOff, Loader2, Chrome, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useDistributorStore } from '../../store/distributorStore';
+import { supabase } from '../../lib/supabase';
 
 export function LoginPage() {
   const { signIn } = useAuth();
@@ -28,10 +29,18 @@ export function LoginPage() {
     setLoading(true);
     setError('');
     try {
+      // 1. Try Supabase Google OAuth if configured
+      const { error: sbErr } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/admin',
+        },
+      });
+      if (sbErr) throw sbErr;
+    } catch {
+      // 2. Demo fallback
       loginWithGoogle('admin@edretail.tz', 'Super Administrator');
       await signIn('admin@edretail.tz', 'admin123');
-    } catch {
-      setError('Google Sign-In failed');
     } finally {
       setLoading(false);
     }

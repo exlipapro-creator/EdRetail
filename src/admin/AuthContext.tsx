@@ -102,7 +102,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signOut = async () => { await supabase.auth.signOut(); };
+  const signOut = async () => {
+    setSession(null);
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // safe fallback
+    }
+  };
 
   return (
     <Ctx.Provider value={{ user: session?.user ?? null, session, loading, signIn, signOut }}>

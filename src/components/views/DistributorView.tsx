@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import {
   ShieldCheck,
   Lock,
   Unlock,
+  LogOut,
+  UserPlus,
+  Users,
   TrendingUp,
   CreditCard,
   BookOpen,
@@ -22,9 +26,14 @@ import {
   MapPin,
   BadgeCheck,
   Award,
+  Shield,
+  Chrome,
+  ArrowRight,
+  KeyRound,
 } from 'lucide-react';
-import { useDistributorStore } from '../../store/distributorStore';
+import { useDistributorStore, DistributorProfile } from '../../store/distributorStore';
 import { useLang } from '../../context/LangContext';
+import { supabase } from '../../lib/supabase';
 import { RegionalDistributorLocator } from '../distributor/RegionalDistributorLocator';
 import { FieldLedgerPanel } from '../chat/FieldLedgerPanel';
 import { MaintenanceTrackerPanel } from '../chat/MaintenanceTrackerPanel';
@@ -51,6 +60,10 @@ export function DistributorView({
   const distributor = useDistributorStore((s) => s.getActiveDistributor());
   const isAdminAuthenticated = useDistributorStore((s) => s.isAdminAuthenticated);
   const setAdminAuthenticated = useDistributorStore((s) => s.setAdminAuthenticated);
+  const logoutDistributor = useDistributorStore((s) => s.logoutDistributor);
+  const savedDistributors = useDistributorStore((s) => s.savedDistributors);
+  const loginWithGoogle = useDistributorStore((s) => s.loginWithGoogle);
+  const registerNewDistributor = useDistributorStore((s) => s.registerNewDistributor);
   const verifyPin = useDistributorStore((s) => s.verifyPin);
   const getFinancialSummary = useDistributorStore((s) => s.getFinancialSummary);
   const getMaintenanceAnalysis = useDistributorStore((s) => s.getMaintenanceAnalysis);
@@ -62,9 +75,23 @@ export function DistributorView({
   // Workspace sub-tabs
   const [activeTab, setActiveTab] = useState<'ledger' | 'inventory' | 'payments' | 'goals' | 'crm' | 'profile'>('ledger');
 
+  // Gateway mode tabs when locked
+  const [gatewayTab, setGatewayTab] = useState<'login' | 'register' | 'switch'>('login');
+
   // PIN state
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  // Registration form state
+  const [regName, setRegName] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regPhone, setRegPhone] = useState('+255 ');
+  const [regCity, setRegCity] = useState('Dar es Salaam');
+  const [regSlug, setRegSlug] = useState('');
+  const [regPass, setRegPass] = useState('');
+  const [regError, setRegError] = useState('');
+  const [regSuccess, setRegSuccess] = useState('');
 
   // Sale Modal state
   const [showSaleModal, setShowSaleModal] = useState(false);
@@ -88,6 +115,85 @@ export function DistributorView({
   const handleQuickDemoUnlock = () => {
     verifyPin('2580');
     setPinError(false);
+    setPinInput('');
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    setPinError(false);
+    try {
+      // 1. Try real Supabase Google OAuth if configured
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/landing',
+        },
+      });
+      if (error) {
+        throw error;
+      }
+    } catch {
+      // 2. Seamless local/demo store fallback if Supabase keys aren't set in environment
+      loginWithGoogle('distributor@edretail.tz', distributor.name || 'Authorized Leader');
+      setAdminAuthenticated(true);
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
+  const handleRegisterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setRegError('');
+    setRegSuccess('');
+
+    if (!regName.trim() || !regEmail.trim() || !regPhone.trim()) {
+      setRegError(lang === 'sw' ? 'Tafadhali jaza taarifa zote muhimu.' : 'Please fill in all required fields.');
+      return;
+    }
+
+    const cleanPhone = regPhone.replace(/\D/g, '');
+    const digits = cleanPhone.startsWith('0') ? '255' + cleanPhone.slice(1) : cleanPhone.startsWith('255') ? cleanPhone : '255' + cleanPhone;
+    const cleanSlug = (regSlug || regName).toLowerCase().replace(/[^a-z0-9]/g, '');
+
+    const newProfile = registerNewDistributor(
+      {
+        name: regName.trim(),
+        email: regEmail.trim().toLowerCase(),
+        phone: regPhone.trim(),
+        whatsappDigits: digits,
+        slug: cleanSlug,
+        rank: 'Wellness Consultant & Leader',
+        city: regCity,
+        lipaNumber: 'Lipa Namba: ' + Math.floor(100000 + Math.random() * 900000),
+        bio: `Msambazaji Rasmi wa Edmark Tanzania (${regCity}). Wasiliana nami kwa ushauri wa afya na bidhaa asilia za Edmark.`,
+      },
+      regPass || 'password123'
+    );
+
+    setRegSuccess(
+      lang === 'sw'
+        ? `🎉 Hongera ${newProfile.name}! Duka lako la mtandaoni limeundwa: edretail.store/@${newProfile.slug}`
+        : `🎉 Welcome ${newProfile.name}! Your store handle is ready: edretail.store/@${newProfile.slug}`
+    );
+
+    setTimeout(() => {
+      setAdminAuthenticated(true);
+      setGatewayTab('login');
+    }, 1000);
+  };
+
+  const handleSwitchDistributor = (target: DistributorProfile) => {
+    useDistributorStore.setState({
+      currentProfile: target,
+      activeRefSlug: target.slug,
+      isAdminAuthenticated: true,
+    });
+    setGatewayTab('login');
+  };
+
+  const handleSignOut = () => {
+    logoutDistributor();
+    setAdminAuthenticated(false);
     setPinInput('');
   };
 
@@ -138,7 +244,7 @@ export function DistributorView({
                       ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
                       : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
                   }`}>
-                    {isAdminAuthenticated ? 'Active' : 'PIN Protected'}
+                    {isAdminAuthenticated ? (lang === 'sw' ? 'Umeingia' : 'Unlocked') : 'PIN Protected'}
                   </span>
                 </div>
                 <p className="text-[11px] text-stone-300">
@@ -148,13 +254,13 @@ export function DistributorView({
             </div>
           </div>
 
-          {/* Right: Quick Tools & Lock */}
-          <div className="flex items-center gap-2">
+          {/* Right: Quick Tools, Switcher & Sign Out */}
+          <div className="flex items-center gap-2 flex-wrap">
             {/* Primary Action Button */}
             <button
               id="distributor-primary-log-sale-btn"
               onClick={() => setShowSaleModal(true)}
-              className="px-3.5 sm:px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-black text-xs rounded-xl shadow-xs transition-transform active:scale-95 flex items-center gap-1.5 cursor-pointer"
+              className="px-3 sm:px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-black text-xs rounded-xl shadow-xs transition-transform active:scale-95 flex items-center gap-1.5 cursor-pointer"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
               <span>{lang === 'sw' ? 'Rekodi Mauzo' : 'Log Sale'}</span>
@@ -184,14 +290,40 @@ export function DistributorView({
               </button>
             )}
 
-            {/* Lock / Unlock */}
+            {/* Switch Account */}
+            <button
+              onClick={() => {
+                setGatewayTab('switch');
+                if (isAdminAuthenticated) {
+                  setAdminAuthenticated(false);
+                }
+              }}
+              className="px-2.5 py-2 bg-white/10 hover:bg-white/20 text-stone-200 border border-white/15 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5"
+              title="Switch Distributor Account"
+            >
+              <Users className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">{lang === 'sw' ? 'Badili' : 'Switch'}</span>
+            </button>
+
+            {/* Super Admin Direct Link */}
+            <Link
+              to="/admin"
+              className="hidden lg:flex items-center gap-1.5 px-3 py-2 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 rounded-xl text-xs font-black transition-colors"
+              title="Super Admin Central Hub"
+            >
+              <Shield className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Super Admin</span>
+            </Link>
+
+            {/* Prominent Sign Out / Lock Button */}
             {isAdminAuthenticated ? (
               <button
-                onClick={() => setAdminAuthenticated(false)}
-                className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-                title="Lock Portal"
+                onClick={handleSignOut}
+                className="px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-300 hover:text-white border border-red-500/40 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 shadow-xs"
+                title="Sign Out / Toka Kwenye Ofisi"
               >
-                <Lock className="w-3.5 h-3.5" />
+                <LogOut className="w-3.5 h-3.5 text-red-400" />
+                <span>{lang === 'sw' ? 'Toka' : 'Sign Out'}</span>
               </button>
             ) : (
               <button
@@ -208,90 +340,366 @@ export function DistributorView({
 
       {/* ── 2. BODY CONTENT ── */}
       <main className="max-w-7xl mx-auto px-3 sm:px-6 py-5 space-y-5">
-        {/* If PIN is Locked, show clean Security Gateway */}
+        {/* If PIN is Locked, show clean, comprehensive Security Gateway */}
         {!isAdminAuthenticated ? (
-          <div className="max-w-md mx-auto py-10 sm:py-16">
-            <div className="bg-gradient-to-br from-stone-900 via-[#0C271E] to-stone-950 rounded-3xl p-6 sm:p-8 text-white border border-[#1A3D31] shadow-xl text-center space-y-5">
-              <div className="w-14 h-14 rounded-2xl bg-[#164132] border border-[#235844] text-[#E5C378] flex items-center justify-center mx-auto shadow-inner">
-                <Lock className="w-6 h-6" />
+          <div className="max-w-xl mx-auto py-6 sm:py-10 space-y-4">
+            <div className="bg-gradient-to-br from-stone-900 via-[#0C271E] to-stone-950 rounded-3xl p-6 sm:p-8 text-white border border-[#1A3D31] shadow-2xl space-y-6">
+              {/* Header Icon */}
+              <div className="text-center space-y-2">
+                <div className="w-14 h-14 rounded-2xl bg-[#164132] border border-[#235844] text-[#E5C378] flex items-center justify-center mx-auto shadow-inner">
+                  <Lock className="w-6 h-6" />
+                </div>
+                <div className="space-y-1">
+                  <span className="px-3 py-0.5 rounded-full bg-[#C5A059]/20 text-[#E5C378] border border-[#C5A059]/30 text-[10px] font-black uppercase tracking-wider">
+                    {lang === 'sw' ? 'Mlango wa Kiongozi & Wasambazaji' : 'Leader & Distributor Gateway'}
+                  </span>
+                  <h2 className="text-xl font-black text-white">
+                    {gatewayTab === 'register'
+                      ? (lang === 'sw' ? 'Jisajili Kama Msambazaji Mpya' : 'Create Distributor Account')
+                      : gatewayTab === 'switch'
+                      ? (lang === 'sw' ? 'Chagua Msambazaji' : 'Select Distributor Account')
+                      : (lang === 'sw' ? 'Fungua Ofisi ya Msambazaji' : 'Distributor Back-Office Sign In')}
+                  </h2>
+                  <p className="text-xs text-stone-300 max-w-sm mx-auto">
+                    {gatewayTab === 'register'
+                      ? (lang === 'sw' ? 'Pata duka lako binafsi la mtandaoni (edretail.store/@jina) na mfumo wa rekodi za mauzo.' : 'Get your custom store link and management back-office.')
+                      : (lang === 'sw' ? 'Weka PIN au ingia na Google kufikia Daftari la Mauzo, Stoo ya Bidhaa, na 2,000 SV Challenge.' : 'Sign in with Google, PIN, or password to manage your sales and stock.')}
+                  </p>
+                </div>
               </div>
 
-              <div className="space-y-1.5">
-                <span className="px-3 py-0.5 rounded-full bg-[#C5A059]/20 text-[#E5C378] border border-[#C5A059]/30 text-[10px] font-black uppercase tracking-wider">
-                  {lang === 'sw' ? 'Mlango wa Kiongozi' : 'Leader Gateway'}
-                </span>
-                <h2 className="text-lg sm:text-xl font-black text-white">
-                  {lang === 'sw' ? 'Fungua Ofisi ya Msambazaji' : 'Unlock Distributor Dashboard'}
-                </h2>
-                <p className="text-xs text-stone-300 max-w-xs mx-auto">
-                  {lang === 'sw'
-                    ? 'Weka PIN ya usalama ili kufikia Daftari la Mauzo, Stoo ya Bidhaa, na 2,000 SV Challenge.'
-                    : 'Enter PIN to manage live sales records, product stock, payment numbers, and SV pacing.'}
-                </p>
-              </div>
-
-              <div className="space-y-3 max-w-xs mx-auto">
+              {/* Gateway Navigation Tabs */}
+              <div className="flex items-center bg-stone-950/80 p-1 rounded-2xl border border-stone-800">
                 <button
                   type="button"
                   onClick={() => {
-                    useDistributorStore.getState().loginWithGoogle('distributor@edretail.tz', distributor.name);
-                    setAdminAuthenticated(true);
+                    setGatewayTab('login');
+                    setRegError('');
+                    setRegSuccess('');
                   }}
-                  className="w-full py-2.5 px-4 bg-white hover:bg-stone-100 text-stone-900 font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className={`flex-1 py-2 text-xs font-extrabold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    gatewayTab === 'login'
+                      ? 'bg-amber-400 text-stone-950 shadow-md'
+                      : 'text-stone-400 hover:text-white'
+                  }`}
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                  <span>{lang === 'sw' ? 'Ingia na Google' : 'Sign In with Google'}</span>
+                  <KeyRound className="w-3.5 h-3.5" />
+                  <span>{lang === 'sw' ? 'Ingia' : 'Sign In'}</span>
                 </button>
-
-                <div className="flex items-center gap-2 py-1">
-                  <div className="flex-1 h-px bg-stone-800" />
-                  <span className="text-[10px] uppercase font-bold text-stone-500">
-                    {lang === 'sw' ? 'au Nenosiri / PIN' : 'or Password / PIN'}
-                  </span>
-                  <div className="flex-1 h-px bg-stone-800" />
-                </div>
-
-                <input
-                  type="password"
-                  maxLength={16}
-                  value={pinInput}
-                  onChange={(e) => {
-                    setPinInput(e.target.value);
-                    if (pinError) setPinError(false);
-                  }}
-                  onKeyDown={(e) => e.key === 'Enter' && handleVerifyPin()}
-                  placeholder={lang === 'sw' ? 'Nenosiri au PIN (2580)' : 'Password or PIN (2580)'}
-                  className="w-full text-center text-sm font-mono tracking-wider py-2.5 px-4 bg-stone-950/90 border border-stone-700 rounded-2xl text-white placeholder:text-stone-600 focus:outline-none focus:border-[#C5A059] focus:ring-2 focus:ring-[#C5A059]/20"
-                />
-
-                {pinError && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-xs font-bold text-red-400"
-                  >
-                    {lang === 'sw' ? 'Taarifa sio sahihi. Jaribu 2580 au Google.' : 'Incorrect credentials. Try 2580 or Google.'}
-                  </motion.p>
-                )}
 
                 <button
-                  onClick={handleVerifyPin}
-                  className="w-full py-2.5 bg-[#C5A059] hover:bg-[#d6b068] text-stone-950 font-black rounded-xl text-xs shadow-md transition-transform active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                  type="button"
+                  onClick={() => {
+                    setGatewayTab('register');
+                    setRegError('');
+                    setRegSuccess('');
+                  }}
+                  className={`flex-1 py-2 text-xs font-extrabold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    gatewayTab === 'register'
+                      ? 'bg-amber-400 text-stone-950 shadow-md'
+                      : 'text-stone-400 hover:text-white'
+                  }`}
                 >
-                  <Unlock className="w-3.5 h-3.5" />
-                  <span>{lang === 'sw' ? 'Fungua Ofisi' : 'Unlock Dashboard'}</span>
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>{lang === 'sw' ? 'Jisajili Mpya' : 'Sign Up'}</span>
                 </button>
 
-                <div className="pt-2 border-t border-stone-800 flex items-center justify-between text-[11px] text-stone-400">
-                  <span>Demo Authorized:</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGatewayTab('switch');
+                    setRegError('');
+                    setRegSuccess('');
+                  }}
+                  className={`flex-1 py-2 text-xs font-extrabold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                    gatewayTab === 'switch'
+                      ? 'bg-amber-400 text-stone-950 shadow-md'
+                      : 'text-stone-400 hover:text-white'
+                  }`}
+                >
+                  <Users className="w-3.5 h-3.5" />
+                  <span>{lang === 'sw' ? 'Badili' : 'Switch'}</span>
+                </button>
+              </div>
+
+              {/* ── TAB 1: LOGIN (Google & PIN/Password) ── */}
+              {gatewayTab === 'login' && (
+                <div className="space-y-4">
+                  {/* Google OAuth Button */}
                   <button
-                    onClick={handleQuickDemoUnlock}
-                    className="font-mono font-black text-amber-300 hover:text-amber-200 underline cursor-pointer"
+                    type="button"
+                    onClick={handleGoogleSignIn}
+                    disabled={isGoogleLoading}
+                    className="w-full py-3 px-4 bg-white hover:bg-stone-100 text-stone-900 font-extrabold text-xs rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2.5 cursor-pointer active:scale-[0.98]"
                   >
-                    1-Tap Access
+                    <Chrome className="w-4 h-4 text-[#4285F4]" />
+                    <span>{isGoogleLoading ? 'Connecting...' : (lang === 'sw' ? 'Ingia na Google (Gmail)' : 'Sign In with Google')}</span>
+                  </button>
+
+                  <div className="flex items-center gap-2 py-0.5">
+                    <div className="flex-1 h-px bg-stone-800" />
+                    <span className="text-[10px] uppercase font-bold text-stone-500 tracking-wider">
+                      {lang === 'sw' ? 'au Nenosiri / PIN' : 'or Password / PIN'}
+                    </span>
+                    <div className="flex-1 h-px bg-stone-800" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <input
+                      type="password"
+                      maxLength={16}
+                      value={pinInput}
+                      onChange={(e) => {
+                        setPinInput(e.target.value);
+                        if (pinError) setPinError(false);
+                      }}
+                      onKeyDown={(e) => e.key === 'Enter' && handleVerifyPin()}
+                      placeholder={lang === 'sw' ? 'Weka PIN (mfano: 2580)' : 'Enter PIN (e.g., 2580)'}
+                      className="w-full text-center text-sm font-mono tracking-wider py-3 px-4 bg-stone-950/90 border border-stone-700 rounded-2xl text-white placeholder:text-stone-600 focus:outline-none focus:border-[#C5A059] focus:ring-2 focus:ring-[#C5A059]/20"
+                    />
+
+                    {pinError && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-xs font-bold text-red-400 text-center"
+                      >
+                        {lang === 'sw' ? 'Taarifa sio sahihi. Jaribu PIN 2580 au bofya Ingia na Google.' : 'Incorrect credentials. Try PIN 2580 or Google Sign-In.'}
+                      </motion.p>
+                    )}
+
+                    <button
+                      onClick={handleVerifyPin}
+                      className="w-full py-3 bg-[#C5A059] hover:bg-[#d6b068] text-stone-950 font-black rounded-2xl text-xs shadow-md transition-transform active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <Unlock className="w-4 h-4" />
+                      <span>{lang === 'sw' ? 'Fungua Ofisi Yangu' : 'Unlock Dashboard'}</span>
+                    </button>
+                  </div>
+
+                  <div className="pt-3 border-t border-stone-800 flex items-center justify-between text-xs text-stone-400">
+                    <span>Demo 1-Tap Access:</span>
+                    <button
+                      onClick={handleQuickDemoUnlock}
+                      className="font-mono font-black text-amber-300 hover:text-amber-200 underline cursor-pointer"
+                    >
+                      Unlock with 2580
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ── TAB 2: REGISTER (Create New Distributor) ── */}
+              {gatewayTab === 'register' && (
+                <form onSubmit={handleRegisterSubmit} className="space-y-3.5 text-left">
+                  {/* Google Quick Sign-Up */}
+                  <button
+                    type="button"
+                    onClick={handleGoogleSignIn}
+                    className="w-full py-2.5 px-4 bg-white hover:bg-stone-100 text-stone-900 font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Chrome className="w-4 h-4 text-[#4285F4]" />
+                    <span>{lang === 'sw' ? 'Jisajili Mara Moja na Google' : 'Quick Sign Up with Google'}</span>
+                  </button>
+
+                  <div className="flex items-center gap-2 py-0.5">
+                    <div className="flex-1 h-px bg-stone-800" />
+                    <span className="text-[10px] uppercase font-bold text-stone-500 tracking-wider">
+                      {lang === 'sw' ? 'au jaza taarifa zako' : 'or manual registration'}
+                    </span>
+                    <div className="flex-1 h-px bg-stone-800" />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-300 mb-1">
+                      {lang === 'sw' ? 'Jina Kamili la Kiongozi' : 'Full Name & Title'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={regName}
+                      onChange={(e) => setRegName(e.target.value)}
+                      placeholder="e.g., Mwanahamisi Lissu"
+                      className="w-full bg-stone-950/90 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-stone-600 focus:outline-none focus:border-amber-400"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-300 mb-1">
+                        {lang === 'sw' ? 'Barua Pepe (Gmail)' : 'Email / Gmail'}
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={regEmail}
+                        onChange={(e) => setRegEmail(e.target.value)}
+                        placeholder="yourname@gmail.com"
+                        className="w-full bg-stone-950/90 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-stone-600 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-300 mb-1">
+                        {lang === 'sw' ? 'Namba ya Simu / WhatsApp' : 'Phone / WhatsApp'}
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={regPhone}
+                        onChange={(e) => setRegPhone(e.target.value)}
+                        placeholder="+255 754 000 000"
+                        className="w-full bg-stone-950/90 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-stone-600 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-300 mb-1">
+                        {lang === 'sw' ? 'Mkoa / Jiji' : 'City / Region'}
+                      </label>
+                      <input
+                        type="text"
+                        value={regCity}
+                        onChange={(e) => setRegCity(e.target.value)}
+                        placeholder="Dar es Salaam"
+                        className="w-full bg-stone-950/90 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-stone-600 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-300 mb-1">
+                        {lang === 'sw' ? 'Anwani ya Duka Lako (@handle)' : 'Custom Store Handle'}
+                      </label>
+                      <div className="flex items-center bg-stone-950/90 border border-stone-700 rounded-xl px-3 text-xs text-stone-400">
+                        <span>/@</span>
+                        <input
+                          type="text"
+                          value={regSlug}
+                          onChange={(e) => setRegSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''))}
+                          placeholder="jina-lako"
+                          className="w-full bg-transparent py-2.5 pl-1 text-white focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-300 mb-1">
+                      {lang === 'sw' ? 'Nenosiri au PIN ya Kuingia' : 'Password or PIN'}
+                    </label>
+                    <input
+                      type="password"
+                      value={regPass}
+                      onChange={(e) => setRegPass(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full bg-stone-950/90 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-stone-600 focus:outline-none focus:border-amber-400"
+                    />
+                  </div>
+
+                  {regError && (
+                    <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-xl text-xs text-red-300 font-semibold">
+                      {regError}
+                    </div>
+                  )}
+
+                  {regSuccess && (
+                    <div className="p-3 bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-xs text-emerald-300 font-semibold">
+                      {regSuccess}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-black rounded-2xl text-xs shadow-lg transition-transform active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    <span>{lang === 'sw' ? 'Unda Duka & Ingia Kwenye Ofisi' : 'Create Store & Open Back-Office'}</span>
+                  </button>
+                </form>
+              )}
+
+              {/* ── TAB 3: SWITCH (Choose existing profile) ── */}
+              {gatewayTab === 'switch' && (
+                <div className="space-y-3 text-left">
+                  <p className="text-xs text-stone-300">
+                    {lang === 'sw' ? 'Bofya msambazaji hapa chini kufungua ofisi yake mara moja:' : 'Select an active distributor to switch profile:'}
+                  </p>
+
+                  <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                    {savedDistributors.map((d) => (
+                      <div
+                        key={d.id}
+                        onClick={() => handleSwitchDistributor(d)}
+                        className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                          d.id === distributor.id
+                            ? 'bg-amber-500/20 border-amber-500/40 text-white'
+                            : 'bg-stone-950/80 border-stone-800 hover:border-stone-700 text-stone-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={d.avatarUrl || '/logo/distributor-circle.png'}
+                            alt={d.name}
+                            className="w-10 h-10 rounded-xl object-cover border border-stone-700 bg-stone-800"
+                          />
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-bold text-xs text-white">{d.name}</span>
+                              {d.isVerified && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />}
+                            </div>
+                            <span className="text-[11px] text-stone-400 block">{d.city} • @{d.slug}</span>
+                          </div>
+                        </div>
+
+                        <span className="px-2.5 py-1 rounded-xl bg-white/10 text-[10px] font-bold text-amber-300">
+                          {d.id === distributor.id ? 'Active' : 'Switch'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setGatewayTab('register')}
+                    className="w-full py-2.5 border border-dashed border-stone-700 hover:border-amber-400 text-stone-400 hover:text-amber-300 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>{lang === 'sw' ? 'Ongeza Msambazaji Mwingine Mpya' : 'Add Another Distributor Profile'}</span>
                   </button>
                 </div>
+              )}
+            </div>
+
+            {/* ── SUPER ADMIN PORTAL GATEWAY CARD ── */}
+            <div className="bg-gray-900 border border-indigo-500/30 rounded-3xl p-5 sm:p-6 text-white shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                    <Shield className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-extrabold text-white">
+                      Super Administrator Central Portal
+                    </h3>
+                    <p className="text-[11px] text-gray-400">
+                      Access national oversight: Master Products, All Distributors, Sales, Loans, Cash Flow & Reviews.
+                    </p>
+                  </div>
+                </div>
+                <p className="text-[11px] text-indigo-300/80 font-mono mt-1">
+                  Portal URL: <span className="text-indigo-300 underline font-bold">edretail.store/admin</span> · Default Login: <span className="text-amber-300 font-bold">admin@edretail.tz / admin123</span>
+                </p>
               </div>
+
+              <Link
+                to="/admin"
+                className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 flex-shrink-0 cursor-pointer self-stretch sm:self-auto justify-center"
+              >
+                <span>Fungua Admin</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
           </div>
         ) : (
