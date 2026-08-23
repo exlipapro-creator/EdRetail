@@ -77,58 +77,58 @@ export const FieldLedgerPanel: React.FC<FieldLedgerPanelProps> = ({
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-stone-50 text-stone-900">
+    <div className="flex-1 overflow-y-auto space-y-4 bg-transparent text-stone-100">
       {/* ── METRICS SUMMARY CARDS ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="text-[10px] text-stone-500 font-semibold">Mauzo Yote</div>
-          <div className="text-sm font-black text-stone-900">TZS {summary.totalRevenue.toLocaleString()}</div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <div className="bg-stone-950/80 p-3.5 sm:p-4 rounded-2xl border border-stone-800 shadow-xs space-y-1">
+          <div className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Mauzo Yote</div>
+          <div className="text-sm sm:text-base font-black text-white truncate">TZS {summary.totalRevenue.toLocaleString()}</div>
         </div>
-        <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="text-[10px] text-stone-500 font-semibold">Cash Mkononi</div>
-          <div className="text-sm font-black text-emerald-800">TZS {summary.cashCollected.toLocaleString()}</div>
+        <div className="bg-stone-950/80 p-3.5 sm:p-4 rounded-2xl border border-stone-800 shadow-xs space-y-1">
+          <div className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Cash Mkononi</div>
+          <div className="text-sm sm:text-base font-black text-emerald-400 truncate">TZS {summary.cashCollected.toLocaleString()}</div>
         </div>
-        <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="text-[10px] text-stone-500 font-semibold">Madeni Yanayodaiwa</div>
-          <div className="text-sm font-black text-amber-700">TZS {summary.creditOutstanding.toLocaleString()}</div>
+        <div className="bg-stone-950/80 p-3.5 sm:p-4 rounded-2xl border border-stone-800 shadow-xs space-y-1">
+          <div className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Madeni Yanayodaiwa</div>
+          <div className="text-sm sm:text-base font-black text-amber-300 truncate">TZS {summary.creditOutstanding.toLocaleString()}</div>
         </div>
-        <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-xs">
-          <div className="text-[10px] text-stone-500 font-semibold">Faida Halisi</div>
-          <div className="text-sm font-black text-stone-900">TZS {summary.estimatedNetProfit.toLocaleString()}</div>
+        <div className="bg-stone-950/80 p-3.5 sm:p-4 rounded-2xl border border-stone-800 shadow-xs space-y-1">
+          <div className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Faida Halisi</div>
+          <div className="text-sm sm:text-base font-black text-white truncate">TZS {summary.estimatedNetProfit.toLocaleString()}</div>
         </div>
       </div>
 
       {/* ── ACTIONS & FILTER ROW ── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 bg-stone-200/70 p-1 rounded-xl overflow-x-auto">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 pt-1">
+        <div className="flex items-center gap-1 bg-stone-950/80 p-1 rounded-xl border border-stone-800 overflow-x-auto">
           <button
             onClick={() => setFilter('all')}
-            className={`px-3 py-1 text-xs font-bold rounded-lg whitespace-nowrap transition-all ${
-              filter === 'all' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-600 hover:text-stone-900'
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg whitespace-nowrap transition-all cursor-pointer ${
+              filter === 'all' ? 'bg-amber-400 text-stone-950 shadow-xs font-black' : 'text-stone-400 hover:text-white'
             }`}
           >
             {lang === 'sw' ? 'Yote' : 'All'} ({sales.length})
           </button>
           <button
             onClick={() => setFilter('web')}
-            className={`px-3 py-1 text-xs font-bold rounded-lg whitespace-nowrap transition-all ${
-              filter === 'web' ? 'bg-emerald-800 text-white shadow-xs' : 'text-stone-600 hover:text-stone-900'
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg whitespace-nowrap transition-all cursor-pointer ${
+              filter === 'web' ? 'bg-emerald-500 text-stone-950 shadow-xs font-black' : 'text-stone-400 hover:text-white'
             }`}
           >
             {lang === 'sw' ? '🌐 Oda za Mtandao' : '🌐 Web Orders'} ({sales.filter((s) => s.source === 'web_whatsapp').length})
           </button>
           <button
             onClick={() => setFilter('debts')}
-            className={`px-3 py-1 text-xs font-bold rounded-lg whitespace-nowrap transition-all ${
-              filter === 'debts' ? 'bg-white text-amber-900 shadow-xs' : 'text-stone-600 hover:text-stone-900'
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg whitespace-nowrap transition-all cursor-pointer ${
+              filter === 'debts' ? 'bg-amber-400 text-stone-950 shadow-xs font-black' : 'text-stone-400 hover:text-white'
             }`}
           >
             {lang === 'sw' ? 'Madeni' : 'Debts'} ({sales.filter((s) => s.balanceDue > 0).length})
           </button>
           <button
             onClick={() => setFilter('paid')}
-            className={`px-3 py-1 text-xs font-bold rounded-lg whitespace-nowrap transition-all ${
-              filter === 'paid' ? 'bg-white text-emerald-900 shadow-xs' : 'text-stone-600 hover:text-stone-900'
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg whitespace-nowrap transition-all cursor-pointer ${
+              filter === 'paid' ? 'bg-emerald-500 text-stone-950 shadow-xs font-black' : 'text-stone-400 hover:text-white'
             }`}
           >
             {lang === 'sw' ? 'Yaliyolipwa' : 'Paid'} ({sales.filter((s) => s.balanceDue === 0).length})
@@ -137,9 +137,9 @@ export const FieldLedgerPanel: React.FC<FieldLedgerPanelProps> = ({
 
         <button
           onClick={onOpenSaleForm}
-          className="w-full sm:w-auto px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-extrabold rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-colors"
+          className="w-full sm:w-auto px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-stone-950 text-xs font-black rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4 stroke-[3]" />
           <span>{lang === 'sw' ? 'Rekodi Mauzo Mapya' : 'Log New Sale'}</span>
         </button>
       </div>
@@ -147,8 +147,8 @@ export const FieldLedgerPanel: React.FC<FieldLedgerPanelProps> = ({
       {/* ── SALES LIST ── */}
       <div className="space-y-2.5">
         {filteredSales.length === 0 ? (
-          <div className="bg-white rounded-2xl p-8 text-center border border-stone-200 text-stone-500 space-y-2">
-            <BookOpen className="w-8 h-8 mx-auto text-stone-300" />
+          <div className="bg-stone-950/60 rounded-2xl p-8 text-center border border-stone-800 text-stone-400 space-y-2">
+            <BookOpen className="w-8 h-8 mx-auto text-stone-600" />
             <p className="text-xs font-bold">
               {lang === 'sw' ? 'Hakuna rekodi ya mauzo kwenye kipengele hiki.' : 'No sales records in this category.'}
             </p>
@@ -161,73 +161,73 @@ export const FieldLedgerPanel: React.FC<FieldLedgerPanelProps> = ({
             return (
               <div
                 key={sale.id}
-                className="bg-white rounded-2xl p-3.5 border border-stone-200 shadow-xs space-y-2.5 hover:border-stone-300 transition-colors"
+                className="bg-stone-950/80 rounded-2xl p-4 border border-stone-800 shadow-xs space-y-3 hover:border-stone-700 transition-colors"
               >
-                <div className="flex items-start justify-between">
-                  <div>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="font-bold text-xs text-stone-900">{sale.customerName}</h4>
+                      <h4 className="font-extrabold text-sm text-white">{sale.customerName}</h4>
                       {sale.source === 'web_whatsapp' && (
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-100 text-blue-900 border border-blue-200">
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-black bg-blue-900/60 text-blue-300 border border-blue-700/60">
                           🌐 Oda ya Mtandao
                         </span>
                       )}
                       <span
-                        className={`px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase ${
-                          hasDebt ? 'bg-amber-100 text-amber-900' : 'bg-emerald-100 text-emerald-900'
+                        className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase ${
+                          hasDebt ? 'bg-amber-900/50 text-amber-300 border border-amber-700/60' : 'bg-emerald-900/50 text-emerald-300 border border-emerald-700/60'
                         }`}
                       >
                         {hasDebt ? `Anadaiwa TZS ${sale.balanceDue.toLocaleString()}` : 'Imelipwa Yote ✅'}
                       </span>
                     </div>
 
-                    <div className="text-[11px] text-stone-600 mt-0.5 font-medium">
-                      {sale.productName} {sale.quantity > 1 ? `(x${sale.quantity})` : ''} • TZS {sale.totalAmount.toLocaleString()} • {sale.customerPhone || 'Bila Namba'}
+                    <div className="text-xs text-stone-300 font-medium">
+                      {sale.productName} {sale.quantity > 1 ? `(x${sale.quantity})` : ''} • <span className="text-white font-bold">TZS {sale.totalAmount.toLocaleString()}</span> • {sale.customerPhone || 'Bila Namba'}
                     </div>
 
                     {(sale.customerLocation || sale.notes) && (
-                      <div className="text-[10px] text-stone-500 mt-1 flex items-center gap-2">
+                      <div className="text-[11px] text-stone-400 flex items-center gap-2">
                         {sale.customerLocation && <span>📍 {sale.customerLocation}</span>}
-                        {sale.notes && <span className="italic">{sale.notes}</span>}
+                        {sale.notes && <span className="italic text-stone-400">"{sale.notes}"</span>}
                       </div>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       onClick={() => handleSendReceiptWhatsApp(sale)}
                       title="Tuma Risiti WhatsApp"
-                      className="p-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg transition-colors"
+                      className="p-2 bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 rounded-xl transition-colors cursor-pointer"
                     >
-                      <Receipt className="w-3.5 h-3.5" />
+                      <Receipt className="w-4 h-4" />
                     </button>
 
                     {hasDebt && (
                       <button
                         onClick={() => handleSendDebtWhatsApp(sale)}
                         title="Tuma Kumbusho la Deni WhatsApp"
-                        className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg transition-colors"
+                        className="p-2 bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-700/60 rounded-xl transition-colors cursor-pointer"
                       >
-                        <MessageSquare className="w-3.5 h-3.5" />
+                        <MessageSquare className="w-4 h-4" />
                       </button>
                     )}
 
                     <button
                       onClick={() => deleteSale(sale.id)}
                       title="Futa"
-                      className="p-1.5 text-stone-300 hover:text-red-600 rounded-lg transition-colors"
+                      className="p-2 text-stone-500 hover:text-red-400 rounded-xl transition-colors cursor-pointer"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
                 {/* Debt details & payment collection */}
                 {hasDebt && (
-                  <div className="p-2.5 bg-amber-50/70 border border-amber-200 rounded-xl space-y-2 text-xs">
-                    <div className="flex justify-between text-amber-950 text-[11px]">
-                      <span>Kiasi Kilicholipwa: TZS {sale.amountPaid.toLocaleString()}</span>
-                      <span>Tarehe ya Ahadi: {sale.dueDate || 'Haikupangwa'}</span>
+                  <div className="p-3 bg-amber-950/40 border border-amber-500/40 rounded-xl space-y-2 text-xs">
+                    <div className="flex justify-between text-amber-200 text-xs font-semibold">
+                      <span>Kiasi Kilicholipwa: <strong className="text-white">TZS {sale.amountPaid.toLocaleString()}</strong></span>
+                      <span>Tarehe ya Ahadi: <strong className="text-amber-300">{sale.dueDate || 'Haikupangwa'}</strong></span>
                     </div>
 
                     {isPaying ? (
@@ -237,17 +237,17 @@ export const FieldLedgerPanel: React.FC<FieldLedgerPanelProps> = ({
                           value={payAmountInput}
                           onChange={(e) => setPayAmountInput(e.target.value)}
                           placeholder={`Weka kiasi (Hadi ${sale.balanceDue})...`}
-                          className="flex-1 px-2.5 py-1 bg-white border border-amber-300 rounded-lg text-xs font-bold"
+                          className="flex-1 px-3 py-1.5 bg-stone-900 border border-amber-500/50 rounded-lg text-xs font-bold text-white focus:outline-none focus:ring-1 focus:ring-amber-400"
                         />
                         <button
                           onClick={() => handleSavePayment(sale.id)}
-                          className="px-3 py-1 bg-amber-700 text-white rounded-lg text-xs font-bold hover:bg-amber-800"
+                          className="px-3.5 py-1.5 bg-amber-400 hover:bg-amber-300 text-stone-950 rounded-lg text-xs font-black cursor-pointer"
                         >
                           Hifadhi
                         </button>
                         <button
                           onClick={() => setPayingSaleId(null)}
-                          className="px-2 py-1 text-stone-500 text-xs"
+                          className="px-2.5 py-1.5 text-stone-400 hover:text-white text-xs cursor-pointer"
                         >
                           Ghairi
                         </button>
@@ -256,7 +256,7 @@ export const FieldLedgerPanel: React.FC<FieldLedgerPanelProps> = ({
                       <div className="flex items-center justify-end gap-2 pt-1">
                         <button
                           onClick={() => markDebtPaid(sale.id, sale.balanceDue)}
-                          className="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-[11px] font-bold shadow-2xs transition-colors"
+                          className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-stone-950 rounded-lg text-xs font-black shadow-2xs transition-colors cursor-pointer"
                         >
                           ✅ Thibitisha Imelipwa Yote
                         </button>
@@ -265,7 +265,7 @@ export const FieldLedgerPanel: React.FC<FieldLedgerPanelProps> = ({
                             setPayingSaleId(sale.id);
                             setPayAmountInput(String(sale.balanceDue));
                           }}
-                          className="px-2.5 py-1 bg-white border border-amber-300 hover:bg-amber-100 text-amber-900 rounded-lg text-[11px] font-bold shadow-2xs transition-colors"
+                          className="px-3 py-1.5 bg-stone-900 border border-amber-500/40 hover:bg-stone-800 text-amber-300 rounded-lg text-xs font-bold shadow-2xs transition-colors cursor-pointer"
                         >
                           + Rekodi Kiasi
                         </button>

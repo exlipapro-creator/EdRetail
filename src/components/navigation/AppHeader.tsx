@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ShoppingCart, Search, ShieldCheck, ArrowLeft, Sparkles } from 'lucide-react';
+import { ShoppingCart, ShieldCheck, ArrowLeft, Sparkles } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
 import { CartBadge } from '../CartBadge';
@@ -25,10 +25,7 @@ export function AppHeader({
   currentScreen,
   onNavigate,
   onOpenCart,
-  searchValue: _searchValue = '',
-  onSearchChange: _onSearchChange,
   onOpenFlyerStudio,
-  onOpenStoreLinkModal: _onOpenStoreLinkModal,
 }: AppHeaderProps) {
   const { lang, setLang } = useLang();
   const navigate = useNavigate();
@@ -54,7 +51,7 @@ export function AppHeader({
             <button
               id="header-back-btn"
               onClick={() => onNavigate('home')}
-              className="p-2 -ml-1 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors sm:hidden"
+              className="p-2 -ml-1 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors sm:hidden cursor-pointer"
               aria-label={lang === 'sw' ? 'Rudi Nyumbani' : 'Back to Home'}
             >
               <ArrowLeft className="w-5 h-5" />
@@ -68,7 +65,7 @@ export function AppHeader({
           >
             <img
               src="/logo/wordmark.png"
-              alt="ED Retail"
+              alt="ED Retail Tanzania"
               className="h-8 sm:h-9 w-auto object-contain"
             />
             <div className="hidden sm:flex flex-col">
@@ -110,24 +107,14 @@ export function AppHeader({
           })}
         </nav>
 
-        {/* Right: Actions (Search shortcut on mobile, Favourites, Language, Cart, Distributor) */}
+        {/* Right: Actions (Flyer Studio, Language Segmented Toggle, Cart, Distributor) */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Mobile search icon trigger */}
-          <button
-            id="mobile-search-btn"
-            onClick={() => onNavigate('products')}
-            className="flex sm:hidden p-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-700 transition-colors"
-            aria-label={lang === 'sw' ? 'Tafuta bidhaa' : 'Search products'}
-          >
-            <Search className="w-4 h-4" />
-          </button>
-
           {/* 1-Tap Flyer Studio Generator button */}
           {onOpenFlyerStudio && (
             <button
               id="header-flyer-studio-btn"
               onClick={onOpenFlyerStudio}
-              className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs font-extrabold shadow-2xs transition-all"
+              className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs font-extrabold shadow-2xs transition-all cursor-pointer"
               title={lang === 'sw' ? 'Tengeneza Picha ya WhatsApp Status' : 'Generate WhatsApp Status Flyer'}
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-600" />
@@ -135,17 +122,36 @@ export function AppHeader({
             </button>
           )}
 
-          {/* Language toggle with clear label */}
-          <button
+          {/* Clean Segmented Language Switcher */}
+          <div
             id="language-switch-btn"
-            onClick={() => setLang(lang === 'en' ? 'sw' : 'en')}
-            className="px-2.5 py-1.5 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-xs font-bold text-neutral-800 transition-colors border border-neutral-200/50 flex items-center gap-1 cursor-pointer"
-            aria-label={lang === 'en' ? 'Badilisha kwenda Kiswahili' : 'Switch to English'}
-            title={lang === 'en' ? 'Switch language to Swahili' : 'Badilisha lugha kwenda Kiingereza'}
+            className="flex items-center p-0.5 bg-neutral-100 rounded-xl border border-neutral-200/90 select-none shadow-2xs"
           >
-            <span className="text-[10px] text-neutral-500 font-normal">Lang:</span>
-            <span className="font-extrabold">{lang === 'en' ? 'SW' : 'EN'}</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setLang('sw')}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition-all cursor-pointer ${
+                lang === 'sw'
+                  ? 'bg-[#123B6D] text-white shadow-xs font-black'
+                  : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-200/50'
+              }`}
+              title="Kiswahili"
+            >
+              SW
+            </button>
+            <button
+              type="button"
+              onClick={() => setLang('en')}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition-all cursor-pointer ${
+                lang === 'en'
+                  ? 'bg-[#123B6D] text-white shadow-xs font-black'
+                  : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-200/50'
+              }`}
+              title="English"
+            >
+              EN
+            </button>
+          </div>
 
           {/* Cart button */}
           <motion.button

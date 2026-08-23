@@ -157,7 +157,7 @@ export const PaymentAccountsManager: React.FC<PaymentAccountsManagerProps> = ({ 
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-transparent text-stone-100">
       {/* ── HEADER BANNER ── */}
       <div className="p-5 sm:p-6 bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900 rounded-3xl text-white shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-stone-700">
         <div>
@@ -198,10 +198,10 @@ export const PaymentAccountsManager: React.FC<PaymentAccountsManagerProps> = ({ 
           return (
             <div
               key={account.id}
-              className={`p-5 rounded-3xl border transition-all relative flex flex-col justify-between bg-white shadow-xs ${
+              className={`p-5 rounded-3xl border transition-all relative flex flex-col justify-between bg-stone-950/80 shadow-xs ${
                 account.isDefault
-                  ? 'border-stone-900 ring-2 ring-stone-900/10'
-                  : 'border-stone-200 hover:border-stone-300'
+                  ? 'border-emerald-500/80 ring-1 ring-emerald-500/30'
+                  : 'border-stone-800 hover:border-stone-700'
               }`}
             >
               <div>
@@ -211,8 +211,8 @@ export const PaymentAccountsManager: React.FC<PaymentAccountsManagerProps> = ({ 
                       {account.networkName}
                     </span>
                     {account.isDefault && (
-                      <span className="text-[10px] font-bold text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-md flex items-center gap-1">
-                        <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                      <span className="text-[10px] font-bold text-amber-300 bg-amber-950/80 border border-amber-600/50 px-2 py-0.5 rounded-md flex items-center gap-1">
+                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                         <span>{lang === 'sw' ? 'Ya Awali (Default)' : 'Default'}</span>
                       </span>
                     )}
@@ -221,14 +221,14 @@ export const PaymentAccountsManager: React.FC<PaymentAccountsManagerProps> = ({ 
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => handleOpenEdit(account)}
-                      className="p-1.5 text-stone-500 hover:text-stone-900 rounded-lg hover:bg-stone-100 transition-colors"
+                      className="p-1.5 text-stone-400 hover:text-white rounded-lg hover:bg-stone-800 transition-colors"
                       title={lang === 'sw' ? 'Hariri' : 'Edit'}
                     >
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => handleDelete(account.id)}
-                      className="p-1.5 text-red-500 hover:text-red-700 rounded-lg hover:bg-red-50 transition-colors"
+                      className="p-1.5 text-red-400 hover:text-red-300 rounded-lg hover:bg-red-950/40 transition-colors"
                       title={lang === 'sw' ? 'Futa' : 'Delete'}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -237,29 +237,29 @@ export const PaymentAccountsManager: React.FC<PaymentAccountsManagerProps> = ({ 
                 </div>
 
                 <div className="space-y-1">
-                  <div className="text-[11px] font-semibold text-stone-500">
+                  <div className="text-[11px] font-semibold text-stone-400">
                     {account.accountTypeName}
                   </div>
-                  <div className="font-mono text-2xl font-black text-stone-950 tracking-wider">
+                  <div className="font-mono text-2xl font-black text-white tracking-wider">
                     {account.accountNumber}
                   </div>
-                  <div className="text-xs text-stone-600 pt-1">
+                  <div className="text-xs text-stone-300 pt-1">
                     {lang === 'sw' ? 'Jina Lililosajiliwa:' : 'Registered Name:'}{' '}
-                    <strong className="text-stone-900 font-bold">{account.accountName}</strong>
+                    <strong className="text-white font-bold">{account.accountName}</strong>
                   </div>
                 </div>
               </div>
 
               {/* Bottom Actions */}
-              <div className="pt-4 mt-4 border-t border-stone-100 flex items-center justify-between">
+              <div className="pt-4 mt-4 border-t border-stone-800 flex items-center justify-between">
                 <button
                   onClick={() => handleCopy(account.accountNumber, account.id)}
-                  className="text-xs font-bold text-stone-700 hover:text-stone-950 flex items-center gap-1.5 bg-stone-50 hover:bg-stone-100 px-3 py-1.5 rounded-xl border border-stone-200 transition-colors"
+                  className="text-xs font-bold text-stone-300 hover:text-white flex items-center gap-1.5 bg-stone-900 hover:bg-stone-800 px-3 py-1.5 rounded-xl border border-stone-700 transition-colors"
                 >
                   {copiedId === account.id ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span className="text-emerald-700">{lang === 'sw' ? 'Imenakiliwa' : 'Copied'}</span>
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="text-emerald-300">{lang === 'sw' ? 'Imenakiliwa' : 'Copied'}</span>
                     </>
                   ) : (
                     <>
@@ -272,7 +272,7 @@ export const PaymentAccountsManager: React.FC<PaymentAccountsManagerProps> = ({ 
                 {!account.isDefault && (
                   <button
                     onClick={() => handleSetDefault(account.id)}
-                    className="text-xs font-bold text-stone-500 hover:text-stone-900 underline cursor-pointer"
+                    className="text-xs font-bold text-stone-400 hover:text-emerald-400 underline cursor-pointer"
                   >
                     {lang === 'sw' ? 'Weka kama ya Awali' : 'Make Default'}
                   </button>
@@ -284,11 +284,11 @@ export const PaymentAccountsManager: React.FC<PaymentAccountsManagerProps> = ({ 
       </div>
 
       {/* ── SECURITY ADVISORY ── */}
-      <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-900 flex items-start gap-3">
-        <ShieldCheck className="w-5 h-5 text-emerald-700 flex-shrink-0 mt-0.5" />
+      <div className="p-4 bg-emerald-950/60 rounded-2xl border border-emerald-800/60 text-xs text-emerald-200 flex items-start gap-3">
+        <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
         <div>
-          <h4 className="font-bold">{lang === 'sw' ? 'Uthibitisho wa Miamala Tanzania' : 'Transaction Safety Assurance'}</h4>
-          <p className="text-[11px] text-emerald-800 mt-0.5 leading-relaxed">
+          <h4 className="font-bold text-emerald-300">{lang === 'sw' ? 'Uthibitisho wa Miamala Tanzania' : 'Transaction Safety Assurance'}</h4>
+          <p className="text-[11px] text-emerald-200/80 mt-0.5 leading-relaxed">
             {lang === 'sw'
               ? 'Kila agizo linalotumwa WhatsApp huunganishwa moja kwa moja na namba hizi pamoja na mwongozo wa mteja kutuma SMS ya muamala mara tu anapolipia.'
               : 'All web orders compile direct receipts with these account coordinates so customers can pay directly and submit confirmation SMS proofs in chat.'}
@@ -298,34 +298,34 @@ export const PaymentAccountsManager: React.FC<PaymentAccountsManagerProps> = ({ 
 
       {/* ── ADD/EDIT MODAL ── */}
       {showAddModal && (
-        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-stone-200 space-y-4">
-            <div className="flex items-center justify-between border-b border-stone-200 pb-3">
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+          <div className="bg-stone-900 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-stone-800 space-y-4">
+            <div className="flex items-center justify-between border-b border-stone-800 pb-3">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-stone-900 text-amber-400 flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-xl bg-stone-950 text-amber-400 border border-stone-800 flex items-center justify-center font-bold">
                   <CreditCard className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-stone-900">
+                  <h3 className="font-bold text-sm text-white">
                     {editingAccountId
                       ? (lang === 'sw' ? 'Hariri Namba ya Malipo' : 'Edit Payment Account')
                       : (lang === 'sw' ? 'Ongeza Namba ya Malipo' : 'Add Payment Account')}
                   </h3>
-                  <p className="text-[10px] text-stone-500">
+                  <p className="text-[10px] text-stone-400">
                     {lang === 'sw' ? 'Hitaonekana kwenye Checkout na Risiti za WhatsApp' : 'Visible on checkout and WhatsApp receipts'}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="p-1 rounded-lg text-stone-400 hover:text-stone-700"
+                className="p-1 rounded-lg text-stone-400 hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {formError && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-xs flex items-center gap-2">
+              <div className="p-3 bg-red-950/60 border border-red-800 text-red-300 rounded-xl text-xs flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>{formError}</span>
               </div>
@@ -333,13 +333,13 @@ export const PaymentAccountsManager: React.FC<PaymentAccountsManagerProps> = ({ 
 
             <form onSubmit={handleSaveAccount} className="space-y-3.5 text-xs">
               <div>
-                <label className="block font-bold text-stone-700 mb-1">
+                <label className="block font-bold text-stone-300 mb-1">
                   {lang === 'sw' ? 'Mtandao wa Simu / Benki:' : 'Network / Bank:'}
                 </label>
                 <select
                   value={network}
                   onChange={(e) => setNetwork(e.target.value as PaymentNetwork)}
-                  className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl font-semibold text-stone-900"
+                  className="w-full p-2.5 bg-stone-950 border border-stone-700 rounded-xl font-semibold text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 >
                   {networkOptions.map((opt) => (
                     <option key={opt.id} value={opt.id}>
@@ -350,13 +350,13 @@ export const PaymentAccountsManager: React.FC<PaymentAccountsManagerProps> = ({ 
               </div>
 
               <div>
-                <label className="block font-bold text-stone-700 mb-1">
+                <label className="block font-bold text-stone-300 mb-1">
                   {lang === 'sw' ? 'Aina ya Akaunti:' : 'Account Type:'}
                 </label>
                 <select
                   value={accountType}
                   onChange={(e) => setAccountType(e.target.value as PaymentAccountType)}
-                  className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl font-semibold text-stone-900"
+                  className="w-full p-2.5 bg-stone-950 border border-stone-700 rounded-xl font-semibold text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 >
                   {accountTypeOptions.map((opt) => (
                     <option key={opt.id} value={opt.id}>
@@ -367,7 +367,7 @@ export const PaymentAccountsManager: React.FC<PaymentAccountsManagerProps> = ({ 
               </div>
 
               <div>
-                <label className="block font-bold text-stone-700 mb-1">
+                <label className="block font-bold text-stone-300 mb-1">
                   {lang === 'sw' ? 'Namba ya Lipa / Namba ya Simu / Akaunti:' : 'Account / Till Number:'}
                 </label>
                 <input
@@ -376,12 +376,12 @@ export const PaymentAccountsManager: React.FC<PaymentAccountsManagerProps> = ({ 
                   value={accountNumber}
                   onChange={(e) => setAccountNumber(e.target.value)}
                   placeholder="Mfano: 543210 au 0783481416"
-                  className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl font-mono text-sm font-bold text-stone-900"
+                  className="w-full p-2.5 bg-stone-950 border border-stone-700 rounded-xl font-mono text-sm font-bold text-white placeholder:text-stone-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-stone-700 mb-1">
+                <label className="block font-bold text-stone-300 mb-1">
                   {lang === 'sw' ? 'Jina Lililosajiliwa (Kama linavyosomeka kwenye SMS):' : 'Registered Account Holder Name:'}
                 </label>
                 <input
@@ -390,7 +390,7 @@ export const PaymentAccountsManager: React.FC<PaymentAccountsManagerProps> = ({ 
                   value={accountName}
                   onChange={(e) => setAccountName(e.target.value)}
                   placeholder="Mfano: Mwanahamisi Lissu"
-                  className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl font-semibold text-stone-900"
+                  className="w-full p-2.5 bg-stone-950 border border-stone-700 rounded-xl font-semibold text-white placeholder:text-stone-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 />
               </div>
 
@@ -400,9 +400,9 @@ export const PaymentAccountsManager: React.FC<PaymentAccountsManagerProps> = ({ 
                   id="acc-is-default-check"
                   checked={isDefault}
                   onChange={(e) => setIsDefault(e.target.checked)}
-                  className="w-4 h-4 rounded text-stone-900 focus:ring-stone-900"
+                  className="w-4 h-4 rounded bg-stone-950 border-stone-700 text-emerald-500 focus:ring-emerald-500"
                 />
-                <label htmlFor="acc-is-default-check" className="font-semibold text-stone-700 cursor-pointer">
+                <label htmlFor="acc-is-default-check" className="font-semibold text-stone-300 cursor-pointer">
                   {lang === 'sw' ? 'Weka kama namba kuu (Default)' : 'Set as primary default account'}
                 </label>
               </div>
@@ -411,13 +411,13 @@ export const PaymentAccountsManager: React.FC<PaymentAccountsManagerProps> = ({ 
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-stone-300 font-bold text-stone-700 hover:bg-stone-100"
+                  className="flex-1 py-2.5 rounded-xl border border-stone-700 font-bold text-stone-300 hover:bg-stone-800 cursor-pointer"
                 >
                   {lang === 'sw' ? 'Ghairi' : 'Cancel'}
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 font-bold text-white shadow-xs"
+                  className="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 font-black text-stone-950 shadow-xs cursor-pointer"
                 >
                   {lang === 'sw' ? 'Hifadhi Akaunti' : 'Save Account'}
                 </button>

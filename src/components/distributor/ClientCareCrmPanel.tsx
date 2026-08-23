@@ -64,7 +64,7 @@ export const ClientCareCrmPanel: React.FC<ClientCareCrmPanelProps> = ({ lang }) 
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-transparent text-stone-100">
       {/* Overview Banner */}
       <div className="p-4 sm:p-5 bg-gradient-to-r from-emerald-950 to-stone-900 text-white rounded-2xl border border-emerald-800/60 shadow-xs space-y-2">
         <div className="flex items-center gap-2 flex-wrap">
@@ -88,61 +88,61 @@ export const ClientCareCrmPanel: React.FC<ClientCareCrmPanelProps> = ({ lang }) 
       </div>
 
       {/* Script Mode Selector */}
-      <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200 space-y-3">
-        <span className="text-xs font-bold text-stone-700 block">
+      <div className="bg-stone-950/80 p-4 sm:p-5 rounded-2xl border border-stone-800 space-y-3">
+        <span className="text-xs font-bold text-stone-300 block">
           {lang === 'sw' ? 'Chagua Muktadha wa Ujumbe wa WhatsApp:' : 'Select Follow-up Context & Message Tone:'}
         </span>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           <button
             type="button"
             onClick={() => setSelectedScriptType('refill')}
-            className={`p-3 rounded-xl text-left border text-xs transition-all cursor-pointer ${
+            className={`p-3.5 rounded-xl text-left border text-xs transition-all cursor-pointer ${
               selectedScriptType === 'refill'
-                ? 'bg-emerald-50 border-emerald-500 font-bold text-emerald-950 shadow-2xs'
-                : 'bg-white border-stone-200 text-stone-600 hover:bg-stone-100'
+                ? 'bg-emerald-950/60 border-emerald-500 font-bold text-emerald-200 shadow-2xs'
+                : 'bg-stone-900/60 border-stone-800 text-stone-400 hover:text-stone-200'
             }`}
           >
-            <div className="font-extrabold text-stone-900">🚨 {lang === 'sw' ? 'Siku 10: Mzigo Unakaribia' : 'Day 10: Refill Reminder'}</div>
-            <div className="text-[10px] text-stone-500 mt-0.5">Zimebaki pakiti 2–3 za dozi</div>
+            <div className="font-extrabold text-white">🚨 {lang === 'sw' ? 'Siku 10: Mzigo Unakaribia' : 'Day 10: Refill Reminder'}</div>
+            <div className="text-[11px] text-stone-400 mt-1">Zimebaki pakiti 2–3 za dozi</div>
           </button>
 
           <button
             type="button"
             onClick={() => setSelectedScriptType('progress')}
-            className={`p-3 rounded-xl text-left border text-xs transition-all cursor-pointer ${
+            className={`p-3.5 rounded-xl text-left border text-xs transition-all cursor-pointer ${
               selectedScriptType === 'progress'
-                ? 'bg-emerald-50 border-emerald-500 font-bold text-emerald-950 shadow-2xs'
-                : 'bg-white border-stone-200 text-stone-600 hover:bg-stone-100'
+                ? 'bg-emerald-950/60 border-emerald-500 font-bold text-emerald-200 shadow-2xs'
+                : 'bg-stone-900/60 border-stone-800 text-stone-400 hover:text-stone-200'
             }`}
           >
-            <div className="font-extrabold text-stone-900">🌱 {lang === 'sw' ? 'Siku 5: Kujulia Hali' : 'Day 5: Progress Check'}</div>
-            <div className="text-[10px] text-stone-500 mt-0.5">Kufuatilia tumbo kuwa jepesi</div>
+            <div className="font-extrabold text-white">🌱 {lang === 'sw' ? 'Siku 5: Kujulia Hali' : 'Day 5: Progress Check'}</div>
+            <div className="text-[11px] text-stone-400 mt-1">Kufuatilia tumbo kuwa jepesi</div>
           </button>
 
           <button
             type="button"
             onClick={() => setSelectedScriptType('next_step')}
-            className={`p-3 rounded-xl text-left border text-xs transition-all cursor-pointer ${
+            className={`p-3.5 rounded-xl text-left border text-xs transition-all cursor-pointer ${
               selectedScriptType === 'next_step'
-                ? 'bg-emerald-50 border-emerald-500 font-bold text-emerald-950 shadow-2xs'
-                : 'bg-white border-stone-200 text-stone-600 hover:bg-stone-100'
+                ? 'bg-emerald-950/60 border-emerald-500 font-bold text-emerald-200 shadow-2xs'
+                : 'bg-stone-900/60 border-stone-800 text-stone-400 hover:text-stone-200'
             }`}
           >
-            <div className="font-extrabold text-stone-900">✨ {lang === 'sw' ? 'Hatua ya Pili: P4 Slimming' : 'Phase 2: Slimming Next Step'}</div>
-            <div className="text-[10px] text-stone-500 mt-0.5">Kutoka Shake Off kwenda MRT</div>
+            <div className="font-extrabold text-white">✨ {lang === 'sw' ? 'Hatua ya Pili: P4 Slimming' : 'Phase 2: Slimming Next Step'}</div>
+            <div className="text-[11px] text-stone-400 mt-1">Kutoka Shake Off kwenda MRT</div>
           </button>
         </div>
       </div>
 
       {/* Real Queue from Sales */}
       <div className="space-y-3">
-        <h4 className="text-xs font-bold text-stone-700 uppercase tracking-wider">
+        <h4 className="text-xs font-bold text-stone-400 uppercase tracking-wider">
           {lang === 'sw' ? 'Orodha ya Wateja Wanaohitaji Ufuatiliaji:' : 'Active Client Follow-up Queue:'}
         </h4>
 
         {sales.length === 0 ? (
-          <div className="p-8 text-center bg-stone-50 rounded-2xl border border-stone-200 text-stone-500 text-xs">
-            <Receipt className="w-6 h-6 mx-auto text-stone-300 mb-2" />
+          <div className="p-8 text-center bg-stone-950/60 rounded-2xl border border-stone-800 text-stone-400 text-xs">
+            <Receipt className="w-6 h-6 mx-auto text-stone-600 mb-2" />
             <p className="font-bold">
               {lang === 'sw'
                 ? 'Bado haujarekodi mauzo. Rekodi mauzo ili mfumo upange tarehe za ufuatiliaji kiotomatiki.'
@@ -168,16 +168,16 @@ export const ClientCareCrmPanel: React.FC<ClientCareCrmPanelProps> = ({ lang }) 
             return (
               <div
                 key={sale.id}
-                className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-2.5 hover:border-emerald-300 transition-all"
+                className="p-4 bg-stone-950/80 rounded-2xl border border-stone-800 shadow-2xs space-y-2.5 hover:border-emerald-700/60 transition-all"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-extrabold text-stone-900 text-xs">{sale.customerName}</span>
-                      <span className="text-[11px] text-stone-500 font-mono">({sale.customerPhone || 'Bila Namba'})</span>
+                      <span className="font-extrabold text-white text-xs sm:text-sm">{sale.customerName}</span>
+                      <span className="text-xs text-stone-400 font-mono">({sale.customerPhone || 'Bila Namba'})</span>
                     </div>
-                    <div className="text-[11px] text-stone-500 mt-0.5">
-                      Bidhaa: <strong className="text-stone-800">{sale.productName}</strong> • Tarehe: {new Date(sale.createdAt).toLocaleDateString()}
+                    <div className="text-xs text-stone-400 mt-1">
+                      Bidhaa: <strong className="text-white">{sale.productName}</strong> • Tarehe: {new Date(sale.createdAt).toLocaleDateString()}
                     </div>
                   </div>
 
@@ -185,9 +185,9 @@ export const ClientCareCrmPanel: React.FC<ClientCareCrmPanelProps> = ({ lang }) 
                     href={waUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs transition-colors self-start sm:self-auto cursor-pointer"
+                    className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-stone-950 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 shadow-2xs transition-colors self-start sm:self-auto cursor-pointer"
                   >
-                    <MessageSquare className="w-3.5 h-3.5" />
+                    <MessageSquare className="w-3.5 h-3.5 stroke-[2.5]" />
                     <span>{lang === 'sw' ? 'Tuma Ujumbe WhatsApp' : 'Dispatch via WhatsApp'}</span>
                   </a>
                 </div>
@@ -198,41 +198,41 @@ export const ClientCareCrmPanel: React.FC<ClientCareCrmPanelProps> = ({ lang }) 
       </div>
 
       {/* Manual 1-Tap Customer Dispatch */}
-      <div className="bg-stone-50 p-4 sm:p-5 rounded-2xl border border-stone-200 space-y-4">
+      <div className="bg-stone-950/80 p-4 sm:p-5 rounded-2xl border border-stone-800 space-y-4">
         <div className="flex items-center justify-between">
-          <span className="font-extrabold text-xs text-stone-900 flex items-center gap-2">
-            <Phone className="w-4 h-4 text-emerald-700" />
+          <span className="font-extrabold text-xs sm:text-sm text-white flex items-center gap-2">
+            <Phone className="w-4 h-4 text-emerald-400" />
             <span>{lang === 'sw' ? 'Tuma Ujumbe kwa Mteja Maalum (Manual)' : 'Quick-Dispatch to Custom Client'}</span>
           </span>
-          <span className="text-[10px] bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded font-bold">1-Tap WhatsApp</span>
+          <span className="text-[10px] bg-emerald-950/80 text-emerald-300 border border-emerald-700/60 px-2 py-0.5 rounded-md font-bold">1-Tap WhatsApp</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 bg-white p-3.5 rounded-xl border border-stone-200">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 bg-stone-900/60 p-3.5 rounded-xl border border-stone-800">
           <div>
-            <label className="block text-[11px] font-bold text-stone-700 mb-1">{lang === 'sw' ? 'Jina:' : 'Name:'}</label>
+            <label className="block text-[11px] font-bold text-stone-400 mb-1">{lang === 'sw' ? 'Jina:' : 'Name:'}</label>
             <input
               type="text"
               value={customClientName}
               onChange={(e) => setCustomClientName(e.target.value)}
-              className="w-full p-2 bg-stone-50 border border-stone-300 rounded-lg text-xs font-semibold"
+              className="w-full p-2 bg-stone-950 border border-stone-700 rounded-lg text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
             />
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-stone-700 mb-1">{lang === 'sw' ? 'Simu WhatsApp:' : 'WhatsApp Phone:'}</label>
+            <label className="block text-[11px] font-bold text-stone-400 mb-1">{lang === 'sw' ? 'Simu WhatsApp:' : 'WhatsApp Phone:'}</label>
             <input
               type="tel"
               value={customClientPhone}
               onChange={(e) => setCustomClientPhone(e.target.value)}
-              className="w-full p-2 bg-stone-50 border border-stone-300 rounded-lg text-xs font-mono font-semibold"
+              className="w-full p-2 bg-stone-950 border border-stone-700 rounded-lg text-xs font-mono font-semibold text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
             />
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-stone-700 mb-1">{lang === 'sw' ? 'Bidhaa:' : 'Product:'}</label>
+            <label className="block text-[11px] font-bold text-stone-400 mb-1">{lang === 'sw' ? 'Bidhaa:' : 'Product:'}</label>
             <input
               type="text"
               value={customClientProduct}
               onChange={(e) => setCustomClientProduct(e.target.value)}
-              className="w-full p-2 bg-stone-50 border border-stone-300 rounded-lg text-xs font-semibold"
+              className="w-full p-2 bg-stone-950 border border-stone-700 rounded-lg text-xs font-semibold text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
             />
           </div>
         </div>
@@ -240,25 +240,25 @@ export const ClientCareCrmPanel: React.FC<ClientCareCrmPanelProps> = ({ lang }) 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           <button
             onClick={() => handleSendCustomWhatsApp('day3_detox')}
-            className="p-2.5 bg-white hover:bg-stone-100 border border-stone-200 text-stone-800 rounded-xl text-[11px] font-bold text-center transition-colors cursor-pointer"
+            className="p-2.5 bg-stone-900 hover:bg-stone-800 border border-stone-800 text-stone-300 rounded-xl text-[11px] font-bold text-center transition-colors cursor-pointer"
           >
             Siku 3 (Maji)
           </button>
           <button
             onClick={() => handleSendCustomWhatsApp('day7_ulcer')}
-            className="p-2.5 bg-white hover:bg-stone-100 border border-stone-200 text-stone-800 rounded-xl text-[11px] font-bold text-center transition-colors cursor-pointer"
+            className="p-2.5 bg-stone-900 hover:bg-stone-800 border border-stone-800 text-stone-300 rounded-xl text-[11px] font-bold text-center transition-colors cursor-pointer"
           >
             Siku 7 (Vidonda)
           </button>
           <button
             onClick={() => handleSendCustomWhatsApp('day14_refill')}
-            className="p-2.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-950 rounded-xl text-[11px] font-bold text-center transition-colors cursor-pointer"
+            className="p-2.5 bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-700/60 text-emerald-300 rounded-xl text-[11px] font-bold text-center transition-colors cursor-pointer"
           >
             Siku 14 (Refill)
           </button>
           <button
             onClick={() => handleSendCustomWhatsApp('day30_review')}
-            className="p-2.5 bg-white hover:bg-stone-100 border border-stone-200 text-stone-800 rounded-xl text-[11px] font-bold text-center transition-colors cursor-pointer"
+            className="p-2.5 bg-stone-900 hover:bg-stone-800 border border-stone-800 text-stone-300 rounded-xl text-[11px] font-bold text-center transition-colors cursor-pointer"
           >
             Siku 30 (Ushuhuda)
           </button>
@@ -266,12 +266,12 @@ export const ClientCareCrmPanel: React.FC<ClientCareCrmPanelProps> = ({ lang }) 
       </div>
 
       {/* AI Health Simulator */}
-      <div className="bg-stone-50 p-4 sm:p-5 rounded-2xl border border-stone-200 space-y-3">
-        <div className="flex items-center gap-2 text-stone-900 font-extrabold text-xs sm:text-sm">
-          <Bot className="w-4 h-4 text-emerald-700" />
+      <div className="bg-stone-950/80 p-4 sm:p-5 rounded-2xl border border-stone-800 space-y-3">
+        <div className="flex items-center gap-2 text-white font-extrabold text-xs sm:text-sm">
+          <Bot className="w-4 h-4 text-emerald-400" />
           <span>{lang === 'sw' ? 'Jaribu Ushauri wa Afya (AI Health Simulator)' : 'AI Health Advisor Response Preview'}</span>
         </div>
-        <p className="text-stone-500 text-xs">
+        <p className="text-stone-400 text-xs">
           {lang === 'sw'
             ? 'Andika swali lolote la afya ili kuona jinsi roboti inavyowajibu wateja kwa weledi na kuwaelekeza WhatsApp yako.'
             : 'Test common questions to preview consultative responses routing back to your WhatsApp.'}
@@ -283,22 +283,22 @@ export const ClientCareCrmPanel: React.FC<ClientCareCrmPanelProps> = ({ lang }) 
             value={simQuery}
             onChange={(e) => setSimQuery(e.target.value)}
             placeholder="Mfano: Nina vidonda vya tumbo nitumie nini?..."
-            className="flex-1 p-2.5 bg-white border border-stone-300 rounded-xl text-xs font-semibold"
+            className="flex-1 p-2.5 bg-stone-900 border border-stone-700 rounded-xl text-xs font-semibold text-white placeholder:text-stone-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
           />
           <button
             onClick={handleRunSimulator}
-            className="px-4 py-2.5 bg-[#0C271E] hover:bg-[#164132] text-white font-bold rounded-xl transition-colors cursor-pointer whitespace-nowrap text-xs"
+            className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-stone-950 font-black rounded-xl transition-colors cursor-pointer whitespace-nowrap text-xs"
           >
             {lang === 'sw' ? 'Jaribu' : 'Test'}
           </button>
         </div>
 
         {simResult && (
-          <div className="p-3.5 bg-white rounded-xl border border-emerald-300 space-y-1.5">
-            <span className="text-[10px] font-black uppercase text-emerald-800 tracking-wider">
+          <div className="p-3.5 bg-stone-900/80 rounded-xl border border-emerald-700/60 space-y-1.5">
+            <span className="text-[10px] font-black uppercase text-emerald-400 tracking-wider">
               {lang === 'sw' ? 'Majibu Yanayotumwa kwa Mteja:' : 'Response Output:'}
             </span>
-            <p className="text-xs text-stone-800 whitespace-pre-wrap leading-relaxed">
+            <p className="text-xs text-stone-200 whitespace-pre-wrap leading-relaxed">
               {simResult.text}
             </p>
           </div>

@@ -255,7 +255,7 @@ export function DistributorDashboardPage() {
       )}
 
       {/* ── SECTION D: LIVE SALES LEDGER PANEL ── */}
-      <div className="bg-white rounded-3xl p-4 sm:p-6 border border-stone-200 text-stone-900 shadow-sm">
+      <div className="bg-stone-900/90 rounded-3xl p-4 sm:p-6 border border-stone-800 text-stone-100 shadow-sm">
         <FieldLedgerPanel
           onOpenSaleForm={() => setShowSaleModal(true)}
           lang={lang}

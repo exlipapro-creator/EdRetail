@@ -50,15 +50,15 @@ export const InventoryManagerPanel: React.FC<InventoryManagerPanelProps> = ({ la
   const hasOverrides = Object.keys(productOverrides).length > 0;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 bg-transparent text-stone-100">
       {/* Header & Reset */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-stone-50 p-4 rounded-2xl border border-stone-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-stone-950/80 p-4 sm:p-5 rounded-2xl border border-stone-800">
         <div>
-          <h3 className="font-extrabold text-sm text-stone-900 flex items-center gap-2">
-            <Package className="w-4 h-4 text-emerald-700" />
+          <h3 className="font-extrabold text-sm sm:text-base text-white flex items-center gap-2">
+            <Package className="w-4.5 h-4.5 text-emerald-400" />
             <span>{lang === 'sw' ? 'Usimamizi wa Stoo & Bei za Dukani' : 'Catalog Stock & Retail Pricing'}</span>
           </h3>
-          <p className="text-xs text-stone-500 mt-0.5">
+          <p className="text-xs text-stone-400 mt-1">
             {lang === 'sw'
               ? 'Badilisha hali ya mzigo (In Stock / Out of Stock) au badilisha bei dukani papo hapo.'
               : 'Toggle product stock availability or adjust customer-facing prices instantly.'}
@@ -68,7 +68,7 @@ export const InventoryManagerPanel: React.FC<InventoryManagerPanelProps> = ({ la
         {hasOverrides && (
           <button
             onClick={() => resetProductOverrides()}
-            className="px-3 py-1.5 bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors self-start sm:self-auto shadow-2xs cursor-pointer"
+            className="px-3 py-1.5 bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-700 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-colors self-start sm:self-auto shadow-2xs cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>{lang === 'sw' ? 'Rejesha Bei za Awali' : 'Reset All Overrides'}</span>
@@ -79,45 +79,45 @@ export const InventoryManagerPanel: React.FC<InventoryManagerPanelProps> = ({ la
       {/* Filter & Search Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
         <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-500" />
           <input
             type="text"
             value={productSearch}
             onChange={(e) => setProductSearch(e.target.value)}
             placeholder={lang === 'sw' ? 'Tafuta bidhaa (Shake Off, Splina, MRT...)' : 'Search products by name...'}
-            className="w-full pl-9 pr-4 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700"
+            className="w-full pl-9 pr-4 py-2.5 bg-stone-950/80 border border-stone-800 rounded-xl text-xs text-white placeholder:text-stone-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
           />
         </div>
 
-        <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl overflow-x-auto text-xs">
+        <div className="flex items-center gap-1 bg-stone-950/80 p-1 rounded-xl border border-stone-800 overflow-x-auto text-xs">
           <button
             onClick={() => setProductCategoryFilter('all')}
-            className={`px-3 py-1 font-bold rounded-lg whitespace-nowrap transition-all cursor-pointer ${
-              productCategoryFilter === 'all' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-600 hover:text-stone-900'
+            className={`px-3 py-1.5 font-bold rounded-lg whitespace-nowrap transition-all cursor-pointer ${
+              productCategoryFilter === 'all' ? 'bg-amber-400 text-stone-950 shadow-2xs font-black' : 'text-stone-400 hover:text-white'
             }`}
           >
             {lang === 'sw' ? 'Zote' : 'All'}
           </button>
           <button
             onClick={() => setProductCategoryFilter('p4-slimming')}
-            className={`px-3 py-1 font-bold rounded-lg whitespace-nowrap transition-all cursor-pointer ${
-              productCategoryFilter === 'p4-slimming' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-600 hover:text-stone-900'
+            className={`px-3 py-1.5 font-bold rounded-lg whitespace-nowrap transition-all cursor-pointer ${
+              productCategoryFilter === 'p4-slimming' ? 'bg-amber-400 text-stone-950 shadow-2xs font-black' : 'text-stone-400 hover:text-white'
             }`}
           >
             P4 Slimming
           </button>
           <button
             onClick={() => setProductCategoryFilter('health-wellness')}
-            className={`px-3 py-1 font-bold rounded-lg whitespace-nowrap transition-all cursor-pointer ${
-              productCategoryFilter === 'health-wellness' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-600 hover:text-stone-900'
+            className={`px-3 py-1.5 font-bold rounded-lg whitespace-nowrap transition-all cursor-pointer ${
+              productCategoryFilter === 'health-wellness' ? 'bg-amber-400 text-stone-950 shadow-2xs font-black' : 'text-stone-400 hover:text-white'
             }`}
           >
             {lang === 'sw' ? 'Afya' : 'Wellness'}
           </button>
           <button
             onClick={() => setProductCategoryFilter('lifestyle-beverages')}
-            className={`px-3 py-1 font-bold rounded-lg whitespace-nowrap transition-all cursor-pointer ${
-              productCategoryFilter === 'lifestyle-beverages' ? 'bg-white text-stone-900 shadow-2xs' : 'text-stone-600 hover:text-stone-900'
+            className={`px-3 py-1.5 font-bold rounded-lg whitespace-nowrap transition-all cursor-pointer ${
+              productCategoryFilter === 'lifestyle-beverages' ? 'bg-amber-400 text-stone-950 shadow-2xs font-black' : 'text-stone-400 hover:text-white'
             }`}
           >
             {lang === 'sw' ? 'Vinywaji' : 'Beverages'}
@@ -126,7 +126,7 @@ export const InventoryManagerPanel: React.FC<InventoryManagerPanelProps> = ({ la
       </div>
 
       {/* Product List */}
-      <div className="divide-y divide-stone-100 bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-2xs">
+      <div className="divide-y divide-stone-800/80 bg-stone-950/80 border border-stone-800 rounded-2xl overflow-hidden shadow-2xs">
         {filteredProducts.map((prod) => {
           const override = productOverrides[prod.id];
           const currentPrice = override?.price !== undefined ? override.price : prod.price;
@@ -137,10 +137,10 @@ export const InventoryManagerPanel: React.FC<InventoryManagerPanelProps> = ({ la
           return (
             <div
               key={prod.id}
-              className="p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-stone-50/70 transition-colors"
+              className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-stone-900/50 transition-colors"
             >
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-stone-100 border border-stone-200 overflow-hidden flex-shrink-0 flex items-center justify-center p-1">
+                <div className="w-12 h-12 rounded-xl bg-stone-900 border border-stone-800 overflow-hidden flex-shrink-0 flex items-center justify-center p-1">
                   <img
                     src={prod.image}
                     alt={prod.name.en}
@@ -153,31 +153,31 @@ export const InventoryManagerPanel: React.FC<InventoryManagerPanelProps> = ({ la
 
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h4 className="font-extrabold text-xs sm:text-sm text-stone-900">
+                    <h4 className="font-extrabold text-xs sm:text-sm text-white">
                       {lang === 'sw' ? prod.name.sw : prod.name.en}
                     </h4>
                     <span
-                      className={`px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase ${
+                      className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase ${
                         isInStock
-                          ? 'bg-emerald-100 text-emerald-900'
-                          : 'bg-red-100 text-red-900'
+                          ? 'bg-emerald-900/50 text-emerald-300 border border-emerald-700/60'
+                          : 'bg-red-900/50 text-red-300 border border-red-700/60'
                       }`}
                     >
                       {isInStock ? 'In Stock ✅' : 'Out of Stock ❌'}
                     </span>
                     {isHidden && (
-                      <span className="px-1.5 py-0.5 bg-stone-200 text-stone-600 text-[10px] rounded font-bold">
+                      <span className="px-1.5 py-0.5 bg-stone-800 text-stone-400 text-[10px] rounded font-bold border border-stone-700">
                         Hidden Dukani
                       </span>
                     )}
                   </div>
 
-                  <div className="text-[11px] text-stone-500 mt-0.5 flex items-center gap-2">
-                    <span className="font-bold text-stone-900">
+                  <div className="text-xs text-stone-400 mt-1 flex items-center gap-2">
+                    <span className="font-bold text-white">
                       TZS {currentPrice.toLocaleString()}
                     </span>
                     {override?.price && override.price !== prod.price && (
-                      <span className="text-[10px] text-amber-700 bg-amber-50 px-1.5 rounded">
+                      <span className="text-[10px] text-amber-300 bg-amber-950/60 border border-amber-800/60 px-1.5 rounded">
                         (Asili: TZS {prod.price.toLocaleString()})
                       </span>
                     )}
@@ -189,24 +189,24 @@ export const InventoryManagerPanel: React.FC<InventoryManagerPanelProps> = ({ la
               <div className="flex items-center gap-2 self-end sm:self-auto">
                 {/* Price Editor */}
                 {isEditingPrice ? (
-                  <div className="flex items-center gap-1 bg-white p-1 border border-stone-300 rounded-xl shadow-xs">
+                  <div className="flex items-center gap-1 bg-stone-900 p-1 border border-stone-700 rounded-xl shadow-xs">
                     <input
                       type="number"
                       value={newPriceInput}
                       onChange={(e) => setNewPriceInput(e.target.value)}
                       placeholder="Bei TZS..."
-                      className="w-24 px-2 py-1 text-xs font-bold border-none focus:outline-none"
+                      className="w-24 px-2 py-1 text-xs font-bold bg-stone-950 text-white border border-stone-700 rounded-lg focus:outline-none"
                       autoFocus
                     />
                     <button
                       onClick={() => handleSavePrice(prod.id)}
-                      className="p-1 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 cursor-pointer"
+                      className="p-1.5 bg-emerald-500 text-stone-950 rounded-lg hover:bg-emerald-400 cursor-pointer"
                     >
-                      <Check className="w-3.5 h-3.5" />
+                      <Check className="w-3.5 h-3.5 stroke-[3]" />
                     </button>
                     <button
                       onClick={() => setEditingPriceId(null)}
-                      className="p-1 text-stone-400 hover:text-stone-600 cursor-pointer"
+                      className="p-1.5 text-stone-400 hover:text-white cursor-pointer"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -217,7 +217,7 @@ export const InventoryManagerPanel: React.FC<InventoryManagerPanelProps> = ({ la
                       setEditingPriceId(prod.id);
                       setNewPriceInput(String(currentPrice));
                     }}
-                    className="px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold rounded-xl flex items-center gap-1 transition-colors cursor-pointer"
+                    className="px-2.5 py-1.5 bg-stone-900 hover:bg-stone-800 text-stone-300 border border-stone-800 text-xs font-bold rounded-xl flex items-center gap-1 transition-colors cursor-pointer"
                     title="Badilisha Bei"
                   >
                     <Edit2 className="w-3 h-3" />
@@ -230,8 +230,8 @@ export const InventoryManagerPanel: React.FC<InventoryManagerPanelProps> = ({ la
                   onClick={() => toggleProductStock(prod.id, !isInStock)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1 cursor-pointer ${
                     isInStock
-                      ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300'
-                      : 'bg-red-50 hover:bg-red-100 text-red-900 border border-red-300'
+                      ? 'bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-700/60'
+                      : 'bg-red-950/80 hover:bg-red-900 text-red-300 border border-red-700/60'
                   }`}
                 >
                   <span>{isInStock ? 'Ipo Stoo' : 'Imeisha'}</span>
@@ -242,8 +242,8 @@ export const InventoryManagerPanel: React.FC<InventoryManagerPanelProps> = ({ la
                   onClick={() => toggleProductVisibility(prod.id, !isHidden)}
                   className={`p-1.5 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
                     isHidden
-                      ? 'bg-stone-200 text-stone-600 border-stone-300'
-                      : 'bg-white text-stone-700 border-stone-200 hover:bg-stone-100'
+                      ? 'bg-stone-900 text-stone-500 border-stone-800'
+                      : 'bg-stone-900 text-stone-300 border-stone-800 hover:bg-stone-800'
                   }`}
                   title={isHidden ? 'Onesha Dukani' : 'Ficha Dukani'}
                 >
