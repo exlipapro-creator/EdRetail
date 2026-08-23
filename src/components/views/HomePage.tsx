@@ -19,6 +19,7 @@ import {
 import { HeroCarousel } from '../HeroCarousel';
 import { ReferralShareButton } from '../ReferralShare';
 import { BmiHealthCalculatorModal } from '../calculator/BmiHealthCalculatorModal';
+import { NativeAdBanner } from '../ads/NativeAdBanner';
 import { CATEGORIES, Product } from '../../types';
 import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
@@ -386,7 +387,10 @@ export function HomePage({
         </div>
       </section>
 
-      {/* ── 7. FEATURED PROMOTIONAL HERO SLIDER (Moved to Bottom) ── */}
+      {/* ── 7. NATIVE PARTNER SPONSOR BANNER (PASSIVE INCOME) ── */}
+      <NativeAdBanner placement="storefront_hero" />
+
+      {/* ── 8. FEATURED PROMOTIONAL HERO SLIDER (Moved to Bottom) ── */}
       <section className="pt-2">
         <HeroCarousel onNavigate={onNavigate} />
       </section>

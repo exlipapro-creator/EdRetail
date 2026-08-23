@@ -11,6 +11,7 @@ import { SalesPage as AdminSalesPage } from './admin/pages/SalesPage';
 import { LoansPage as AdminLoansPage } from './admin/pages/LoansPage';
 import { CashFlowPage as AdminCashFlowPage } from './admin/pages/CashFlowPage';
 import { TestimonialsPage as AdminTestimonialsPage } from './admin/pages/TestimonialsPage';
+import { SettingsPage as AdminSettingsPage } from './admin/pages/SettingsPage';
 
 import { useDistributorStore } from './store/distributorStore';
 import { DistributorLayout } from './distributor/components/DistributorLayout';
@@ -83,6 +84,7 @@ export function AppRouter() {
           <Route path="/admin/loans" element={<AdminProtected><AdminLoansPage /></AdminProtected>} />
           <Route path="/admin/cashflow" element={<AdminProtected><AdminCashFlowPage /></AdminProtected>} />
           <Route path="/admin/testimonials" element={<AdminProtected><AdminTestimonialsPage /></AdminProtected>} />
+          <Route path="/admin/settings" element={<AdminProtected><AdminSettingsPage /></AdminProtected>} />
           <Route path="/admin/*" element={<Navigate to="/admin" replace />} />
         </Routes>
       </AuthProvider>

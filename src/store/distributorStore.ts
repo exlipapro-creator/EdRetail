@@ -1,6 +1,15 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Product, Bundle, DistributorPaymentAccount } from '../types';
+import {
+  Product,
+  Bundle,
+  DistributorPaymentAccount,
+  AuditLogRecord,
+  SponsorAd,
+  DatabaseBackupPayload,
+  AdMonetizationConfig,
+  AdSenseConfig,
+} from '../types';
 import productsData from '../data/products.json';
 import bundlesData from '../data/bundles.json';
 import { EDMARK_KNOWLEDGE_BASE } from '../data/edmarkKnowledgeBase';
@@ -464,6 +473,29 @@ interface DistributorStoreState {
     overdueDebtsCount: number;
     pendingRefillsCount: number;
   };
+
+  // Audit Logs & System Activity Records
+  auditLogs: AuditLogRecord[];
+  addAuditLog: (log: Omit<AuditLogRecord, 'id' | 'timestamp'>) => void;
+  clearAuditLogs: () => void;
+
+  // Native Ad Spaces & AdSense Monetization (Super Admin Controlled)
+  nativeAdsEnabled: boolean;
+  monetizationConfig: AdMonetizationConfig;
+  sponsorAds: SponsorAd[];
+  toggleNativeAds: (enabled: boolean) => void;
+  updateMonetizationConfig: (updates: Partial<AdMonetizationConfig>) => void;
+  updateAdSenseConfig: (updates: Partial<AdSenseConfig>) => void;
+  updateSponsorAd: (adId: string, updates: Partial<SponsorAd>) => void;
+  addSponsorAd: (ad: Omit<SponsorAd, 'id' | 'impressions' | 'clicks'>) => void;
+  deleteSponsorAd: (adId: string) => void;
+  recordAdImpression: (adId: string) => void;
+  recordAdClick: (adId: string) => void;
+
+  // Full Database Backups & Restore
+  exportFullBackup: () => DatabaseBackupPayload;
+  importFullBackup: (data: DatabaseBackupPayload) => { success: boolean; message: string };
+  resetMasterDatabaseToDefaults: () => void;
 }
 
 export const useDistributorStore = create<DistributorStoreState>()(
@@ -1639,6 +1671,258 @@ export const useDistributorStore = create<DistributorStoreState>()(
           overdueDebtsCount,
           pendingRefillsCount,
         };
+      },
+
+      // Audit Logs & System Activity Records
+      auditLogs: [
+        {
+          id: 'log-seed-1',
+          timestamp: new Date(Date.now() - 3600000 * 5).toISOString(),
+          action: 'Bei ya Rejareja Imesasishwa',
+          category: 'price_change',
+          details: 'Bei ya Shake Off Phyto Fiber iliwekwa TZS 35,000',
+          user: 'Mwanahamisi Lissu (Msambazaji Mkuu)',
+        },
+        {
+          id: 'log-seed-2',
+          timestamp: new Date(Date.now() - 3600000 * 3).toISOString(),
+          action: 'Stoo Imethibitishwa',
+          category: 'stock_toggle',
+          details: 'Splina Liquid Chlorophyll (500ml) imewashwa In Stock',
+          user: 'Mwanahamisi Lissu (Msambazaji Mkuu)',
+        },
+        {
+          id: 'log-seed-3',
+          timestamp: new Date(Date.now() - 3600000 * 1).toISOString(),
+          action: 'Mauzo Yamerekodiwa',
+          category: 'sale_logged',
+          details: 'Oda ya TZS 35,000 kwa Mama Kelvin (Mwenge) - Malipo Nusu TZS 15,000',
+          user: 'Mwanahamisi Lissu (Msambazaji Mkuu)',
+        },
+      ],
+
+      addAuditLog: (log) => {
+        const newRecord: AuditLogRecord = {
+          id: 'log-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+          timestamp: new Date().toISOString(),
+          ...log,
+        };
+        set((state) => ({
+          auditLogs: [newRecord, ...(state.auditLogs || []).slice(0, 199)],
+        }));
+      },
+
+      clearAuditLogs: () => set({ auditLogs: [] }),
+
+      // Native Ad Spaces & AdSense Monetization (Super Admin Controlled)
+      nativeAdsEnabled: true,
+      monetizationConfig: {
+        enabled: true,
+        mode: 'hybrid', // Direct sponsors take priority, AdSense as programmatic fallback
+        adsense: {
+          publisherId: 'ca-pub-9842103487129034',
+          autoAdsEnabled: false,
+          testMode: true, // Sandbox mode for previewing
+          slotIds: {
+            storefront_hero: '7840192831',
+            products_banner: '6592810342',
+            product_detail_modal: '3482019482',
+            checkout_footer: '8920193847',
+          },
+          customScriptSnippet: '',
+        },
+        customPartnerSlotsEnabled: true,
+      },
+      sponsorAds: [
+        {
+          id: 'ad-gym-wellness',
+          title: {
+            en: 'PowerGym Mlimani City & Masaki',
+            sw: 'PowerGym Mlimani City & Masaki',
+          },
+          tagline: {
+            en: 'Get 20% off fitness membership when paired with Edmark Detox programs',
+            sw: 'Pata punguzo la 20% la uanachama wa mazoezi unapotumia dozi ya Edmark',
+          },
+          sponsorName: 'PowerGym Tanzania',
+          badgeText: 'MFADHILI WA AFYA / SPONSORED',
+          bannerImage: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=80',
+          ctaText: {
+            en: 'Claim 20% Gym Discount',
+            sw: 'Pata Punguzo la 20% Gym',
+          },
+          targetUrl: 'https://wa.me/255783481416?text=Habari%20PowerGym!%20Nimetoka%20ED%20Retail%20nahitaji%20ofa%20ya%20mazoezi.',
+          placement: 'storefront_hero',
+          enabled: true,
+          impressions: 248,
+          clicks: 34,
+          monthlyFee: 50000,
+          contactPhone: '+255 783 481 416',
+          expiryDate: '2026-12-31',
+        },
+        {
+          id: 'ad-express-courier',
+          title: {
+            en: 'BodaSafe VIP Delivery & Bus Parcels',
+            sw: 'BodaSafe Usafirishaji Haraka & Mabasi',
+          },
+          tagline: {
+            en: 'Fast 2-hour door delivery across Dar & secure upcountry bus logistics',
+            sw: 'Uwasilishaji wa haraka ndani ya masaa 2 Dar es Salaam na mabasi mikoani',
+          },
+          sponsorName: 'BodaSafe Logistics',
+          badgeText: 'MTOA HUDUMA WA USAFIRISHAJI',
+          bannerImage: 'https://images.unsplash.com/photo-1580674684081-7617f13d8d5a?w=800&auto=format&fit=crop&q=80',
+          ctaText: {
+            en: 'Track Express Delivery',
+            sw: 'Wasiliana na Dereva / Fuatilia',
+          },
+          targetUrl: 'https://wa.me/255783481416?text=Habari%20BodaSafe!%20Nahitaji%20kufuatilia%20mzigo%20wangu%20wa%20Edmark.',
+          placement: 'products_banner',
+          enabled: true,
+          impressions: 182,
+          clicks: 21,
+          monthlyFee: 40000,
+          contactPhone: '+255 755 930 114',
+          expiryDate: '2026-12-31',
+        },
+      ],
+
+      toggleNativeAds: (enabled: boolean) =>
+        set((state) => ({
+          nativeAdsEnabled: enabled,
+          monetizationConfig: {
+            ...state.monetizationConfig,
+            enabled,
+          },
+        })),
+
+      updateMonetizationConfig: (updates) =>
+        set((state) => ({
+          monetizationConfig: {
+            ...state.monetizationConfig,
+            ...updates,
+          },
+          nativeAdsEnabled: updates.enabled !== undefined ? updates.enabled : state.nativeAdsEnabled,
+        })),
+
+      updateAdSenseConfig: (updates) =>
+        set((state) => ({
+          monetizationConfig: {
+            ...state.monetizationConfig,
+            adsense: {
+              ...state.monetizationConfig.adsense,
+              ...updates,
+            },
+          },
+        })),
+
+      updateSponsorAd: (adId, updates) => {
+        set((state) => ({
+          sponsorAds: state.sponsorAds.map((ad) => (ad.id === adId ? { ...ad, ...updates } : ad)),
+        }));
+      },
+
+      addSponsorAd: (ad) => {
+        const newAd: SponsorAd = {
+          id: 'ad-' + Date.now(),
+          impressions: 0,
+          clicks: 0,
+          ...ad,
+        };
+        set((state) => ({
+          sponsorAds: [newAd, ...state.sponsorAds],
+        }));
+      },
+
+      deleteSponsorAd: (adId) => {
+        set((state) => ({
+          sponsorAds: state.sponsorAds.filter((ad) => ad.id !== adId),
+        }));
+      },
+
+      recordAdImpression: (adId) => {
+        set((state) => ({
+          sponsorAds: state.sponsorAds.map((ad) =>
+            ad.id === adId ? { ...ad, impressions: (ad.impressions || 0) + 1 } : ad
+          ),
+        }));
+      },
+
+      recordAdClick: (adId) => {
+        set((state) => ({
+          sponsorAds: state.sponsorAds.map((ad) =>
+            ad.id === adId ? { ...ad, clicks: (ad.clicks || 0) + 1 } : ad
+          ),
+        }));
+      },
+
+      // Full Database Backups & Restore
+      exportFullBackup: () => {
+        const state = get();
+        const payload: DatabaseBackupPayload = {
+          version: '3.0.0',
+          exportedAt: new Date().toISOString(),
+          exportedBy: state.superAdminUser?.name || state.currentProfile?.name || 'Distributor Master',
+          productOverrides: state.productOverrides,
+          customProducts: state.masterProducts || [],
+          savedDistributors: state.savedDistributors,
+          sales: state.sales,
+          tasks: state.tasks,
+          platformSettings: state.platformSettings,
+          auditLogs: state.auditLogs,
+          sponsorAds: state.sponsorAds,
+          monetizationConfig: state.monetizationConfig,
+        };
+
+        get().addAuditLog({
+          action: 'Hifadhi ya Mfumo Imepakuliwa (Backup Export)',
+          category: 'backup_export',
+          details: `Hifadhi kamili ya mfumo yenye mauzo ${state.sales.length} na mipangilio ya matangazo imepakuliwa kama JSON file.`,
+          user: state.superAdminUser?.name || 'Super Admin',
+        });
+
+        return payload;
+      },
+
+      importFullBackup: (data: DatabaseBackupPayload) => {
+        if (!data || !data.version) {
+          return { success: false, message: 'Invalid backup file format.' };
+        }
+        set((state) => ({
+          productOverrides: data.productOverrides || state.productOverrides,
+          masterProducts: data.customProducts || state.masterProducts,
+          savedDistributors: data.savedDistributors || state.savedDistributors,
+          sales: data.sales || state.sales,
+          tasks: data.tasks || state.tasks,
+          platformSettings: data.platformSettings || state.platformSettings,
+          auditLogs: data.auditLogs || state.auditLogs,
+          sponsorAds: data.sponsorAds || state.sponsorAds,
+          monetizationConfig: data.monetizationConfig || state.monetizationConfig,
+          nativeAdsEnabled: data.monetizationConfig?.enabled ?? state.nativeAdsEnabled,
+        }));
+
+        get().addAuditLog({
+          action: 'Mfumo Umerejeshwa (Backup Restore)',
+          category: 'backup_restore',
+          details: `Hifadhi ya mfumo ya tarehe ${data.exportedAt || 'haijulikani'} imerejeshwa kwa mafanikio.`,
+          user: 'Super Admin',
+        });
+
+        return { success: true, message: 'Database restored successfully!' };
+      },
+
+      resetMasterDatabaseToDefaults: () => {
+        set({
+          productOverrides: {},
+          distributorOverrides: {},
+        });
+        get().addAuditLog({
+          action: 'Katalogi ya Bei Imerejeshwa Awali (Reset Overrides)',
+          category: 'price_change',
+          details: 'Bei zote na stoo zimerejeshwa katika viwango rasmi vya kiwandani.',
+          user: 'Super Admin',
+        });
       },
     }),
     {

@@ -97,8 +97,76 @@ export interface DeliveryZone {
 // customer testimonials before this app goes live — do not publish fabricated
 // reviews as genuine customer results.
 
+export interface AuditLogRecord {
+  id: string;
+  timestamp: string;
+  action: string;
+  category: 'price_change' | 'product_management' | 'stock_toggle' | 'sale_logged' | 'debt_payment' | 'backup_export' | 'backup_restore' | 'settings_update' | 'security_login' | 'ad_management';
+  details: string;
+  user: string;
+  ip?: string;
+}
+
+export type AdPlacement = 'storefront_hero' | 'products_banner' | 'product_detail_modal' | 'checkout_footer';
+
+export type AdNetworkMode = 'hybrid' | 'custom_sponsors_only' | 'adsense_only';
+
+export interface AdSenseConfig {
+  publisherId: string; // e.g. ca-pub-1234567890123456
+  autoAdsEnabled: boolean;
+  testMode: boolean; // renders realistic preview banner in development/test
+  slotIds: {
+    storefront_hero?: string;
+    products_banner?: string;
+    product_detail_modal?: string;
+    checkout_footer?: string;
+  };
+  customScriptSnippet?: string;
+}
+
+export interface AdMonetizationConfig {
+  enabled: boolean;
+  mode: AdNetworkMode;
+  adsense: AdSenseConfig;
+  customPartnerSlotsEnabled: boolean;
+}
+
+export interface SponsorAd {
+  id: string;
+  title: I18nString;
+  tagline: I18nString;
+  sponsorName: string;
+  badgeText: string;
+  bannerImage: string;
+  ctaText: I18nString;
+  targetUrl: string; // WhatsApp or web url
+  placement: AdPlacement;
+  enabled: boolean;
+  impressions: number;
+  clicks: number;
+  monthlyFee?: number; // In TZS, e.g. 50,000 TZS/month
+  contactPhone?: string;
+  expiryDate?: string;
+}
+
+export interface DatabaseBackupPayload {
+  version: string;
+  exportedAt: string;
+  exportedBy: string;
+  productOverrides: Record<string, any>;
+  customProducts: any[];
+  savedDistributors: any[];
+  sales: any[];
+  tasks: any[];
+  platformSettings: any;
+  auditLogs: AuditLogRecord[];
+  sponsorAds: SponsorAd[];
+  monetizationConfig?: AdMonetizationConfig;
+}
+
 export const CATEGORIES = categoriesData as Category[];
 export const PRODUCTS = productsData as Product[];
 export const BUNDLES = bundlesData as Bundle[];
 export const TESTIMONIALS = testimonialsData as Testimonial[];
 export const DELIVERY_ZONES = deliveryZonesData as DeliveryZone[];
+

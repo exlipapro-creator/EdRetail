@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   DollarSign,
   CheckCircle2,
@@ -6,11 +7,14 @@ import {
   TrendingUp,
   Award,
   Phone,
+  Plus,
+  Sparkles,
 } from 'lucide-react';
 import { useDistributorStore } from '../../store/distributorStore';
 import { useLang } from '../../context/LangContext';
 import { FieldLedgerPanel } from '../../components/chat/FieldLedgerPanel';
 import { LogOfflineSaleModal } from '../../components/distributor/LogOfflineSaleModal';
+import { ProductEditorModal } from '../../components/distributor/ProductEditorModal';
 
 export function DistributorDashboardPage() {
   const { lang } = useLang();
@@ -21,8 +25,10 @@ export function DistributorDashboardPage() {
   const distributor = useDistributorStore((s) => s.getActiveDistributor());
 
   const [showSaleModal, setShowSaleModal] = useState(false);
+  const [showProductModal, setShowProductModal] = useState(false);
 
-  const summary = getFinancialSummary();
+  // Dynamic summary recalculating based on the active timeframe
+  const summary = getFinancialSummary(timeframe);
   const maintenance = getMaintenanceAnalysis();
   const debtorSales = sales.filter((s) => s.status !== 'paid' && (s.balanceDue ?? 0) > 0);
   const pendingDebtsTotal = debtorSales.reduce((acc, s) => acc + (s.balanceDue ?? 0), 0);
@@ -31,7 +37,7 @@ export function DistributorDashboardPage() {
     const msg =
       `Habari ${sale.customerName}! Ni ${distributor.name} kutoka ED Retail. ` +
       `Kukumbusha salio lako la TZS ${(sale.balanceDue || 0).toLocaleString()} ` +
-      `kwa ajili ya oda yako ya ${sale.productName}. Unaweza kulipa kupitia ${distributor.lipaNumber}. Asante!`;
+      `kwa ajili ya oda yako ya ${sale.productName}. Unaweza kulipa kupitia ${distributor.lipaNumber || distributor.phone}. Asante!`;
     const cleanDigits = (sale.customerPhone || '').replace(/\D/g, '');
     const phone = cleanDigits.startsWith('0')
       ? '255' + cleanDigits.slice(1)
@@ -41,115 +47,161 @@ export function DistributorDashboardPage() {
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
+  const timeframeOptions: Array<{ id: 'today' | 'week' | 'month' | 'all'; label: { en: string; sw: string } }> = [
+    { id: 'today', label: { en: 'Today', sw: 'Leo' } },
+    { id: 'week', label: { en: 'This Week', sw: 'Wiki Hii' } },
+    { id: 'month', label: { en: 'This Month', sw: 'Mwezi Huu' } },
+    { id: 'all', label: { en: 'All Time', sw: 'Muda Wote' } },
+  ];
+
   return (
     <div className="space-y-6 animate-fadeIn">
-      {/* ── SECTION A: GLOBAL REPORTING PERIOD & 4 CORE METRICS ── */}
+      {/* ── SECTION: MASTER PRODUCT CONTROLLER QUICK ACTIONS ── */}
+      <div className="bg-gradient-to-r from-stone-900 via-stone-900 to-stone-950 p-4 sm:p-5 rounded-3xl border border-stone-800 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="p-1.5 rounded-lg bg-amber-400/20 text-amber-400 border border-amber-400/30">
+              <Sparkles className="w-4 h-4" />
+            </span>
+            <h2 className="text-sm sm:text-base font-black text-white">
+              {lang === 'sw' ? 'Mdhibiti Mkuu wa Bidhaa & Bei (Master Product Controller)' : 'Master Product & Retail Price Controller'}
+            </h2>
+          </div>
+          <p className="text-xs text-stone-400 leading-relaxed">
+            {lang === 'sw'
+              ? 'Wewe unayo mamlaka kamili ya kuongeza bidhaa mpya, kubadilisha bei za rejareja dukani, na kurekebisha picha na stoo.'
+              : 'You hold master privileges: Add new inventory, adjust customer retail prices, upload product photos, and configure stock.'}
+          </p>
+        </div>
+
+        {/* Quick Action Buttons */}
+        <div className="flex items-center gap-2 flex-wrap shrink-0">
+          <button
+            onClick={() => setShowProductModal(true)}
+            className="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-stone-950 text-xs font-black rounded-xl flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+          >
+            <Plus className="w-4 h-4 stroke-[3]" />
+            <span>{lang === 'sw' ? 'Ongeza Bidhaa Mpya' : 'Add New Product'}</span>
+          </button>
+
+          <button
+            onClick={() => setShowSaleModal(true)}
+            className="px-3.5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-stone-950 text-xs font-black rounded-xl flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+          >
+            <DollarSign className="w-4 h-4 stroke-[3]" />
+            <span>{lang === 'sw' ? 'Rekodi Mauzo' : 'Log Sale'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ── SECTION A: STATIONARY 4 METRICS & SMOOTH SLIDING TIMEFRAME SELECTOR ── */}
       <div className="space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="text-xs font-black text-stone-200 uppercase tracking-wider">
-              {lang === 'sw' ? 'Muhtasari wa Biashara Yako' : 'Business Financial Snapshot'}
+              {lang === 'sw' ? 'Muhtasari wa Mauzo & Fedha' : 'Business Financial Snapshot'}
             </span>
             <span className="text-[11px] text-stone-400 font-medium">
-              ({sales.length} {lang === 'sw' ? 'mauzo jumla' : 'total sales logged'})
+              ({sales.length} {lang === 'sw' ? 'oda zilizorekodiwa' : 'logged orders'})
             </span>
           </div>
 
-          {/* Timeframe Filter */}
-          <div className="flex items-center gap-1 bg-stone-900 border border-stone-800 p-1 rounded-xl text-xs self-start sm:self-auto">
-            {(['today', 'week', 'month', 'all'] as const).map((tId) => {
-              const labels = {
-                today: { en: 'Today', sw: 'Leo' },
-                week: { en: 'Week', sw: 'Wiki' },
-                month: { en: 'Month', sw: 'Mwezi' },
-                all: { en: 'All Time', sw: 'Yote' },
-              };
-              const isActive = timeframe === tId;
+          {/* Smooth Animated Sliding Time Period Selector */}
+          <div className="relative flex items-center p-1 bg-stone-950 border border-stone-800 rounded-2xl self-start sm:self-auto shadow-inner">
+            {timeframeOptions.map((opt) => {
+              const isSelected = timeframe === opt.id;
               return (
                 <button
-                  key={tId}
-                  onClick={() => setTimeframe(tId)}
-                  className={`px-2.5 py-1 font-black rounded-lg transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-amber-400 text-stone-950 shadow-xs'
-                      : 'text-stone-400 hover:text-white'
+                  key={opt.id}
+                  onClick={() => setTimeframe(opt.id)}
+                  className={`relative z-10 px-3 py-1.5 text-xs font-black rounded-xl transition-colors duration-200 cursor-pointer ${
+                    isSelected ? 'text-stone-950' : 'text-stone-400 hover:text-stone-200'
                   }`}
                 >
-                  {labels[tId][lang]}
+                  {isSelected && (
+                    <motion.div
+                      layoutId="active-timeframe-indicator"
+                      className="absolute inset-0 bg-amber-400 rounded-xl shadow-xs"
+                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    />
+                  )}
+                  <span className="relative z-20">{opt.label[lang]}</span>
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* 4 Metrics Cards */}
+        {/* Stationary Rigid 4-Column Metrics Grid (No Layout Shifts) */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
-          {/* 1. Total Revenue */}
-          <div className="bg-stone-900/90 p-3.5 sm:p-4 rounded-2xl border border-stone-800 shadow-sm space-y-1">
+          {/* 1. Total Revenue (Stationary Card) */}
+          <div className="bg-stone-900/90 p-3.5 sm:p-4 rounded-2xl border border-stone-800 shadow-sm space-y-1 min-h-[104px] flex flex-col justify-between">
             <div className="flex items-center justify-between text-stone-400">
               <span className="text-[11px] font-bold uppercase tracking-wider">
                 {lang === 'sw' ? 'Jumla ya Mauzo' : 'Total Revenue'}
               </span>
-              <DollarSign className="w-4 h-4 text-emerald-400" />
+              <DollarSign className="w-4 h-4 text-emerald-400 shrink-0" />
             </div>
             <div className="text-base sm:text-xl font-black text-white truncate">
               TZS {summary.totalRevenue.toLocaleString()}
             </div>
-            <div className="text-[10px] text-stone-400 font-medium">
+            <div className="text-[10px] text-stone-400 font-medium truncate">
               {summary.totalUnitsSold} {lang === 'sw' ? 'bidhaa zilizouzwa' : 'units sold'}
             </div>
           </div>
 
-          {/* 2. Cash Collected */}
-          <div className="bg-stone-900/90 p-3.5 sm:p-4 rounded-2xl border border-stone-800 shadow-sm space-y-1">
+          {/* 2. Cash Collected (Stationary Card) */}
+          <div className="bg-stone-900/90 p-3.5 sm:p-4 rounded-2xl border border-stone-800 shadow-sm space-y-1 min-h-[104px] flex flex-col justify-between">
             <div className="flex items-center justify-between text-stone-400">
               <span className="text-[11px] font-bold uppercase tracking-wider">
                 {lang === 'sw' ? 'Cash Mkononi' : 'Cash Collected'}
               </span>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             </div>
             <div className="text-base sm:text-xl font-black text-emerald-400 truncate">
               TZS {summary.cashCollected.toLocaleString()}
             </div>
-            <div className="text-[10px] text-emerald-500 font-bold">
+            <div className="text-[10px] text-emerald-500 font-bold truncate">
               {summary.totalRevenue > 0
                 ? `${Math.round((summary.cashCollected / summary.totalRevenue) * 100)}% collected`
-                : '100%'}
+                : '100% collected'}
             </div>
           </div>
 
-          {/* 3. Debts */}
-          <div className={`p-3.5 sm:p-4 rounded-2xl border shadow-sm space-y-1 ${
-            debtorSales.length > 0
-              ? 'bg-amber-950/40 border-amber-500/50'
-              : 'bg-stone-900/90 border-stone-800'
-          }`}>
+          {/* 3. Debts (Stationary Card) */}
+          <div
+            className={`p-3.5 sm:p-4 rounded-2xl border shadow-sm space-y-1 min-h-[104px] flex flex-col justify-between transition-colors ${
+              debtorSales.length > 0
+                ? 'bg-amber-950/40 border-amber-500/50'
+                : 'bg-stone-900/90 border-stone-800'
+            }`}
+          >
             <div className="flex items-center justify-between text-stone-400">
               <span className="text-[11px] font-bold uppercase tracking-wider text-amber-300">
                 {lang === 'sw' ? 'Madeni ya Wateja' : 'Credit / Debts'}
               </span>
-              <AlertTriangle className="w-4 h-4 text-amber-400" />
+              <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
             </div>
             <div className="text-base sm:text-xl font-black text-amber-300 truncate">
               TZS {summary.creditOutstanding.toLocaleString()}
             </div>
-            <div className="text-[10px] text-amber-400 font-bold">
+            <div className="text-[10px] text-amber-400 font-bold truncate">
               {debtorSales.length} {lang === 'sw' ? 'wateja wanadaiwa' : 'active debtors'}
             </div>
           </div>
 
-          {/* 4. Estimated Profit */}
-          <div className="bg-stone-900/90 p-3.5 sm:p-4 rounded-2xl border border-stone-800 shadow-sm space-y-1">
+          {/* 4. Estimated Profit (Stationary Card) */}
+          <div className="bg-stone-900/90 p-3.5 sm:p-4 rounded-2xl border border-stone-800 shadow-sm space-y-1 min-h-[104px] flex flex-col justify-between">
             <div className="flex items-center justify-between text-stone-400">
               <span className="text-[11px] font-bold uppercase tracking-wider">
                 {lang === 'sw' ? 'Faida Halisi (Net)' : 'Est. Net Profit'}
               </span>
-              <TrendingUp className="w-4 h-4 text-emerald-400" />
+              <TrendingUp className="w-4 h-4 text-emerald-400 shrink-0" />
             </div>
             <div className="text-base sm:text-xl font-black text-white truncate">
               TZS {summary.estimatedNetProfit.toLocaleString()}
             </div>
-            <div className="text-[10px] text-stone-400 font-medium">
+            <div className="text-[10px] text-stone-400 font-medium truncate">
               {lang === 'sw' ? 'Baada ya bei ya jumla' : 'After wholesale cost'}
             </div>
           </div>
@@ -262,11 +314,20 @@ export function DistributorDashboardPage() {
         />
       </div>
 
-      {/* Sale Modal */}
+      {/* Offline Sale Modal */}
       {showSaleModal && (
         <LogOfflineSaleModal
           isOpen={showSaleModal}
           onClose={() => setShowSaleModal(false)}
+        />
+      )}
+
+      {/* Product Management Modal */}
+      {showProductModal && (
+        <ProductEditorModal
+          isOpen={showProductModal}
+          onClose={() => setShowProductModal(false)}
+          lang={lang}
         />
       )}
     </div>
