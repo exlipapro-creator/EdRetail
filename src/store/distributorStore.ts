@@ -672,8 +672,22 @@ export const useDistributorStore = create<DistributorStoreState>()(
       logoutDistributor: () => {
         set({
           isAdminAuthenticated: false,
-          currentProfile: DEFAULT_DISTRIBUTOR,
+          currentProfile: CENTRAL_COMPANY_HUB,
+          activeRefSlug: null,
+          attribution: null,
         });
+        try {
+          localStorage.removeItem('edretail_distributor_ref');
+          sessionStorage.removeItem('edretail_distributor_ref');
+          localStorage.removeItem('edmark_attributed_slug');
+          localStorage.removeItem('edmark_distributor_session');
+          // If URL contains referral params or @slug, clean the browser history cleanly
+          if (window.location.pathname.includes('/@') || window.location.search.includes('ref=')) {
+            window.history.replaceState({}, document.title, window.location.pathname.replace(/\/@[a-zA-Z0-9_-]+/g, ''));
+          }
+        } catch {
+          // ignore in server context
+        }
       },
 
       updateCurrentProfile: (updates) => {

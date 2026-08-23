@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Home, LayoutGrid, Sparkles, Truck, ShieldCheck } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useLang } from '../../context/LangContext';
 import { ScreenId } from './AppHeader';
 
@@ -11,6 +12,7 @@ interface BottomNavigationProps {
 
 export function BottomNavigation({ currentScreen, onNavigate }: BottomNavigationProps) {
   const { lang } = useLang();
+  const navigate = useNavigate();
 
   const items = [
     {
@@ -42,6 +44,7 @@ export function BottomNavigation({ currentScreen, onNavigate }: BottomNavigation
       icon: ShieldCheck,
       labelEn: 'Distributor',
       labelSw: 'Msambazaji',
+      isPortalRoute: true,
     },
   ];
 
@@ -60,8 +63,14 @@ export function BottomNavigation({ currentScreen, onNavigate }: BottomNavigation
             <button
               key={item.id}
               id={`bottom-nav-${item.id}`}
-              onClick={() => onNavigate(item.id)}
-              className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all outline-none [-webkit-tap-highlight-color:transparent] relative ${
+              onClick={() => {
+                if (item.isPortalRoute) {
+                  navigate('/portal');
+                } else {
+                  onNavigate(item.id);
+                }
+              }}
+              className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all outline-none [-webkit-tap-highlight-color:transparent] relative cursor-pointer ${
                 isActive ? 'text-[#123B6D] font-bold' : 'text-neutral-500 hover:text-neutral-800'
               }`}
               style={{ minHeight: 48 }}

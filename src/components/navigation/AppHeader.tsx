@@ -4,7 +4,7 @@ import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
 import { CartBadge } from '../CartBadge';
 import { useLang } from '../../context/LangContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export type ScreenId = 'home' | 'products' | 'goals' | 'delivery' | 'distributor' | 'favourites' | 'help';
 
@@ -31,17 +31,18 @@ export function AppHeader({
   onOpenStoreLinkModal,
 }: AppHeaderProps) {
   const { lang, setLang } = useLang();
+  const navigate = useNavigate();
   const totalItems = useCartStore((s) => s.getTotalItems());
   const favouritesCount = useCartStore((s) => s.favourites.length);
   const distributor = useDistributorStore((s) => s.getActiveDistributor());
   const isAdminAuthenticated = useDistributorStore((s) => s.isAdminAuthenticated);
 
-  const navLinks: { id: ScreenId; labelEn: string; labelSw: string }[] = [
+  const navLinks: { id: ScreenId; labelEn: string; labelSw: string; isPortal?: boolean }[] = [
     { id: 'home', labelEn: 'Home', labelSw: 'Mwanzo' },
     { id: 'products', labelEn: 'Products', labelSw: 'Bidhaa' },
     { id: 'goals', labelEn: 'Goal Finder', labelSw: 'Lengo & Pakiti' },
     { id: 'delivery', labelEn: 'Delivery Info', labelSw: 'Uwasilishaji' },
-    { id: 'distributor', labelEn: 'Distributor', labelSw: 'Msambazaji' },
+    { id: 'distributor', labelEn: 'Distributor', labelSw: 'Msambazaji', isPortal: true },
     { id: 'help', labelEn: 'Orders & Help', labelSw: 'Maagizo & Msaada' },
   ];
 
@@ -82,8 +83,14 @@ export function AppHeader({
               <button
                 key={link.id}
                 id={`nav-link-${link.id}`}
-                onClick={() => onNavigate(link.id)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                onClick={() => {
+                  if (link.isPortal) {
+                    navigate('/portal');
+                  } else {
+                    onNavigate(link.id);
+                  }
+                }}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   isActive
                     ? 'bg-white text-[#123B6D] shadow-xs font-black border border-neutral-200/60'
                     : 'text-neutral-600 hover:text-[#123B6D] hover:bg-white/50'

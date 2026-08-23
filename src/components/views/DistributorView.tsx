@@ -370,22 +370,13 @@ export function DistributorView({
 
               {/* Gateway Navigation Tabs */}
               <div className="flex items-center bg-stone-950/80 p-1 rounded-2xl border border-stone-800">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setGatewayTab('login');
-                    setRegError('');
-                    setRegSuccess('');
-                  }}
-                  className={`flex-1 py-2 text-xs font-extrabold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                    gatewayTab === 'login'
-                      ? 'bg-amber-400 text-stone-950 shadow-md'
-                      : 'text-stone-400 hover:text-white'
-                  }`}
+                <Link
+                  to="/portal"
+                  className="flex-1 py-2 text-xs font-extrabold rounded-xl transition-all flex items-center justify-center gap-1.5 bg-emerald-500 text-stone-950 shadow-md cursor-pointer"
                 >
                   <KeyRound className="w-3.5 h-3.5" />
-                  <span>{lang === 'sw' ? 'Ingia' : 'Sign In'}</span>
-                </button>
+                  <span>{lang === 'sw' ? 'Fungua Ukurasa Kamili wa Kuingia' : 'Open Full Login Page'}</span>
+                </Link>
 
                 <button
                   type="button"
@@ -394,31 +385,14 @@ export function DistributorView({
                     setRegError('');
                     setRegSuccess('');
                   }}
-                  className={`flex-1 py-2 text-xs font-extrabold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  className={`px-3 py-2 text-xs font-extrabold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     gatewayTab === 'register'
                       ? 'bg-amber-400 text-stone-950 shadow-md'
                       : 'text-stone-400 hover:text-white'
                   }`}
                 >
                   <UserPlus className="w-3.5 h-3.5" />
-                  <span>{lang === 'sw' ? 'Jisajili Mpya' : 'Sign Up'}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setGatewayTab('switch');
-                    setRegError('');
-                    setRegSuccess('');
-                  }}
-                  className={`flex-1 py-2 text-xs font-extrabold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                    gatewayTab === 'switch'
-                      ? 'bg-amber-400 text-stone-950 shadow-md'
-                      : 'text-stone-400 hover:text-white'
-                  }`}
-                >
-                  <Users className="w-3.5 h-3.5" />
-                  <span>{lang === 'sw' ? 'Badili' : 'Switch'}</span>
+                  <span className="hidden sm:inline">{lang === 'sw' ? 'Jisajili' : 'Register'}</span>
                 </button>
               </div>
 
