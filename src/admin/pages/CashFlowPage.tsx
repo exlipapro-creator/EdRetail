@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { formatPrice } from '../../utils/whatsappCompiler';
 import { TrendingUp, TrendingDown, DollarSign, ShoppingBag } from 'lucide-react';
+import { useDistributorStore } from '../../store/distributorStore';
 
 interface Row {
   date: string;
@@ -27,20 +28,46 @@ export function CashFlowPage() {
       else if (period === 'week')  { from = new Date(now); from.setDate(now.getDate() - 7); }
       else if (period === 'month') { from = new Date(now.getFullYear(), now.getMonth(), 1); }
 
-      let q = supabase.from('sales').select('created_at,channel,customer_name,items,subtotal,amount_paid,status').neq('status','cancelled').order('created_at',{ascending:false});
-      if (from) q = q.gte('created_at', from.toISOString());
+      let loadedFromDb = false;
+      try {
+        let q = supabase.from('sales').select('created_at,channel,customer_name,items,subtotal,amount_paid,status').neq('status','cancelled').order('created_at',{ascending:false});
+        if (from) q = q.gte('created_at', from.toISOString());
 
-      const { data } = await q;
-      const mapped: Row[] = (data ?? []).map((s: Record<string, unknown>) => ({
-        date: new Date(s.created_at as string).toLocaleDateString(),
-        channel: s.channel as string,
-        customer_name: s.customer_name as string,
-        items_count: Array.isArray(s.items) ? (s.items as unknown[]).reduce((sum: number, i: unknown) => sum + ((i as Record<string, number>).quantity ?? 1), 0) : 0,
-        subtotal: s.subtotal as number,
-        amount_paid: s.amount_paid as number,
-        status: s.status as string,
-      }));
-      setRows(mapped);
+        const { data, error } = await q;
+        if (!error && data && data.length > 0) {
+          const mapped: Row[] = data.map((s: Record<string, unknown>) => ({
+            date: new Date(s.created_at as string).toLocaleDateString(),
+            channel: s.channel as string,
+            customer_name: s.customer_name as string,
+            items_count: Array.isArray(s.items) ? (s.items as unknown[]).reduce((sum: number, i: unknown) => sum + ((i as Record<string, number>).quantity ?? 1), 0) : 0,
+            subtotal: s.subtotal as number,
+            amount_paid: s.amount_paid as number,
+            status: s.status as string,
+          }));
+          setRows(mapped);
+          loadedFromDb = true;
+        }
+      } catch {
+        // Fallback
+      }
+
+      if (!loadedFromDb) {
+        const localSales = useDistributorStore.getState().sales;
+        const filtered = from
+          ? localSales.filter((s) => new Date(s.createdAt) >= from!)
+          : localSales;
+        const mapped: Row[] = filtered.map((s) => ({
+          date: new Date(s.createdAt).toLocaleDateString(),
+          channel: s.source === 'web_whatsapp' ? 'app' : s.paymentType === 'credit' ? 'loan' : 'cash',
+          customer_name: s.customerName,
+          items_count: s.quantity,
+          subtotal: s.totalAmount,
+          amount_paid: s.amountPaid,
+          status: s.balanceDue === 0 ? 'delivered' : 'pending',
+        }));
+        setRows(mapped);
+      }
+
       setLoading(false);
     };
     load();

@@ -204,39 +204,22 @@ export function AppHeader({
             <CartBadge count={totalItems} />
           </motion.button>
 
-          {/* Distributor Leader Portal Trigger - hidden on small mobile to avoid icon overload */}
-          <button
-            id="distributor-auth-trigger-btn"
-            onClick={() => onNavigate('distributor')}
-            className={`hidden sm:flex p-2 rounded-xl border transition-all items-center gap-1.5 cursor-pointer ${
-              currentScreen === 'distributor'
-                ? 'bg-[#0A2747] text-white border-[#0A2747] shadow-xs'
-                : isAdminAuthenticated
-                ? 'bg-[#123B6D] text-white border-[#0D315D] shadow-2xs hover:bg-[#0D315D]'
-                : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-700 border-neutral-200'
-            }`}
-            title={
-              isAdminAuthenticated
-                ? `${distributor.name} • ${lang === 'sw' ? 'Fungua Ofisi ya Msambazaji' : 'Leader Back-Office'}`
-                : (lang === 'sw' ? 'Ofisi ya Msambazaji' : 'Distributor Leader Portal')
-            }
-            aria-label="Distributor Account & Back-Office"
-          >
-            <ShieldCheck className="w-4 h-4 text-amber-400" />
-            <span className="hidden xl:inline text-[11px] font-extrabold">
-              {isAdminAuthenticated ? (lang === 'sw' ? 'Ofisi Yangu' : 'Back-Office') : (lang === 'sw' ? 'Msambazaji' : 'Distributor')}
-            </span>
-          </button>
-
-          {/* Direct Admin link if verified */}
+          {/* Distributor Portal Link */}
           <Link
             to="/admin"
             id="admin-portal-link"
-            className="hidden sm:flex items-center gap-1 p-2 text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 rounded-xl transition-colors"
-            title="Distributor Admin Portal"
-            aria-label="Distributor Admin Portal"
+            className={`hidden sm:flex p-2 px-3 rounded-xl border transition-all items-center gap-1.5 cursor-pointer ${
+              isAdminAuthenticated
+                ? 'bg-[#123B6D] text-white border-[#0D315D] shadow-2xs hover:bg-[#0D315D]'
+                : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-700 border-neutral-200'
+            }`}
+            title="Distributor & Admin Portal"
+            aria-label="Distributor & Admin Portal"
           >
-            <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">Hub</span>
+            <ShieldCheck className="w-4 h-4 text-amber-500" />
+            <span className="text-xs font-bold">
+              {isAdminAuthenticated ? (lang === 'sw' ? 'Ofisi Yangu' : 'Portal') : (lang === 'sw' ? 'Portal' : 'Portal')}
+            </span>
           </Link>
         </div>
       </div>

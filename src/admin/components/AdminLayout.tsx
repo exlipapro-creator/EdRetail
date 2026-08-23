@@ -2,17 +2,18 @@ import { ReactNode, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Package, ShoppingBag, CreditCard,
-  TrendingUp, LogOut, Menu, X, ChevronRight, Star,
+  TrendingUp, LogOut, Menu, X, ChevronRight, Star, Users,
 } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 
 const NAV = [
-  { to: '/admin/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard' },
-  { to: '/admin/products',  icon: <Package className="w-5 h-5" />,         label: 'Products'  },
-  { to: '/admin/sales',     icon: <ShoppingBag className="w-5 h-5" />,      label: 'Sales'     },
-  { to: '/admin/loans',     icon: <CreditCard className="w-5 h-5" />,       label: 'Loans'     },
-  { to: '/admin/cashflow',  icon: <TrendingUp className="w-5 h-5" />,       label: 'Cash Flow' },
-  { to: '/admin/testimonials', icon: <Star className="w-5 h-5" />,          label: 'Reviews'   },
+  { to: '/admin/dashboard',    icon: <LayoutDashboard className="w-5 h-5" />, label: 'Dashboard'    },
+  { to: '/admin/products',     icon: <Package className="w-5 h-5" />,         label: 'Master Products' },
+  { to: '/admin/distributors', icon: <Users className="w-5 h-5" />,           label: 'Distributors' },
+  { to: '/admin/sales',        icon: <ShoppingBag className="w-5 h-5" />,      label: 'Sales'        },
+  { to: '/admin/loans',        icon: <CreditCard className="w-5 h-5" />,       label: 'Loans'        },
+  { to: '/admin/cashflow',     icon: <TrendingUp className="w-5 h-5" />,       label: 'Cash Flow'    },
+  { to: '/admin/testimonials', icon: <Star className="w-5 h-5" />,             label: 'Reviews'      },
 ];
 
 export function AdminLayout({ children }: { children: ReactNode }) {

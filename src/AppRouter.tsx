@@ -5,6 +5,7 @@ import { AdminLayout } from './admin/components/AdminLayout';
 import { LoginPage }    from './admin/pages/LoginPage';
 import { DashboardPage } from './admin/pages/DashboardPage';
 import { ProductsPage }  from './admin/pages/ProductsPage';
+import { DistributorsPage } from './admin/pages/DistributorsPage';
 import { SalesPage }     from './admin/pages/SalesPage';
 import { LoansPage }     from './admin/pages/LoansPage';
 import { CashFlowPage }  from './admin/pages/CashFlowPage';
@@ -56,6 +57,7 @@ export function AppRouter() {
           <Route path="/admin"           element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<Protected><DashboardPage /></Protected>} />
           <Route path="/admin/products"  element={<Protected><ProductsPage /></Protected>} />
+          <Route path="/admin/distributors" element={<Protected><DistributorsPage /></Protected>} />
           <Route path="/admin/sales"     element={<Protected><SalesPage /></Protected>} />
           <Route path="/admin/loans"     element={<Protected><LoansPage /></Protected>} />
           <Route path="/admin/cashflow"  element={<Protected><CashFlowPage /></Protected>} />

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Loader2, X, Save, Star } from 'lucide-react';
+import testimonialsData from '../../data/testimonials.json';
 
 interface DBTestimonial {
   id: string;
@@ -26,11 +27,33 @@ export function TestimonialsPage() {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from('testimonials')
-      .select('*')
-      .order('created_at', { ascending: false });
-    setItems((data as DBTestimonial[]) ?? []);
+    let loadedFromDb = false;
+    try {
+      const { data, error } = await supabase
+        .from('testimonials')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (!error && data && data.length > 0) {
+        setItems(data as DBTestimonial[]);
+        loadedFromDb = true;
+      }
+    } catch {
+      // safe fallback
+    }
+
+    if (!loadedFromDb) {
+      const fallback: DBTestimonial[] = testimonialsData.map((t) => ({
+        id: t.id,
+        name: t.name,
+        location: t.location,
+        product: t.product,
+        text: typeof t.text === 'string' ? t.text : t.text.en,
+        result: t.result,
+        visible: true,
+        created_at: new Date().toISOString(),
+      }));
+      setItems(fallback);
+    }
     setLoading(false);
   };
 

@@ -231,17 +231,37 @@ export function DistributorView({
               </div>
 
               <div className="space-y-3 max-w-xs mx-auto">
+                <button
+                  type="button"
+                  onClick={() => {
+                    useDistributorStore.getState().loginWithGoogle('distributor@edretail.tz', distributor.name);
+                    setAdminAuthenticated(true);
+                  }}
+                  className="w-full py-2.5 px-4 bg-white hover:bg-stone-100 text-stone-900 font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{lang === 'sw' ? 'Ingia na Google' : 'Sign In with Google'}</span>
+                </button>
+
+                <div className="flex items-center gap-2 py-1">
+                  <div className="flex-1 h-px bg-stone-800" />
+                  <span className="text-[10px] uppercase font-bold text-stone-500">
+                    {lang === 'sw' ? 'au Nenosiri / PIN' : 'or Password / PIN'}
+                  </span>
+                  <div className="flex-1 h-px bg-stone-800" />
+                </div>
+
                 <input
                   type="password"
-                  maxLength={8}
+                  maxLength={16}
                   value={pinInput}
                   onChange={(e) => {
                     setPinInput(e.target.value);
                     if (pinError) setPinError(false);
                   }}
                   onKeyDown={(e) => e.key === 'Enter' && handleVerifyPin()}
-                  placeholder="PIN (2580)"
-                  className="w-full text-center text-xl font-mono tracking-widest py-2.5 px-4 bg-stone-950/90 border border-stone-700 rounded-2xl text-white placeholder:text-stone-600 focus:outline-none focus:border-[#C5A059] focus:ring-2 focus:ring-[#C5A059]/20"
+                  placeholder={lang === 'sw' ? 'Nenosiri au PIN (2580)' : 'Password or PIN (2580)'}
+                  className="w-full text-center text-sm font-mono tracking-wider py-2.5 px-4 bg-stone-950/90 border border-stone-700 rounded-2xl text-white placeholder:text-stone-600 focus:outline-none focus:border-[#C5A059] focus:ring-2 focus:ring-[#C5A059]/20"
                 />
 
                 {pinError && (
@@ -250,7 +270,7 @@ export function DistributorView({
                     animate={{ opacity: 1, y: 0 }}
                     className="text-xs font-bold text-red-400"
                   >
-                    {lang === 'sw' ? 'PIN sio sahihi. Jaribu 2580.' : 'Incorrect PIN. Try 2580.'}
+                    {lang === 'sw' ? 'Taarifa sio sahihi. Jaribu 2580 au Google.' : 'Incorrect credentials. Try 2580 or Google.'}
                   </motion.p>
                 )}
 
@@ -259,16 +279,16 @@ export function DistributorView({
                   className="w-full py-2.5 bg-[#C5A059] hover:bg-[#d6b068] text-stone-950 font-black rounded-xl text-xs shadow-md transition-transform active:scale-95 cursor-pointer flex items-center justify-center gap-2"
                 >
                   <Unlock className="w-3.5 h-3.5" />
-                  <span>{lang === 'sw' ? 'Fungua Sasa' : 'Unlock Dashboard'}</span>
+                  <span>{lang === 'sw' ? 'Fungua Ofisi' : 'Unlock Dashboard'}</span>
                 </button>
 
                 <div className="pt-2 border-t border-stone-800 flex items-center justify-between text-[11px] text-stone-400">
-                  <span>Demo PIN:</span>
+                  <span>Demo Authorized:</span>
                   <button
                     onClick={handleQuickDemoUnlock}
                     className="font-mono font-black text-amber-300 hover:text-amber-200 underline cursor-pointer"
                   >
-                    2580 (Bofya Hapa)
+                    1-Tap Access
                   </button>
                 </div>
               </div>

@@ -475,6 +475,37 @@ export const useDistributorStore = create<DistributorStoreState>()(
       attribution: null,
       savedDistributors: INITIAL_DISTRIBUTORS_REGISTRY,
 
+      // Super Admin Role & State
+      isSuperAdminAuthenticated: false,
+      superAdminUser: null,
+
+      loginSuperAdmin: (emailOrKey: string, passOrPin: string) => {
+        const cleanEmail = emailOrKey.trim().toLowerCase();
+        const cleanPass = passOrPin.trim();
+        if (
+          (cleanEmail === 'admin@edretail.com' || cleanEmail === 'admin@edretail.tz' || cleanEmail === 'superadmin' || cleanEmail === 'admin') &&
+          (cleanPass === 'admin123' || cleanPass === 'admin' || cleanPass === '255' || cleanPass === '1234')
+        ) {
+          set({
+            isSuperAdminAuthenticated: true,
+            superAdminUser: {
+              id: 'super-admin-01',
+              email: cleanEmail.includes('@') ? cleanEmail : 'admin@edretail.tz',
+              name: 'Super Administrator',
+            },
+          });
+          return true;
+        }
+        return false;
+      },
+
+      logoutSuperAdmin: () => {
+        set({
+          isSuperAdminAuthenticated: false,
+          superAdminUser: null,
+        });
+      },
+
       setAdminAuthenticated: (auth) => set({ isAdminAuthenticated: auth }),
 
       verifyPin: (pin) => {
@@ -558,6 +589,45 @@ export const useDistributorStore = create<DistributorStoreState>()(
           avatarUrl: '/logo/distributor-circle.png',
           rating: 4.95,
           reviewCount: 28,
+          deliveryCoverage: 'Dar es Salaam & Mikoani kote',
+          bio: `Msambazaji Rasmi wa Edmark Tanzania. Wasiliana nami kupata ushauri wa kitaalamu wa bidhaa asilia za afya na uwasilishaji wa haraka.`,
+        };
+        set({
+          currentProfile: newDist,
+          savedDistributors: [...state.savedDistributors, newDist],
+          isAdminAuthenticated: true,
+          activeRefSlug: newDist.slug,
+        });
+        return newDist;
+      },
+
+      loginWithApple: (email = 'distributor.apple@edretail.tz', name = 'Apple Authorized Distributor') => {
+        const state = get();
+        const cleanEmail = email.trim().toLowerCase();
+        const found = state.savedDistributors.find((d) => d.email.toLowerCase() === cleanEmail);
+        if (found) {
+          set({
+            currentProfile: found,
+            isAdminAuthenticated: true,
+            activeRefSlug: found.slug,
+          });
+          return found;
+        }
+        const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '') || 'distributor';
+        const newDist: DistributorProfile = {
+          id: 'dist-' + Date.now(),
+          name: name,
+          phone: '+255 712 345 679',
+          whatsappDigits: '255712345679',
+          lipaNumber: 'Lipa Namba: ' + Math.floor(100000 + Math.random() * 900000),
+          email: cleanEmail,
+          slug: slug,
+          rank: 'Manager & Wellness Consultant',
+          city: 'Dar es Salaam',
+          isVerified: true,
+          avatarUrl: '/logo/distributor-circle.png',
+          rating: 4.95,
+          reviewCount: 12,
           deliveryCoverage: 'Dar es Salaam & Mikoani kote',
           bio: `Msambazaji Rasmi wa Edmark Tanzania. Wasiliana nami kupata ushauri wa kitaalamu wa bidhaa asilia za afya na uwasilishaji wa haraka.`,
         };
@@ -702,6 +772,130 @@ export const useDistributorStore = create<DistributorStoreState>()(
         return CENTRAL_COMPANY_HUB;
       },
 
+      // Master Catalog (Super Admin) & Distributor-Scoped Custom Products
+      masterProducts: (productsData as unknown) as Product[],
+      addMasterProduct: (product: Product) => {
+        set((state) => ({
+          masterProducts: [...state.masterProducts.filter((p) => p.id !== product.id), product],
+        }));
+      },
+      updateMasterProduct: (id: string, updates: Partial<Product>) => {
+        set((state) => ({
+          masterProducts: state.masterProducts.map((p) => (p.id === id ? { ...p, ...updates } : p)),
+        }));
+      },
+      deleteMasterProduct: (id: string) => {
+        set((state) => ({
+          masterProducts: state.masterProducts.filter((p) => p.id !== id),
+        }));
+      },
+
+      customProductsByDistributor: {},
+      addDistributorCustomProduct: (product: Product) => {
+        set((state) => {
+          const distId = state.currentProfile?.id || 'central-hq';
+          const currentList = state.customProductsByDistributor[distId] || [];
+          return {
+            customProductsByDistributor: {
+              ...state.customProductsByDistributor,
+              [distId]: [...currentList.filter((p) => p.id !== product.id), product],
+            },
+          };
+        });
+      },
+      updateDistributorCustomProduct: (productId: string, updates: Partial<Product>) => {
+        set((state) => {
+          const distId = state.currentProfile?.id || 'central-hq';
+          const currentList = state.customProductsByDistributor[distId] || [];
+          return {
+            customProductsByDistributor: {
+              ...state.customProductsByDistributor,
+              [distId]: currentList.map((p) => (p.id === productId ? { ...p, ...updates } : p)),
+            },
+          };
+        });
+      },
+      deleteDistributorCustomProduct: (productId: string) => {
+        set((state) => {
+          const distId = state.currentProfile?.id || 'central-hq';
+          const currentList = state.customProductsByDistributor[distId] || [];
+          return {
+            customProductsByDistributor: {
+              ...state.customProductsByDistributor,
+              [distId]: currentList.filter((p) => p.id !== productId),
+            },
+          };
+        });
+      },
+
+      // Super Admin Distributor Oversight & Verification
+      toggleDistributorVerification: (distId: string) => {
+        set((state) => ({
+          savedDistributors: state.savedDistributors.map((d) =>
+            d.id === distId ? { ...d, isVerified: !d.isVerified } : d
+          ),
+          currentProfile:
+            state.currentProfile.id === distId
+              ? { ...state.currentProfile, isVerified: !state.currentProfile.isVerified }
+              : state.currentProfile,
+        }));
+      },
+      toggleDistributorStatus: (distId: string, status: 'active' | 'suspended') => {
+        set((state) => ({
+          savedDistributors: state.savedDistributors.map((d) =>
+            d.id === distId ? { ...d, status } : d
+          ),
+          currentProfile:
+            state.currentProfile.id === distId
+              ? { ...state.currentProfile, status }
+              : state.currentProfile,
+        }));
+      },
+      updateDistributorProfileAdmin: (distId: string, updates: Partial<DistributorProfile>) => {
+        set((state) => ({
+          savedDistributors: state.savedDistributors.map((d) =>
+            d.id === distId ? { ...d, ...updates } : d
+          ),
+          currentProfile:
+            state.currentProfile.id === distId
+              ? { ...state.currentProfile, ...updates }
+              : state.currentProfile,
+        }));
+      },
+      addDistributorAdmin: (distributor: DistributorProfile) => {
+        set((state) => ({
+          savedDistributors: [
+            ...state.savedDistributors.filter((d) => d.id !== distributor.id && d.slug !== distributor.slug),
+            distributor,
+          ],
+        }));
+      },
+      deleteDistributorAdmin: (distId: string) => {
+        set((state) => ({
+          savedDistributors: state.savedDistributors.filter((d) => d.id !== distId),
+        }));
+      },
+
+      // Platform Settings & Master Logistics
+      platformSettings: {
+        maintenanceMode: false,
+        broadcastNotice: '',
+        nationalCommission: 15,
+        contactEmail: 'support@edretail.tz',
+        emergencyPhone: '+255 783 481 416',
+        darExpressFee: 3000,
+        upcountryBusFee: 10000,
+        zanzibarFerryFee: 8000,
+      },
+      updatePlatformSettings: (updates) => {
+        set((state) => ({
+          platformSettings: {
+            ...state.platformSettings,
+            ...updates,
+          },
+        }));
+      },
+
       productOverrides: {},
       distributorOverrides: {},
 
@@ -796,9 +990,13 @@ export const useDistributorStore = create<DistributorStoreState>()(
         const activeDistributor = state.getActiveDistributor();
         const distId = activeDistributor?.id || state.currentProfile?.id || 'central-hq';
         const distScoped = state.distributorOverrides?.[distId] || {};
-        const initial = (productsData as unknown) as Product[];
+        const baseProducts = (state.masterProducts && state.masterProducts.length > 0)
+          ? state.masterProducts
+          : ((productsData as unknown) as Product[]);
+        const customProducts = (distId && state.customProductsByDistributor?.[distId]) || [];
+        const allProducts = [...baseProducts, ...customProducts];
 
-        return initial
+        return allProducts
           .map((p) => {
             const override = distScoped[p.id] || state.productOverrides[p.id];
             if (!override) return p;

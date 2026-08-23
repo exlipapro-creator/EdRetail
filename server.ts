@@ -3,6 +3,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -63,7 +65,28 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  // Security Headers via Helmet (with iframe compatibility for AI Studio preview)
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+      frameguard: false,
+    })
+  );
+
   app.use(express.json());
+
+  // Rate limiter for AI Chat endpoint: Max 20 requests per minute per IP
+  const chatLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+      error: 'Too many requests. Please wait a moment before asking another question.',
+      fallback: 'Umetuma maombi mengi kwa muda mfupi. Tafadhali subiri sekunde chache kabla ya kuuliza tena.',
+    },
+  });
 
   // API Routes FIRST
   app.get('/api/health', (_req, res) => {
@@ -74,8 +97,8 @@ async function startServer() {
     });
   });
 
-  // AI Chat endpoint
-  app.post('/api/chat', async (req, res) => {
+  // AI Chat endpoint with rate limiting protection
+  app.post('/api/chat', chatLimiter, async (req, res) => {
     try {
       const { message, lang = 'sw' } = req.body;
 
