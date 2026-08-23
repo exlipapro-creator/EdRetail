@@ -75,7 +75,7 @@ export function AppHeader({
         </div>
 
         {/* Center: Desktop Navigation Bar */}
-        <nav className="hidden lg:flex items-center gap-1 bg-neutral-100/80 p-1 rounded-xl border border-neutral-200/60">
+        <nav className="hidden lg:flex items-center gap-1 bg-neutral-100/90 p-1 rounded-xl border border-neutral-200/80">
           {navLinks.map((link) => {
             const isActive = currentScreen === link.id;
             return (
@@ -85,8 +85,8 @@ export function AppHeader({
                 onClick={() => onNavigate(link.id)}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   isActive
-                    ? 'bg-white text-primary-600 shadow-xs font-bold'
-                    : 'text-neutral-600 hover:text-neutral-900 hover:bg-white/50'
+                    ? 'bg-white text-[#123B6D] shadow-xs font-black border border-neutral-200/60'
+                    : 'text-neutral-600 hover:text-[#123B6D] hover:bg-white/50'
                 }`}
               >
                 {lang === 'sw' ? link.labelSw : link.labelEn}
@@ -192,13 +192,13 @@ export function AppHeader({
           {/* Cart button */}
           <motion.button
             id="header-cart-btn"
-            className="relative p-2 sm:px-3 sm:py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl shadow-xs transition-colors flex items-center gap-2"
+            className="relative p-2 sm:px-3.5 sm:py-2 bg-[#123B6D] hover:bg-[#0D315D] text-white rounded-xl shadow-xs transition-colors flex items-center gap-2"
             onClick={onOpenCart}
             whileTap={{ scale: 0.92 }}
             aria-label={lang === 'sw' ? `Kikapu chenye bidhaa ${totalItems}` : `Cart with ${totalItems} items`}
           >
             <ShoppingCart className="w-4 h-4 sm:w-4.5 sm:h-4.5" strokeWidth={2.2} />
-            <span className="hidden sm:inline text-xs font-bold">
+            <span className="hidden sm:inline text-xs font-black tracking-tight">
               {lang === 'sw' ? 'Mkoba' : 'Cart'}
             </span>
             <CartBadge count={totalItems} />
@@ -210,9 +210,9 @@ export function AppHeader({
             onClick={() => onNavigate('distributor')}
             className={`hidden sm:flex p-2 rounded-xl border transition-all items-center gap-1.5 cursor-pointer ${
               currentScreen === 'distributor'
-                ? 'bg-emerald-800 text-white border-emerald-900 shadow-xs'
+                ? 'bg-[#0A2747] text-white border-[#0A2747] shadow-xs'
                 : isAdminAuthenticated
-                ? 'bg-emerald-700 text-white border-emerald-800 shadow-2xs hover:bg-emerald-800'
+                ? 'bg-[#123B6D] text-white border-[#0D315D] shadow-2xs hover:bg-[#0D315D]'
                 : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-700 border-neutral-200'
             }`}
             title={

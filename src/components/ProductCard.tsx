@@ -11,9 +11,9 @@ interface ProductCardProps {
 }
 
 const CATEGORY_BADGE_COLOR: Record<string, string> = {
-  'p4-slimming':         'bg-emerald-50 text-emerald-800 border-emerald-200',
-  'health-wellness':     'bg-emerald-50 text-emerald-800 border-emerald-200',
-  'lifestyle-beverages': 'bg-amber-50 text-amber-800 border-amber-200',
+  'p4-slimming':         'bg-emerald-50 text-[#0E6B52] border-emerald-200',
+  'health-wellness':     'bg-teal-50 text-teal-800 border-teal-200',
+  'lifestyle-beverages': 'bg-[#E8EEF5] text-[#123B6D] border-[#C3D3E7]',
 };
 
 export function ProductCard({ product }: ProductCardProps) {
@@ -45,12 +45,12 @@ export function ProductCard({ product }: ProductCardProps) {
     updateQuantity(product.id, qty - 1);
   };
 
-  const badgeColor = CATEGORY_BADGE_COLOR[product.category] ?? 'bg-stone-100 text-stone-700 border-stone-200';
+  const badgeColor = CATEGORY_BADGE_COLOR[product.category] ?? 'bg-neutral-100 text-neutral-700 border-neutral-200';
 
   return (
     <>
       <div
-        className="relative bg-white rounded-2xl overflow-hidden border border-stone-200/90 hover:border-emerald-300 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
+        className="relative bg-white rounded-2xl overflow-hidden border border-neutral-200/90 hover:border-[#123B6D]/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between"
         onClick={() => setShowDetail(true)}
       >
         {/* Favourite Button */}
@@ -62,7 +62,7 @@ export function ProductCard({ product }: ProductCardProps) {
           className={`absolute top-2.5 right-2.5 z-20 p-2 rounded-xl border backdrop-blur-xs transition-colors ${
             isFavourite
               ? 'bg-rose-50 text-rose-600 border-rose-200'
-              : 'bg-white/90 text-stone-400 hover:text-stone-700 border-stone-200 shadow-2xs'
+              : 'bg-white/90 text-neutral-400 hover:text-neutral-700 border-neutral-200 shadow-2xs'
           }`}
           aria-label={
             isFavourite
@@ -86,14 +86,14 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Out of Stock Overlay */}
         {!product.inStock && (
           <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[2px] flex items-center justify-center">
-            <span className="text-xs font-bold text-stone-500 bg-white border border-stone-200 px-3 py-1 rounded-full shadow-2xs">
+            <span className="text-xs font-bold text-neutral-500 bg-white border border-neutral-200 px-3 py-1 rounded-full shadow-2xs">
               {t({ en: 'Out of stock', sw: 'Haipatikani' })}
             </span>
           </div>
         )}
 
         {/* Product Image */}
-        <div className="relative h-36 sm:h-44 bg-stone-50 flex items-center justify-center p-3 overflow-hidden border-b border-stone-100">
+        <div className="relative h-36 sm:h-44 bg-neutral-50 flex items-center justify-center p-3 overflow-hidden border-b border-neutral-100">
           <img
             src={product.image}
             alt={t(product.name)}
@@ -105,8 +105,8 @@ export function ProductCard({ product }: ProductCardProps) {
               if (fallback) fallback.style.display = 'flex';
             }}
           />
-          <div className="w-20 h-20 rounded-xl bg-stone-100 items-center justify-center hidden">
-            <ShoppingBag className="w-8 h-8 text-stone-300" />
+          <div className="w-20 h-20 rounded-xl bg-neutral-100 items-center justify-center hidden">
+            <ShoppingBag className="w-8 h-8 text-neutral-300" />
           </div>
         </div>
 
@@ -114,29 +114,29 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="p-3.5 flex flex-col justify-between flex-grow">
           <div>
             {categoryLabel && (
-              <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-tight block mb-0.5">
+              <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-tight block mb-0.5">
                 {t(categoryLabel)}
               </span>
             )}
             {/* 2-line title support with line clamp to prevent aggressive truncation */}
-            <h3 className="font-extrabold text-stone-900 text-xs sm:text-sm leading-snug line-clamp-2 min-h-[2.4rem]">
+            <h3 className="font-extrabold text-neutral-900 text-xs sm:text-sm leading-snug line-clamp-2 min-h-[2.4rem]">
               {t(product.name)}
             </h3>
-            <p className="text-[11px] text-stone-500 mt-1 line-clamp-2 leading-relaxed">
+            <p className="text-[11px] text-neutral-500 mt-1 line-clamp-2 leading-relaxed">
               {t(product.description)}
             </p>
           </div>
 
           {/* Pricing and Action row */}
-          <div className="pt-3 mt-3 border-t border-stone-100">
+          <div className="pt-3 mt-3 border-t border-neutral-100">
             <div className="flex items-baseline justify-between gap-1 mb-2.5">
               <div>
-                <span className="text-sm sm:text-base font-black text-stone-900 leading-tight">
+                <span className="text-sm sm:text-base font-black text-neutral-900 leading-tight">
                   {formatPrice(product.price)}
                 </span>
-                <span className="text-[10px] text-stone-500 font-semibold ml-1">TZS</span>
+                <span className="text-[10px] text-neutral-500 font-semibold ml-1">TZS</span>
               </div>
-              <span className="text-[10px] text-stone-400 font-medium">
+              <span className="text-[10px] text-neutral-400 font-medium">
                 ({formatUsd(product.priceUsd)})
               </span>
             </div>
@@ -147,7 +147,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   e.stopPropagation();
                   setShowDetail(true);
                 }}
-                className="p-1.5 text-stone-400 hover:text-stone-700 rounded-lg hover:bg-stone-100 transition-colors"
+                className="p-1.5 text-neutral-400 hover:text-neutral-700 rounded-lg hover:bg-neutral-100 transition-colors"
                 aria-label={t({ en: 'View details', sw: 'Ona maelezo' })}
                 title="View full details"
               >
@@ -160,7 +160,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     key="add"
                     onClick={handleAdd}
                     disabled={!product.inStock}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-extrabold shadow-2xs transition-colors disabled:opacity-40"
+                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-[#123B6D] hover:bg-[#0D315D] text-white rounded-xl text-xs font-black shadow-2xs transition-colors disabled:opacity-40"
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
@@ -172,22 +172,22 @@ export function ProductCard({ product }: ProductCardProps) {
                 ) : (
                   <motion.div
                     key="qty"
-                    className="flex-1 flex items-center justify-between border border-emerald-300 bg-emerald-50 rounded-xl p-0.5"
+                    className="flex-1 flex items-center justify-between border border-[#123B6D]/30 bg-[#F0F4F9] rounded-xl p-0.5"
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                   >
                     <button
                       onClick={handleMinus}
-                      className="w-7 h-7 bg-white rounded-lg flex items-center justify-center text-emerald-900 font-black text-xs shadow-2xs hover:bg-stone-50"
+                      className="w-7 h-7 bg-white rounded-lg flex items-center justify-center text-[#123B6D] font-black text-xs shadow-2xs hover:bg-neutral-100"
                       aria-label="Decrease quantity"
                     >
                       <Minus className="w-3 h-3" />
                     </button>
-                    <span className="text-xs font-black text-emerald-950 px-2">{qty}</span>
+                    <span className="text-xs font-black text-[#123B6D] px-2">{qty}</span>
                     <button
                       onClick={handleAdd}
-                      className="w-7 h-7 bg-emerald-700 text-white rounded-lg flex items-center justify-center font-black text-xs shadow-2xs hover:bg-emerald-800"
+                      className="w-7 h-7 bg-[#123B6D] text-white rounded-lg flex items-center justify-center font-black text-xs shadow-2xs hover:bg-[#0D315D]"
                       aria-label="Increase quantity"
                     >
                       <Plus className="w-3 h-3" />
@@ -246,35 +246,35 @@ export function ProductCard({ product }: ProductCardProps) {
                 />
               </div>
 
-              <h2 className="text-lg font-black text-stone-900 mb-1 leading-snug">
+              <h2 className="text-lg font-black text-neutral-900 mb-1 leading-snug">
                 {t(product.name)}
               </h2>
-              <div className="text-emerald-700 font-extrabold text-sm mb-3">
-                {formatPrice(product.price)} TZS <span className="text-xs text-stone-400">({formatUsd(product.priceUsd)})</span>
+              <div className="text-[#123B6D] font-extrabold text-sm mb-3">
+                {formatPrice(product.price)} TZS <span className="text-xs text-neutral-400">({formatUsd(product.priceUsd)})</span>
               </div>
 
-              <p className="text-xs text-stone-600 leading-relaxed mb-4">
+              <p className="text-xs text-neutral-600 leading-relaxed mb-4">
                 {t(product.description)}
               </p>
 
               {product.usage && (
-                <div className="space-y-2 mb-4 bg-stone-50 p-3.5 rounded-2xl border border-stone-200/60">
-                  <h4 className="text-xs font-black text-stone-900 uppercase tracking-wider">
+                <div className="space-y-2 mb-4 bg-neutral-50 p-3.5 rounded-2xl border border-neutral-200/60">
+                  <h4 className="text-xs font-black text-neutral-900 uppercase tracking-wider">
                     {lang === 'sw' ? 'Matumizi na Maelekezo' : 'How to Use'}
                   </h4>
-                  <p className="text-xs text-stone-700 leading-relaxed flex items-start gap-2">
-                    <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-xs text-neutral-700 leading-relaxed flex items-start gap-2">
+                    <Check className="w-4 h-4 text-[#0E6B52] flex-shrink-0 mt-0.5" />
                     <span>{t(product.usage)}</span>
                   </p>
                 </div>
               )}
 
               {/* Bottom Sticky Action */}
-              <div className="pt-3 border-t border-stone-200 flex items-center gap-3">
+              <div className="pt-3 border-t border-neutral-200 flex items-center gap-3">
                 <button
                   onClick={handleAdd}
                   disabled={!product.inStock}
-                  className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs sm:text-sm font-extrabold shadow-xs transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-[#123B6D] hover:bg-[#0D315D] text-white rounded-xl text-xs sm:text-sm font-extrabold shadow-xs transition-colors flex items-center justify-center gap-2"
                 >
                   <Plus className="w-4 h-4 stroke-[3]" />
                   <span>{lang === 'sw' ? 'Weka kwenye Mkoba' : 'Add to Cart'}</span>

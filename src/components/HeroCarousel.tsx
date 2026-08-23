@@ -126,7 +126,7 @@ export function HeroCarousel({ onNavigate }: HeroCarouselProps) {
           <div className="flex flex-wrap items-center gap-2.5 pt-1">
             <button
               onClick={() => onNavigate ? onNavigate('products') : undefined}
-              className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-black shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 bg-[#123B6D] hover:bg-[#0D315D] text-white rounded-xl text-xs font-black shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer border border-white/20"
             >
               <ShoppingCart className="w-3.5 h-3.5" />
               <span>{lang === 'sw' ? slide.ctaSw : slide.ctaEn}</span>
@@ -140,7 +140,7 @@ export function HeroCarousel({ onNavigate }: HeroCarouselProps) {
               rel="noopener noreferrer"
               className="px-3.5 py-2 bg-white/15 hover:bg-white/25 text-white border border-white/30 rounded-xl text-xs font-bold backdrop-blur-xs transition-colors flex items-center gap-1.5"
             >
-              <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+              <MessageCircle className="w-3.5 h-3.5 text-[#0E6B52]" />
               <span>{lang === 'sw' ? 'Uliza WhatsApp' : 'Ask on WhatsApp'}</span>
             </a>
           </div>

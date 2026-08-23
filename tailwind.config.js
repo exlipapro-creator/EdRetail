@@ -7,67 +7,69 @@ export default {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
       colors: {
-        // Master Design System Primary
+        // EDRetail Brand Identity Core
+        brand: {
+          navy: '#123B6D',
+          'navy-dark': '#0A2747',
+          'navy-deep': '#0D315D',
+          'navy-light': '#E8EEF5',
+          red: '#D9252A',
+          'red-dark': '#B71C1C',
+          'red-light': '#FCE8E8',
+        },
+
+        // Master Design System Primary -> Mapped directly to EDR Navy
         primary: {
-          50: '#F5F3FF',
-          100: '#EFEDFF',
-          200: '#DDD6FE',
-          300: '#C4B5FD',
-          400: '#818CF8',
-          500: '#4F46E5',
-          600: '#3827C5', // Master design system primary
-          700: '#251C82', // Primary dark (pressed state)
-          800: '#1E1766',
-          900: '#140E48',
-          DEFAULT: '#3827C5',
-          dark: '#251C82',
-          light: '#EFEDFF',
+          50: '#F0F4F9',
+          100: '#E1E9F3',
+          200: '#C3D3E7',
+          300: '#94B2D5',
+          400: '#5F8DC0',
+          500: '#123B6D', // EDR Navy Brand Primary
+          600: '#123B6D', // EDR Navy
+          700: '#0D315D', // EDR Navy Dark Pressed
+          800: '#0A2747', // EDR Navy Deep
+          900: '#06192E',
+          DEFAULT: '#123B6D',
+          dark: '#0A2747',
+          light: '#F0F4F9',
         },
 
-        // Master Design System Secondary & Accent
-        secondary: {
-          green: '#087C61',
-          DEFAULT: '#087C61',
-        },
-        accent: {
-          orange: '#FF9D0B',
-          DEFAULT: '#FF9D0B',
+        // Wellness Experience Layer
+        wellness: {
+          emerald: '#0E6B52',
+          deep: '#082F28',
+          light: '#E7F4EE',
+          mint: '#CDE9DE',
+          DEFAULT: '#0E6B52',
         },
 
-        // Neutral / surface system
+        // Achievement & Goals Gold Layer
+        achievement: {
+          gold: '#C89D4D',
+          light: '#F8EFD9',
+          DEFAULT: '#C89D4D',
+        },
+
+        // Neutral / surface system (70% foundation)
         neutral: {
-          50: '#F8FAFC',
-          100: '#F1F5F9',
-          200: '#E2E8F0',
-          300: '#CBD5E1',
-          400: '#94A3B8',
-          500: '#64748B',
-          600: '#475569',
-          700: '#334155',
-          800: '#1E293B',
-          900: '#0F172A',
+          50: '#F6F7F8',
+          100: '#F1F3F5',
+          200: '#E1E5E8',
+          300: '#CBD2D9',
+          400: '#8D98A5',
+          500: '#647181',
+          600: '#485563',
+          700: '#323E4C',
+          800: '#1B2735',
+          900: '#0E1722',
         },
 
         // Semantic states
-        success: { DEFAULT: '#168A52', 50: '#F0FDF4', 100: '#DCFCE7', 600: '#168A52' },
-        warning: { DEFAULT: '#F59E0B', 50: '#FFFBEB', 100: '#FEF3C7', 600: '#D97706' },
-        danger:  { DEFAULT: '#E53935', 50: '#FEF2F2', 100: '#FEE2E2', 600: '#DC2626' },
-        info:    { DEFAULT: '#1677A8', 50: '#F0F9FF', 100: '#E0F2FE', 600: '#0284C7' },
-
-        // Legacy royal — kept for backward compatibility
-        royal: {
-          50:  '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
-          950: '#172554',
-        },
+        success: { DEFAULT: '#0E6B52', 50: '#E7F4EE', 100: '#CDE9DE', 600: '#0E6B52' },
+        warning: { DEFAULT: '#C89D4D', 50: '#F8EFD9', 100: '#FEF3C7', 600: '#B4883A' },
+        danger:  { DEFAULT: '#D9252A', 50: '#FCE8E8', 100: '#FEE2E2', 600: '#D9252A' },
+        info:    { DEFAULT: '#123B6D', 50: '#F0F4F9', 100: '#E1E9F3', 600: '#123B6D' },
       },
 
       borderRadius: {
@@ -82,4 +84,5 @@ export default {
   },
   plugins: [],
 }
+
 

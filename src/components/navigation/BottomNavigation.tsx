@@ -62,22 +62,22 @@ export function BottomNavigation({ currentScreen, onNavigate }: BottomNavigation
               id={`bottom-nav-${item.id}`}
               onClick={() => onNavigate(item.id)}
               className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all outline-none [-webkit-tap-highlight-color:transparent] relative ${
-                isActive ? 'text-emerald-700 font-bold' : 'text-neutral-500 hover:text-neutral-800'
+                isActive ? 'text-[#123B6D] font-bold' : 'text-neutral-500 hover:text-neutral-800'
               }`}
               style={{ minHeight: 48 }}
               aria-current={isActive ? 'page' : undefined}
             >
               <div className="relative flex items-center justify-center">
-                <Icon className={`w-5 h-5 transition-transform ${isActive ? 'scale-105 stroke-[2.4] text-emerald-700' : 'stroke-[1.8]'}`} />
+                <Icon className={`w-5 h-5 transition-transform ${isActive ? 'scale-105 stroke-[2.5] text-[#123B6D]' : 'stroke-[1.8]'}`} />
                 {isActive && (
                   <motion.div
                     layoutId="bottomNavDot"
-                    className="absolute -bottom-1 w-1 h-1 rounded-full bg-emerald-700"
+                    className="absolute -bottom-1 w-1.5 h-1.5 rounded-full bg-[#123B6D]"
                     transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                   />
                 )}
               </div>
-              <span className={`text-[10px] mt-1 leading-none tracking-tight truncate max-w-full ${isActive ? 'font-black text-emerald-800' : 'font-medium'}`}>
+              <span className={`text-[10px] mt-1 leading-none tracking-tight truncate max-w-full ${isActive ? 'font-black text-[#123B6D]' : 'font-medium text-neutral-500'}`}>
                 {lang === 'sw' ? item.labelSw : item.labelEn}
               </span>
             </button>
