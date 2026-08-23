@@ -152,9 +152,9 @@ export function DistributorLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-radial from-[#0C2A20] via-[#081C15] to-[#040E0B] text-white flex flex-col justify-between selection:bg-amber-400 selection:text-stone-950">
+    <div className="min-h-screen bg-[#071913] bg-gradient-to-b from-[#0B271E] via-[#071913] to-[#030C09] text-white flex flex-col justify-between selection:bg-amber-400 selection:text-stone-950">
       {/* ── Top Bar ── */}
-      <header className="px-4 sm:px-8 py-4 border-b border-emerald-900/40 bg-black/30 backdrop-blur-md flex items-center justify-between z-20">
+      <header className="px-4 sm:px-8 py-4 border-b border-emerald-900/60 bg-[#05140F]/90 backdrop-blur-md flex items-center justify-between z-20">
         <Link to="/" className="flex items-center gap-2.5 group">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-[#C5A059] flex items-center justify-center shadow-lg shadow-emerald-950/50 group-hover:scale-105 transition-transform">
             <Store className="w-5 h-5 text-stone-950 stroke-[2.5]" />
@@ -162,7 +162,7 @@ export function DistributorLoginPage() {
           <div>
             <span className="font-black text-base tracking-tight text-white flex items-center gap-1.5">
               ED <span className="text-[#E5C378]">Retail</span>
-              <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
+              <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold">
                 Leader Suite
               </span>
             </span>
@@ -174,7 +174,7 @@ export function DistributorLoginPage() {
           {/* Language Switcher */}
           <button
             onClick={() => setLang(lang === 'sw' ? 'en' : 'sw')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-900/80 hover:bg-stone-800 border border-stone-700 text-xs font-bold text-stone-300 hover:text-white transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-700 text-xs font-bold text-stone-200 hover:text-white transition-colors cursor-pointer"
           >
             <Globe className="w-3.5 h-3.5 text-[#C5A059]" />
             <span>{lang === 'sw' ? 'Swahili' : 'English'}</span>
@@ -192,7 +192,7 @@ export function DistributorLoginPage() {
           {/* Return to Storefront */}
           <Link
             to="/"
-            className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-stone-800/80 hover:bg-stone-700 text-xs font-semibold text-stone-300 hover:text-white transition-colors"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-xs font-semibold text-stone-200 hover:text-white transition-colors"
           >
             <span>{lang === 'sw' ? 'Duka Kuu' : 'Store'}</span>
             <ChevronRight className="w-3.5 h-3.5" />
@@ -204,8 +204,8 @@ export function DistributorLoginPage() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
         {/* Left Column: Leadership Hero & Feature Pillars */}
         <div className="lg:col-span-6 space-y-6 text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-black uppercase tracking-wider">
-            <Award className="w-3.5 h-3.5 text-amber-400" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 text-xs font-bold uppercase tracking-wider shadow-sm">
+            <Award className="w-4 h-4 text-amber-400 shrink-0" />
             <span>{lang === 'sw' ? 'Mfumo Rasmi wa Viongozi na Wasambazaji' : 'Official Distributor Operations Portal'}</span>
           </div>
 
@@ -221,7 +221,7 @@ export function DistributorLoginPage() {
                 </>
               )}
             </h1>
-            <p className="text-sm sm:text-base text-stone-300 max-w-xl leading-relaxed">
+            <p className="text-sm sm:text-base text-stone-300 max-w-xl leading-relaxed font-normal">
               {lang === 'sw'
                 ? 'Ofisi ya kidijitali iliyojengwa mahususi kwa wasambazaji wa Edmark Tanzania. Rekodi mauzo hata bila intaneti, fuatilia madeni ya wateja, na simamia Lipa Namba zako zote.'
                 : 'The dedicated digital back-office for Edmark leaders in Tanzania. Record live transactions offline, track debtor balances, automate WhatsApp invoices, and manage 2,000 SV monthly maintenance.'}
@@ -230,49 +230,49 @@ export function DistributorLoginPage() {
 
           {/* 4 Feature Badges */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-            <div className="p-3.5 rounded-2xl bg-stone-900/60 border border-emerald-900/30 flex items-start gap-3">
-              <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
+            <div className="p-4 rounded-2xl bg-stone-900/90 border border-emerald-900/50 shadow-md flex items-start gap-3">
+              <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 shrink-0">
                 <TrendingUp className="w-4 h-4" />
               </div>
               <div>
                 <h4 className="text-xs font-black text-white">2,000 SV Challenge</h4>
-                <p className="text-[11px] text-stone-400 leading-snug">
+                <p className="text-[11px] text-stone-400 leading-snug mt-0.5">
                   {lang === 'sw' ? 'Ufuatiliaji wa pointi na maintenance ya kila mwezi' : 'Live SV pacing & manager qualification tracking'}
                 </p>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-stone-900/60 border border-emerald-900/30 flex items-start gap-3">
-              <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
+            <div className="p-4 rounded-2xl bg-stone-900/90 border border-emerald-900/50 shadow-md flex items-start gap-3">
+              <div className="p-2.5 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shrink-0">
                 <ShoppingBag className="w-4 h-4" />
               </div>
               <div>
                 <h4 className="text-xs font-black text-white">Daftari la Mauzo & Stoo</h4>
-                <p className="text-[11px] text-stone-400 leading-snug">
+                <p className="text-[11px] text-stone-400 leading-snug mt-0.5">
                   {lang === 'sw' ? 'Rekodi bidhaa, pata risiti za WhatsApp papo hapo' : 'Instant offline receipt compiler & inventory alerts'}
                 </p>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-stone-900/60 border border-emerald-900/30 flex items-start gap-3">
-              <div className="p-2 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30 shrink-0">
+            <div className="p-4 rounded-2xl bg-stone-900/90 border border-emerald-900/50 shadow-md flex items-start gap-3">
+              <div className="p-2.5 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30 shrink-0">
                 <CreditCard className="w-4 h-4" />
               </div>
               <div>
                 <h4 className="text-xs font-black text-white">Lipa Namba & Akaunti</h4>
-                <p className="text-[11px] text-stone-400 leading-snug">
+                <p className="text-[11px] text-stone-400 leading-snug mt-0.5">
                   {lang === 'sw' ? 'M-Pesa, Tigo Pesa, Airtel Money na Benki' : 'Multi-channel mobile money & QR code generator'}
                 </p>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-stone-900/60 border border-emerald-900/30 flex items-start gap-3">
-              <div className="p-2 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30 shrink-0">
+            <div className="p-4 rounded-2xl bg-stone-900/90 border border-emerald-900/50 shadow-md flex items-start gap-3">
+              <div className="p-2.5 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/30 shrink-0">
                 <Sparkles className="w-4 h-4" />
               </div>
               <div>
                 <h4 className="text-xs font-black text-white">Duka Binafsi (@handle)</h4>
-                <p className="text-[11px] text-stone-400 leading-snug">
+                <p className="text-[11px] text-stone-400 leading-snug mt-0.5">
                   {lang === 'sw' ? 'Wateja wako wanaagiza moja kwa moja kupitia kiungo chako' : 'Share custom links with automatic WhatsApp checkout'}
                 </p>
               </div>
@@ -282,10 +282,10 @@ export function DistributorLoginPage() {
 
         {/* Right Column: Portal Auth & Registration Card */}
         <div className="lg:col-span-6 flex justify-center">
-          <div className="w-full max-w-md bg-stone-900/90 backdrop-blur-xl border border-[#1E4D3C] rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/80 space-y-6">
+          <div className="w-full max-w-md bg-[#0C1E18] border border-emerald-700/50 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/80 space-y-6">
             {/* Form Header */}
             <div className="text-center space-y-2">
-              <div className="w-14 h-14 rounded-2xl bg-[#143B2E] border border-[#276B53] text-[#E5C378] flex items-center justify-center mx-auto shadow-inner">
+              <div className="w-14 h-14 rounded-2xl bg-[#143B2E] border border-emerald-500/40 text-[#E5C378] flex items-center justify-center mx-auto shadow-inner">
                 <Lock className="w-6 h-6" />
               </div>
               <div className="space-y-1">
@@ -305,7 +305,7 @@ export function DistributorLoginPage() {
             </div>
 
             {/* Tab Switcher */}
-            <div className="flex items-center bg-stone-950 p-1 rounded-2xl border border-stone-800">
+            <div className="flex items-center bg-stone-950 p-1.5 rounded-2xl border border-stone-800">
               <button
                 type="button"
                 onClick={() => {
@@ -313,7 +313,7 @@ export function DistributorLoginPage() {
                   setRegError('');
                   setRegSuccess('');
                 }}
-                className={`flex-1 py-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   tab === 'login'
                     ? 'bg-[#C5A059] text-stone-950 shadow-md'
                     : 'text-stone-400 hover:text-white'
@@ -330,7 +330,7 @@ export function DistributorLoginPage() {
                   setRegError('');
                   setRegSuccess('');
                 }}
-                className={`flex-1 py-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   tab === 'register'
                     ? 'bg-[#C5A059] text-stone-950 shadow-md'
                     : 'text-stone-400 hover:text-white'
@@ -347,7 +347,7 @@ export function DistributorLoginPage() {
                   setRegError('');
                   setRegSuccess('');
                 }}
-                className={`flex-1 py-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                className={`flex-1 py-2.5 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   tab === 'switch'
                     ? 'bg-[#C5A059] text-stone-950 shadow-md'
                     : 'text-stone-400 hover:text-white'
@@ -374,13 +374,13 @@ export function DistributorLoginPage() {
 
                 <div className="flex items-center gap-2 py-0.5">
                   <div className="flex-1 h-px bg-stone-800" />
-                  <span className="text-[10px] uppercase font-bold text-stone-500 tracking-wider">
+                  <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">
                     {lang === 'sw' ? 'au Nenosiri / PIN' : 'or Password / PIN'}
                   </span>
                   <div className="flex-1 h-px bg-stone-800" />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   <input
                     type="password"
                     maxLength={16}
@@ -391,7 +391,7 @@ export function DistributorLoginPage() {
                     }}
                     onKeyDown={(e) => e.key === 'Enter' && handleVerifyPin()}
                     placeholder={lang === 'sw' ? 'Weka PIN (mfano: 2580)' : 'Enter PIN (e.g. 2580)'}
-                    className="w-full text-center text-sm font-mono tracking-wider py-3 px-4 bg-stone-950 border border-stone-700 rounded-2xl text-white placeholder:text-stone-600 focus:outline-none focus:border-[#C5A059] focus:ring-2 focus:ring-[#C5A059]/20"
+                    className="w-full text-center text-sm font-mono tracking-wider py-3.5 px-4 bg-stone-950 border border-stone-700 rounded-2xl text-white placeholder:text-stone-400 focus:outline-none focus:border-[#C5A059] focus:ring-2 focus:ring-[#C5A059]/20"
                   />
 
                   {pinError && (
@@ -406,14 +406,14 @@ export function DistributorLoginPage() {
 
                   <button
                     onClick={handleVerifyPin}
-                    className="w-full py-3 bg-[#C5A059] hover:bg-[#d4ad60] text-stone-950 font-black rounded-2xl text-xs shadow-md transition-transform active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                    className="w-full py-3.5 bg-[#C5A059] hover:bg-[#d4ad60] text-stone-950 font-black rounded-2xl text-xs shadow-md transition-transform active:scale-95 cursor-pointer flex items-center justify-center gap-2"
                   >
                     <Unlock className="w-4 h-4" />
                     <span>{lang === 'sw' ? 'Fungua Ofisi Yangu' : 'Open Dashboard'}</span>
                   </button>
                 </div>
 
-                <div className="pt-3 border-t border-stone-800 flex items-center justify-between text-xs text-stone-400">
+                <div className="pt-3 border-t border-stone-800 flex items-center justify-between text-xs text-stone-300">
                   <span>Demo Authorized PIN:</span>
                   <button
                     onClick={handleQuickDemoUnlock}
@@ -439,7 +439,7 @@ export function DistributorLoginPage() {
 
                 <div className="flex items-center gap-2 py-0.5">
                   <div className="flex-1 h-px bg-stone-800" />
-                  <span className="text-[10px] uppercase font-bold text-stone-500 tracking-wider">
+                  <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">
                     {lang === 'sw' ? 'au jaza taarifa zako' : 'or manual registration'}
                   </span>
                   <div className="flex-1 h-px bg-stone-800" />
@@ -455,7 +455,7 @@ export function DistributorLoginPage() {
                     value={regName}
                     onChange={(e) => setRegName(e.target.value)}
                     placeholder="e.g., Mwanahamisi Lissu"
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-stone-600 focus:outline-none focus:border-amber-400"
+                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-stone-500 focus:outline-none focus:border-amber-400"
                   />
                 </div>
 
@@ -470,7 +470,7 @@ export function DistributorLoginPage() {
                       value={regEmail}
                       onChange={(e) => setRegEmail(e.target.value)}
                       placeholder="yourname@gmail.com"
-                      className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-stone-600 focus:outline-none focus:border-amber-400"
+                      className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-stone-500 focus:outline-none focus:border-amber-400"
                     />
                   </div>
 
@@ -484,7 +484,7 @@ export function DistributorLoginPage() {
                       value={regPhone}
                       onChange={(e) => setRegPhone(e.target.value)}
                       placeholder="+255 754 000 000"
-                      className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-stone-600 focus:outline-none focus:border-amber-400"
+                      className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-stone-500 focus:outline-none focus:border-amber-400"
                     />
                   </div>
                 </div>
@@ -499,7 +499,7 @@ export function DistributorLoginPage() {
                       value={regCity}
                       onChange={(e) => setRegCity(e.target.value)}
                       placeholder="Dar es Salaam"
-                      className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-stone-600 focus:outline-none focus:border-amber-400"
+                      className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-stone-500 focus:outline-none focus:border-amber-400"
                     />
                   </div>
 
@@ -514,7 +514,7 @@ export function DistributorLoginPage() {
                         value={regSlug}
                         onChange={(e) => setRegSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''))}
                         placeholder="jina-lako"
-                        className="w-full bg-transparent py-2.5 pl-1 text-white focus:outline-none"
+                        className="w-full bg-transparent py-2.5 pl-1 text-white focus:outline-none placeholder:text-stone-500"
                       />
                     </div>
                   </div>
@@ -529,7 +529,7 @@ export function DistributorLoginPage() {
                     value={regPass}
                     onChange={(e) => setRegPass(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-stone-600 focus:outline-none focus:border-amber-400"
+                    className="w-full bg-stone-950 border border-stone-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-stone-500 focus:outline-none focus:border-amber-400"
                   />
                 </div>
 
@@ -610,7 +610,7 @@ export function DistributorLoginPage() {
       </main>
 
       {/* ── Footer ── */}
-      <footer className="px-4 sm:px-8 py-4 border-t border-emerald-900/40 bg-black/40 text-center text-xs text-stone-400 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <footer className="px-4 sm:px-8 py-4 border-t border-emerald-900/60 bg-[#05140F]/90 text-center text-xs text-stone-400 flex flex-col sm:flex-row items-center justify-between gap-2">
         <p>© 2026 ED Retail Tanzania • Independent Distributor Management Platform</p>
         <div className="flex items-center gap-4 text-[11px]">
           <Link to="/admin" className="text-indigo-400 hover:underline">Super Admin Hub</Link>
