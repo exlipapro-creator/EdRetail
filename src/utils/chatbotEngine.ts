@@ -37,18 +37,21 @@ export function parseCustomerOrDistributorIntent(
     text === 'admin login' ||
     text === '255' ||
     text === '1234' ||
-    text.includes('mwanahamisi login') ||
+    text.includes('distributor login') ||
+    text.includes('login') ||
     text === '*255*'
   ) {
     useDistributorStore.getState().setAdminAuthenticated(true);
+    const activeDist = useDistributorStore.getState().getActiveDistributor();
+    const leaderName = activeDist?.name || 'Kiongozi';
     return {
       id: msgId,
       sender: 'bot',
       timestamp: now,
       text:
         lang === 'sw'
-          ? `Karibu Mwanahamisi! (Distributor Command Center)\n\nUko kwenye chumba kikuu cha usimamizi wa biashara. Chagua unachotaka kufanya au andika kwa maneno ya kawaida:`
-          : `Welcome Mwanahamisi! (Distributor Command Center)\n\nYou are now in the business cockpit. Select what you would like to do or type naturally:`,
+          ? `Karibu ${leaderName}! (Distributor Command Center)\n\nUko kwenye chumba kikuu cha usimamizi wa biashara. Chagua unachotaka kufanya au andika kwa maneno ya kawaida:`
+          : `Welcome ${leaderName}! (Distributor Command Center)\n\nYou are now in the business cockpit. Select what you would like to do or type naturally:`,
       options: [
         { label: lang === 'sw' ? 'Fungua Dashibodi Kuu' : 'Open Admin Dashboard', action: 'cmd_admin_dashboard' },
         { label: lang === 'sw' ? '3-Month Fund Challenge (2,000 SV)' : '3-Month Fund Challenge', action: 'cmd_maintenance_tracker' },
@@ -312,7 +315,7 @@ export function parseCustomerOrDistributorIntent(
             `• Bubble C: Hutoa vitamini C ya kutosha kuimarisha kinga ya mwili.\n\n` +
             `BIDHAA ZINAZOPASWA KUEPŪKWA WAKATI WA UJAUZITO:\n` +
             `• Shake Off Phyto Fiber & MRT Complex: Hazishauriwi kwa wajawazito au wanaonyonyesha watoto chini ya miezi 6 kwa sababu usafishaji wa utumbo na upunguzaji wa kalori unaweza kuwa mzito kwa mtoto.\n\n` +
-            `Kwa maelezo zaidi ya dozi ya mama, bonyeza hapa chini kuwasiliana na Mwanahamisi.`
+            `Kwa maelezo zaidi ya dozi ya mama, bonyeza hapa chini kuwasiliana na mshauri wetu wa afya.`
           : `Pregnancy & Breastfeeding Safety Guide:\n\n` +
             `SAFE & HIGHLY BENEFICIAL PRODUCTS:\n` +
             `• Splina Liquid Chlorophyll: Highly recommended. Boosts red blood cell count (hemoglobin), neutralizes pregnancy heartburn, and enriches breast milk quality.\n` +
@@ -367,7 +370,7 @@ export function parseCustomerOrDistributorIntent(
       options: [
         { label: lang === 'sw' ? `Weka Splina Mkobani (${splina ? `TZS ${splina.price.toLocaleString()}` : 'Agiza'})` : `Add Splina to Cart (${splina ? `TZS ${splina.price.toLocaleString()}` : 'Order'})`, action: 'add_to_cart', payload: splina },
         { label: lang === 'sw' ? 'Weka Spirulina ya Vidonda' : 'Add Spirulina', action: 'add_to_cart', payload: spirulina },
-        { label: lang === 'sw' ? 'Ongea na Mwanahamisi WhatsApp' : 'Chat on WhatsApp', action: 'open_whatsapp_consult' },
+        { label: lang === 'sw' ? 'Ongea na Mshauri WhatsApp' : 'Chat on WhatsApp', action: 'open_whatsapp_consult' },
       ],
     };
   }
@@ -607,14 +610,14 @@ export function parseCustomerOrDistributorIntent(
       text:
         lang === 'sw'
           ? `Jinsi ya Kuwa Msambazaji Rasmi wa Edmark Tanzania:\n\n` +
-            `Kujiunga na biashara ya Edmark kupitia kiongozi wetu ${DISTRIBUTOR_NAME} kunakupa faida zifuatazo:\n\n` +
+            `Kujiunga na biashara ya Edmark kupitia mtandao wetu kunakupa faida zifuatazo:\n\n` +
             `• Punguzo la Bei ya Jumla (15% hadi 25% ya Faida ya Rejareja).\n` +
             `• Bonasi 9 tofauti za kila mwezi zikiwemo House Fund, Car Fund na Travel Fund.\n` +
             `• Duka lako binafsi la kisasa mtandaoni (Online Store Link) kama hili kwa jina lako.\n` +
             `• Mafunzo ya bure ya bidhaa na jinsi ya kuuza kupitia WhatsApp na mitandao ya kijamii.\n\n` +
-            `Bonyeza hapa chini kuwasiliana na Mwanahamisi upokee maelekezo ya kujiandikisha.`
+            `Bonyeza hapa chini kuwasiliana nasi upokee maelekezo ya kujiandikisha.`
           : `How to Become an Authorized Edmark Distributor:\n\n` +
-            `Partner with ${DISTRIBUTOR_NAME} to unlock direct wholesale distributor pricing (15-25% retail profit), 9 monthly company bonuses, your own replicated web storefront, and personal mentorship.\n\n` +
+            `Partner with us to unlock direct wholesale distributor pricing (15-25% retail profit), 9 monthly company bonuses, your own replicated web storefront, and personal mentorship.\n\n` +
             `Would you like to connect directly on WhatsApp to get registered?`,
       options: [
         { label: lang === 'sw' ? 'Jiunge Kupitia WhatsApp' : 'Connect on WhatsApp', action: 'open_whatsapp_consult' },
@@ -715,7 +718,7 @@ export function parseCustomerOrDistributorIntent(
       { label: lang === 'sw' ? 'Vidonda vya Tumbo & Asidi' : 'Stomach Ulcers & Acid', action: 'Vidonda vya Tumbo & Asidi' },
       { label: lang === 'sw' ? 'Nguvu & Stamina (Troika)' : 'Male Stamina & Energy', action: 'Nguvu & Stamina' },
       { label: lang === 'sw' ? 'Usafirishaji & Malipo' : 'Delivery & Payment Info', action: 'Usafirishaji & Malipo' },
-      { label: lang === 'sw' ? 'Mwanahamisi Admin Login' : 'Distributor Login', action: 'admin' },
+      { label: lang === 'sw' ? 'Kuingia Ofisi ya Msambazaji' : 'Distributor Portal Login', action: 'admin' },
     ],
   };
 }

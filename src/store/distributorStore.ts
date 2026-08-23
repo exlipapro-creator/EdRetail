@@ -326,6 +326,7 @@ interface DistributorStoreState {
   loginWithGoogle: (email?: string, name?: string) => DistributorProfile;
   loginWithApple: (email?: string, name?: string) => DistributorProfile;
   registerNewDistributor: (profile: Omit<DistributorProfile, 'id'>, pass?: string) => DistributorProfile;
+  switchDistributorProfile: (distId: string) => void;
   logoutDistributor: () => void;
   updateCurrentProfile: (updates: Partial<DistributorProfile>) => void;
   setActiveRefSlug: (slug: string | null) => void;
@@ -470,7 +471,7 @@ export const useDistributorStore = create<DistributorStoreState>()(
     (set, get) => ({
       isAdminAuthenticated: false,
       adminPin: '255', // Default distributor PIN
-      currentProfile: DEFAULT_DISTRIBUTOR,
+      currentProfile: CENTRAL_COMPANY_HUB,
       activeRefSlug: null,
       attribution: null,
       savedDistributors: INITIAL_DISTRIBUTORS_REGISTRY,
@@ -667,6 +668,19 @@ export const useDistributorStore = create<DistributorStoreState>()(
         });
         get().setAttributedDistributor(newDist.slug, 30);
         return newDist;
+      },
+
+      switchDistributorProfile: (distId: string) => {
+        const state = get();
+        const target = state.savedDistributors.find((d) => d.id === distId);
+        if (target) {
+          set({
+            currentProfile: target,
+            activeRefSlug: target.slug,
+            isAdminAuthenticated: true,
+          });
+          get().setAttributedDistributor(target.slug, 30);
+        }
       },
 
       logoutDistributor: () => {
@@ -1628,7 +1642,7 @@ export const useDistributorStore = create<DistributorStoreState>()(
       },
     }),
     {
-      name: 'mwanahamisi-distributor-suite',
+      name: 'edretail_distributor_storage_v3',
     }
   )
 );

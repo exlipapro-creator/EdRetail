@@ -35,8 +35,8 @@ export function OrdersHelpView() {
       step: '3',
       titleEn: '1-Tap WhatsApp Handoff',
       titleSw: 'Tuma Agizo Kupitia WhatsApp',
-      descEn: 'Our system compiles your order message cleanly. Tap send to dispatch directly to Mwanahamisi.',
-      descSw: 'Mfumo unaunda ujumbe nadhifu wa agizo lako. Gusa kitufe cha kutuma kwenda WhatsApp ya msambazaji.',
+      descEn: 'Our system compiles your order message cleanly. Tap send to dispatch directly to your authorized distributor.',
+      descSw: 'Mfumo unaunda ujumbe nadhifu wa agizo lako. Gusa kitufe cha kutuma kwenda WhatsApp ya msambazaji wako rasmi.',
       icon: MessageCircle,
     },
     {
@@ -71,7 +71,7 @@ export function OrdersHelpView() {
           <div className="mt-5">
             <a
               id="orders-help-whatsapp-btn"
-              href={`${WHATSAPP_LINK}?text=${encodeURIComponent('Hello Mwanahamisi, I would like to check on my order / ask for assistance:')}`}
+              href={`${WHATSAPP_LINK}?text=${encodeURIComponent('Hello ED Retail, I would like to check on my order / ask for assistance:')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0E6B52] hover:bg-[#082F28] active:bg-[#06241E] text-white rounded-xl text-xs font-bold shadow-md transition-transform active:scale-95"

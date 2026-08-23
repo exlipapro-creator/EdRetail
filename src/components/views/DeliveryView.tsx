@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { DELIVERY_ZONES } from '../../types';
 import { useLang } from '../../context/LangContext';
-import { WHATSAPP_LINK, DISTRIBUTOR_NAME } from '../../utils/whatsappCompiler';
+import { WHATSAPP_LINK } from '../../utils/whatsappCompiler';
 
 export function DeliveryView() {
   const { lang } = useLang();
@@ -46,7 +46,7 @@ export function DeliveryView() {
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <a
               id="delivery-hero-whatsapp-btn"
-              href={`${WHATSAPP_LINK}?text=${encodeURIComponent('Hello Mwanahamisi, I would like to inquire about delivery to my location:')}`}
+              href={`${WHATSAPP_LINK}?text=${encodeURIComponent('Hello ED Retail, I would like to inquire about delivery to my location:')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-primary-700 hover:bg-primary-50 rounded-xl text-xs font-bold shadow-md transition-transform active:scale-95"
@@ -221,7 +221,7 @@ export function DeliveryView() {
           </div>
           <div>
             <h3 className="font-bold text-emerald-950 text-sm">
-              {lang === 'sw' ? `Una swali la usafirishaji? Wasiliana na ${DISTRIBUTOR_NAME}` : `Need custom delivery assistance? Chat with ${DISTRIBUTOR_NAME}`}
+              {lang === 'sw' ? 'Una swali la usafirishaji? Wasiliana na Msambazaji' : 'Need custom delivery assistance? Chat on WhatsApp'}
             </h3>
             <p className="text-xs text-emerald-800 mt-0.5">
               {lang === 'sw' ? 'Tunajibu ndani ya dakika 30 kupitia WhatsApp.' : 'Average WhatsApp response time: under 30 minutes.'}
@@ -231,7 +231,7 @@ export function DeliveryView() {
 
         <a
           id="delivery-chat-whatsapp-btn"
-          href={`${WHATSAPP_LINK}?text=${encodeURIComponent('Hello Mwanahamisi, I need assistance with delivery timing for my order.')}`}
+          href={`${WHATSAPP_LINK}?text=${encodeURIComponent('Hello ED Retail, I need assistance with delivery timing for my order.')}`}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full sm:w-auto px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md text-center transition-colors flex-shrink-0"

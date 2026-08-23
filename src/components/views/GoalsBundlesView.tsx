@@ -450,11 +450,11 @@ export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
       <div className="p-5 bg-neutral-100 rounded-2xl border border-neutral-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-neutral-800 text-xs">
         <p className="leading-relaxed text-center sm:text-left font-medium text-neutral-700">
           {lang === 'sw'
-            ? `Je, unahitaji mpango uliotengenezwa mahususi kwako? Wasiliana na ${DISTRIBUTOR_NAME} moja kwa moja kwa ushauri wa bure.`
-            : `Need a personalized plan tailored to your medical history? Chat directly with ${DISTRIBUTOR_NAME} on WhatsApp.`}
+            ? 'Je, unahitaji mpango uliotengenezwa mahususi kwako? Wasiliana na msambazaji wetu moja kwa moja kwa ushauri wa bure.'
+            : 'Need a personalized plan tailored to your health goals? Chat directly with an authorized wellness coach on WhatsApp.'}
         </p>
         <a
-          href={`${WHATSAPP_LINK}?text=${encodeURIComponent('Hello Mwanahamisi, I would like a personalized wellness recommendation:')}`}
+          href={`${WHATSAPP_LINK}?text=${encodeURIComponent('Hello ED Retail, I would like a personalized wellness recommendation:')}`}
           target="_blank"
           rel="noopener noreferrer"
           className="px-5 py-2.5 bg-[#0E6B52] hover:bg-[#082F28] active:bg-[#06241E] text-white rounded-xl font-bold whitespace-nowrap shadow-xs transition-colors flex items-center gap-2"

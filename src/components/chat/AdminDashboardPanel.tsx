@@ -132,7 +132,7 @@ export const AdminDashboardPanel: React.FC<AdminDashboardPanelProps> = ({
               <span className="text-emerald-400 text-xs font-semibold">Live Real-time Sync</span>
             </div>
             <h2 className="text-base sm:text-lg font-black text-white mt-1">
-              {lang === 'sw' ? 'Dashibodi Kuu ya Mwanahamisi' : 'Mwanahamisi Business Dashboard'}
+              {lang === 'sw' ? `Dashibodi ya ${distributor.name || 'Msambazaji'}` : `${distributor.name || 'Distributor'} Business Dashboard`}
             </h2>
             <p className="text-xs text-stone-300">
               {lang === 'sw'
