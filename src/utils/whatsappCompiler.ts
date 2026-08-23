@@ -106,17 +106,24 @@ export const buildOrderMessage = (
     ? `Kituo Kikuu: ED Retail Central Hub (Tanzania)`
     : `Msambazaji Mteule: ${active.name} (${active.rank || 'Distributor'} - ${active.city})`;
 
-  const paymentMethodLabels: Record<string, { sw: string; en: string }> = {
-    mpesa: { sw: 'Vodacom M-Pesa', en: 'Vodacom M-Pesa' },
-    tigopesa: { sw: 'Tigo Pesa (Mixx by Yas)', en: 'Tigo Pesa (Mixx by Yas)' },
-    airtel: { sw: 'Airtel Money', en: 'Airtel Money' },
-    halopesa: { sw: 'Halopesa', en: 'Halopesa' },
-    cash: { sw: 'Pesa Taslimu Wakati wa Kupokea (Dar Pekee)', en: 'Cash on Delivery (Dar Only)' },
-  };
+  const acc = customer.selectedPaymentAccount;
+  const selectedPaymentText = acc
+    ? `${acc.networkName} - ${acc.accountTypeName}: ${acc.accountNumber} (${acc.accountName})`
+    : customer.paymentMethod === 'cash'
+    ? (lang === 'sw' ? 'Pesa Taslimu Wakati wa Kupokea (Dar Pekee)' : 'Cash on Delivery (Dar Only)')
+    : (lang === 'sw' ? 'Vodacom M-Pesa / Tigo Pesa' : 'Vodacom M-Pesa / Tigo Pesa');
 
-  const selectedPaymentText = customer.paymentMethod && paymentMethodLabels[customer.paymentMethod]
-    ? paymentMethodLabels[customer.paymentMethod][lang]
-    : lang === 'sw' ? 'Vodacom M-Pesa / Tigo Pesa' : 'Vodacom M-Pesa / Tigo Pesa';
+  const step2Text = acc
+    ? (lang === 'sw'
+        ? `2. Tafadhali thibitisha kupokea malipo kwenye ${acc.networkName} ${acc.accountTypeName}: ${acc.accountNumber} (Jina: ${acc.accountName}).`
+        : `2. Please verify receipt of payment on ${acc.networkName} ${acc.accountTypeName}: ${acc.accountNumber} (Name: ${acc.accountName}).`)
+    : customer.paymentMethod === 'cash'
+    ? (lang === 'sw'
+        ? `2. Thibitisha kuwa mzigo unalipwa taslimu (Cash on Delivery) baada ya kuletewa na msafirishaji.`
+        : `2. Confirm Cash on Delivery arrangement upon parcel handover.`)
+    : (lang === 'sw'
+        ? `2. Unitumie Lipa Namba / Namba rasmi yenye jina sahihi la kupokea malipo.`
+        : `2. Please provide the official verified Lipa Namba and recipient name.`);
 
   if (lang === 'sw') {
     return [
@@ -129,7 +136,7 @@ export const buildOrderMessage = (
       `  - Jina: ${escapeMessageText(customer.name)}`,
       `  - Simu: ${sanitisedPhone}`,
       `  - Mahali / Kituo: ${escapeMessageText(customer.location)}`,
-      `  - Njia ya Malipo Inayopendekezwa: ${selectedPaymentText}`,
+      `  - Njia ya Malipo: ${selectedPaymentText}`,
       '',
       'ORODHA YA BIDHAA:',
       itemLines,
@@ -139,7 +146,7 @@ export const buildOrderMessage = (
       '==============================',
       'HATUA ZA KUKAMILISHA AGIZO:',
       '1. Tafadhali thibitisha upatikanaji wa bidhaa hizi na gharama ya usafirishaji.',
-      `2. Unitumie Lipa Namba / Namba rasmi ya ${selectedPaymentText} yenye jina sahihi la kupokea malipo.`,
+      step2Text,
       '3. Baada ya kulipa, nitatuma ujumbe wa muamala hapa kwa ajili ya kufungasha na kusafirisha.',
       '==============================',
     ].join('\n');
@@ -155,7 +162,7 @@ export const buildOrderMessage = (
     `  - Name: ${escapeMessageText(customer.name)}`,
     `  - Phone: ${sanitisedPhone}`,
     `  - Location: ${escapeMessageText(customer.location)}`,
-    `  - Preferred Payment Method: ${selectedPaymentText}`,
+    `  - Payment Method: ${selectedPaymentText}`,
     '',
     'ORDER ITEMS:',
     itemLines,
@@ -165,7 +172,7 @@ export const buildOrderMessage = (
     '==============================',
     'ORDER VERIFICATION STEPS:',
     '1. Please confirm product stock availability and delivery schedule.',
-    `2. Please provide the official verified ${selectedPaymentText} Lipa Namba and recipient name.`,
+    step2Text,
     '3. After payment, I will send the confirmation SMS here for immediate dispatch.',
     '==============================',
   ].join('\n');

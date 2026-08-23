@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Home, LayoutGrid, Sparkles, Truck, MessageCircle } from 'lucide-react';
+import { Home, LayoutGrid, Sparkles, Truck, ShieldCheck } from 'lucide-react';
 import { useLang } from '../../context/LangContext';
 import { ScreenId } from './AppHeader';
 
@@ -39,7 +39,7 @@ export function BottomNavigation({ currentScreen, onNavigate }: BottomNavigation
     },
     {
       id: 'distributor' as ScreenId,
-      icon: MessageCircle,
+      icon: ShieldCheck,
       labelEn: 'Distributor',
       labelSw: 'Msambazaji',
     },

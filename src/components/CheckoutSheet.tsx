@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -28,7 +28,7 @@ import {
   TARGET_PHONE,
 } from '../utils/whatsappCompiler';
 import { useLang } from '../context/LangContext';
-import { PRODUCTS, DELIVERY_ZONES, PaymentMethodOption } from '../types';
+import { PRODUCTS, DELIVERY_ZONES, PaymentNetwork, DistributorPaymentAccount } from '../types';
 import { ReferralShareButton } from './ReferralShare';
 import { motionTokens } from '../design/motion';
 import { supabase } from '../lib/supabase';
@@ -42,12 +42,14 @@ interface CheckoutSheetProps {
 export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
   const { lang, t } = useLang();
   const { items, updateQuantity, clearCart, addItem } = useCartStore();
+  const activeDistributor = useDistributorStore((s) => s.getActiveDistributor());
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [location, setLocation] = useState('');
   const [selectedZone, setSelectedZone] = useState('Dar es Salaam');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodOption>('mpesa');
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+  const [copiedAccountId, setCopiedAccountId] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,6 +65,52 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
 
   const upsellProducts = PRODUCTS.filter((p) => !items.some((i) => i.id === p.id)).slice(0, 3);
+
+  // Derive available payment accounts for the currently active coach/distributor
+  const availableAccounts: DistributorPaymentAccount[] = useMemo(() => {
+    if (activeDistributor.paymentAccounts && activeDistributor.paymentAccounts.length > 0) {
+      return activeDistributor.paymentAccounts;
+    }
+    // Dynamic fallback for custom/legacy distributor profiles
+    const mpesaTillMatch = activeDistributor.lipaNumber?.match(/\d{5,8}/);
+    const tillDigits = mpesaTillMatch ? mpesaTillMatch[0] : '543210';
+    return [
+      {
+        id: 'acc-fallback-mpesa',
+        network: 'mpesa',
+        networkName: 'Vodacom M-Pesa',
+        accountType: 'till',
+        accountTypeName: 'Lipa Kwa Simu (Till)',
+        accountNumber: tillDigits,
+        accountName: activeDistributor.name,
+        isDefault: true,
+      },
+      {
+        id: 'acc-fallback-tigo',
+        network: 'tigopesa',
+        networkName: 'Tigo Pesa (Mixx by Yas)',
+        accountType: 'phone',
+        accountTypeName: 'Namba ya Simu',
+        accountNumber: activeDistributor.phone.replace(/[^\d+]/g, ''),
+        accountName: activeDistributor.name,
+      },
+    ];
+  }, [activeDistributor]);
+
+  // Ensure an account is always selected by default
+  useEffect(() => {
+    if (availableAccounts.length > 0 && !selectedAccountId) {
+      const defaultAcc = availableAccounts.find((a) => a.isDefault) || availableAccounts[0];
+      setSelectedAccountId(defaultAcc.id);
+    }
+  }, [availableAccounts, selectedAccountId]);
+
+  const selectedAccount = useMemo(() => {
+    if (selectedAccountId === 'cash') return undefined;
+    return availableAccounts.find((a) => a.id === selectedAccountId) || availableAccounts[0];
+  }, [availableAccounts, selectedAccountId]);
+
+  const paymentMethod: PaymentNetwork = selectedAccountId === 'cash' ? 'cash' : selectedAccount?.network || 'mpesa';
 
   const validate = (n = name, p = phone, l = location) => {
     const errs = validateCustomer(n, p, l);
@@ -95,12 +143,22 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
 
     setIsSubmitting(true);
     const locWithZone = fullLocationString.trim();
-    const customerPayload = { name, phone, location: locWithZone, paymentMethod };
+    const customerPayload = {
+      name,
+      phone,
+      location: locWithZone,
+      paymentMethod,
+      selectedPaymentAccount: selectedAccount,
+    };
     const url = compileWhatsAppMessage(items, customerPayload, lang);
     setOrderUrl(url);
 
     // 1. Auto-record order into Distributor Store Field Ledger as Pending Web Order
     try {
+      const paymentSummary = selectedAccount
+        ? `${selectedAccount.networkName} (${selectedAccount.accountTypeName}: ${selectedAccount.accountNumber})`
+        : 'Cash on Delivery';
+
       useDistributorStore.getState().addWebOrder({
         customerName: name.trim(),
         customerPhone: phone.trim(),
@@ -112,7 +170,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
           quantity: i.quantity,
         })),
         totalAmount: totalPrice,
-        notes: `Zone: ${selectedZone || 'Tanzania'} | Payment: ${paymentMethod.toUpperCase()}`,
+        notes: `Zone: ${selectedZone || 'Tanzania'} | Njia ya Malipo: ${paymentSummary}`,
       });
     } catch (e) {
       console.warn('Local ledger sync notice:', e);
@@ -156,7 +214,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
     setName('');
     setPhone('');
     setLocation('');
-    setPaymentMethod('mpesa');
+    if (availableAccounts[0]) setSelectedAccountId(availableAccounts[0].id);
     setErrors({});
     setTouched({});
     setShowPreview(false);
@@ -164,7 +222,17 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
 
   const isValid = Object.keys(validateCustomer(name, phone, location)).length === 0 && items.length > 0;
   const previewMessage = isValid
-    ? buildOrderMessage(items, { name, phone, location: fullLocationString.trim(), paymentMethod }, lang)
+    ? buildOrderMessage(
+        items,
+        {
+          name,
+          phone,
+          location: fullLocationString.trim(),
+          paymentMethod,
+          selectedPaymentAccount: selectedAccount,
+        },
+        lang
+      )
     : '';
 
   const handleCopyMessage = () => {
@@ -172,6 +240,13 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
     navigator.clipboard.writeText(previewMessage);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyAccount = (accountNumber: string, accountId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(accountNumber);
+    setCopiedAccountId(accountId);
+    setTimeout(() => setCopiedAccountId(null), 2500);
   };
 
   return (
@@ -248,10 +323,51 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                       </h3>
                       <p className="text-xs text-stone-600 max-w-md mx-auto">
                         {lang === 'sw'
-                          ? `Jumla ya TZS ${formatPrice(totalPrice)} kwa bidhaa ${totalItems}. Bofya kitufe hapa chini ili kumtumia Msambazaji wako (${DISTRIBUTOR_NAME}) na kuthibitisha malipo.`
-                          : `Total: TZS ${formatPrice(totalPrice)} for ${totalItems} item${totalItems !== 1 ? 's' : ''}. Tap below to connect with ${DISTRIBUTOR_NAME} on WhatsApp.`}
+                          ? `Jumla ya TZS ${formatPrice(totalPrice)} kwa bidhaa ${totalItems}. Agizo lako na namba ya malipo vimeandaliwa kutumwa kwa Msambazaji wako (${activeDistributor.name}).`
+                          : `Total: TZS ${formatPrice(totalPrice)} for ${totalItems} item${totalItems !== 1 ? 's' : ''}. Your order with verified payment instructions is ready for ${activeDistributor.name}.`}
                       </p>
                     </div>
+
+                    {/* Prominent Payment Details Card */}
+                    {selectedAccount && (
+                      <div className="w-full bg-stone-900 text-white rounded-2xl p-4 text-left shadow-md">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[11px] font-bold uppercase tracking-wider text-stone-300">
+                            {lang === 'sw' ? 'Namba ya Malipo Uliyochagua' : 'Selected Payment Number'}
+                          </span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white/20 text-white">
+                            {selectedAccount.networkName}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-mono text-xl sm:text-2xl font-black text-amber-300 tracking-wider">
+                              {selectedAccount.accountNumber}
+                            </div>
+                            <div className="text-xs text-stone-300 mt-0.5">
+                              {selectedAccount.accountTypeName} · <strong className="text-white">{selectedAccount.accountName}</strong>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={(e) => handleCopyAccount(selectedAccount.accountNumber, 'success-box', e)}
+                            className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
+                          >
+                            {copiedAccountId === 'success-box' ? (
+                              <>
+                                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                <span>{lang === 'sw' ? 'Imenakiliwa' : 'Copied'}</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-3.5 h-3.5" />
+                                <span>{lang === 'sw' ? 'Nakili' : 'Copy'}</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Verification Reminder Box */}
                     <div className="w-full text-left bg-stone-50 border border-stone-200 rounded-2xl p-4 space-y-3">
@@ -267,8 +383,8 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                           </span>
                           <p>
                             {lang === 'sw'
-                              ? 'Tuma ujumbe huu kwa WhatsApp na umwombe Msambazaji akuthibitishie upatikanaji wa bidhaa na akutumie Lipa Namba / Namba rasmi yenye jina sahihi.'
-                              : 'Send this message and ask your coach to confirm product availability and provide the verified official payment number.'}
+                              ? `Tuma ujumbe huu kwa WhatsApp. Msambazaji (${activeDistributor.name}) atakuthibitishia mzigo na malipo kwenye Lipa Namba hii.`
+                              : `Send this message. Your coach (${activeDistributor.name}) will verify stock and confirm receipt on this payment number.`}
                           </p>
                         </div>
 
@@ -278,7 +394,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                           </span>
                           <p>
                             {lang === 'sw'
-                              ? 'Baada ya kulipia, tuma ujumbe wa uthibitisho (SMS ya M-Pesa / Tigo Pesa) kwenye WhatsApp hiyohiyo ili kifurushi chako kipakiwe mara moja.'
+                              ? 'Baada ya kulipia, tuma ujumbe wa uthibitisho (SMS ya muamala) kwenye WhatsApp hiyohiyo ili kifurushi chako kipakiwe mara moja.'
                               : 'After payment, forward the transaction confirmation SMS in the chat for instant packaging and dispatch.'}
                           </p>
                         </div>
@@ -565,53 +681,166 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                         )}
                       </div>
 
-                      {/* Payment Method Selector */}
-                      <div>
-                        <label className="block text-xs font-bold text-stone-700 mb-1.5">
-                          {lang === 'sw' ? 'Njia ya Malipo Unayopendelea' : 'Preferred Payment Method'}
-                        </label>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          {[
-                            { id: 'mpesa' as PaymentMethodOption, label: 'Vodacom M-Pesa', badge: 'Lipa Namba' },
-                            { id: 'tigopesa' as PaymentMethodOption, label: 'Tigo Pesa', badge: 'Mixx by Yas' },
-                            { id: 'airtel' as PaymentMethodOption, label: 'Airtel Money', badge: 'Lipa' },
-                            { id: 'halopesa' as PaymentMethodOption, label: 'Halopesa', badge: 'Lipa' },
-                            { id: 'cash' as PaymentMethodOption, label: lang === 'sw' ? 'Pesa Mkononi' : 'Cash on Delivery', badge: 'Dar Only' },
-                          ].map((method) => {
-                            const isSelected = paymentMethod === method.id;
-                            return (
-                              <button
-                                key={method.id}
-                                type="button"
-                                id={`payment-method-${method.id}`}
-                                onClick={() => setPaymentMethod(method.id)}
-                                className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all ${
-                                  isSelected
-                                    ? 'bg-stone-900 border-stone-900 text-white shadow-2xs'
-                                    : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100'
-                                }`}
-                              >
-                                <div className="flex items-center justify-between w-full mb-1">
-                                  <span className={`text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded ${
-                                    isSelected ? 'bg-white/20 text-white' : 'bg-stone-200 text-stone-600'
-                                  }`}>
-                                    {method.badge}
-                                  </span>
-                                  {isSelected && <Check className="w-3.5 h-3.5 text-emerald-400" />}
+                        {/* Available Lipa Namba & Payment Accounts Display */}
+                        <div className="pt-2">
+                          <div className="flex items-center justify-between mb-2">
+                            <div>
+                              <label className="block text-xs font-bold text-stone-900">
+                                {lang === 'sw' ? 'Chagua Namba ya Malipo ya Msambazaji' : 'Choose Verified Payment Account'}
+                              </label>
+                              <p className="text-[11px] text-stone-500">
+                                {lang === 'sw'
+                                  ? `Akaunti halisi zilizosajiliwa za ${activeDistributor.name}`
+                                  : `Verified payment accounts for ${activeDistributor.name}`}
+                              </p>
+                            </div>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                              {lang === 'sw' ? 'Imethibitishwa' : 'Verified'}
+                            </span>
+                          </div>
+
+                          <div className="space-y-2">
+                            {availableAccounts.map((account) => {
+                              const isSelected = selectedAccountId === account.id;
+
+                              // Network theme indicators
+                              const networkStyles = {
+                                mpesa: {
+                                  badge: 'bg-red-600 text-white',
+                                  borderSelected: 'border-red-600 bg-red-50/40',
+                                  tag: 'Vodacom M-Pesa',
+                                },
+                                tigopesa: {
+                                  badge: 'bg-sky-600 text-white',
+                                  borderSelected: 'border-sky-600 bg-sky-50/40',
+                                  tag: 'Tigo Pesa',
+                                },
+                                airtel: {
+                                  badge: 'bg-rose-600 text-white',
+                                  borderSelected: 'border-rose-600 bg-rose-50/40',
+                                  tag: 'Airtel Money',
+                                },
+                                halopesa: {
+                                  badge: 'bg-amber-600 text-white',
+                                  borderSelected: 'border-amber-600 bg-amber-50/40',
+                                  tag: 'Halopesa',
+                                },
+                                bank: {
+                                  badge: 'bg-emerald-700 text-white',
+                                  borderSelected: 'border-emerald-700 bg-emerald-50/40',
+                                  tag: 'Benki (CRDB/NMB)',
+                                },
+                                cash: {
+                                  badge: 'bg-stone-700 text-white',
+                                  borderSelected: 'border-stone-900 bg-stone-50',
+                                  tag: 'Cash',
+                                },
+                              }[account.network] || {
+                                badge: 'bg-stone-700 text-white',
+                                borderSelected: 'border-stone-900 bg-stone-50',
+                                tag: account.networkName,
+                              };
+
+                              return (
+                                <div
+                                  key={account.id}
+                                  id={`payment-acc-${account.id}`}
+                                  onClick={() => setSelectedAccountId(account.id)}
+                                  className={`p-3 rounded-2xl border transition-all cursor-pointer relative ${
+                                    isSelected
+                                      ? `${networkStyles.borderSelected} ring-2 ring-stone-900/10 shadow-2xs`
+                                      : 'bg-stone-50 border-stone-200 hover:bg-stone-100/80'
+                                  }`}
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex items-center gap-2">
+                                      <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${networkStyles.badge}`}>
+                                        {networkStyles.tag}
+                                      </span>
+                                      <span className="text-[11px] font-semibold text-stone-600 bg-white px-2 py-0.5 rounded border border-stone-200">
+                                        {account.accountTypeName}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                      <button
+                                        type="button"
+                                        onClick={(e) => handleCopyAccount(account.accountNumber, account.id, e)}
+                                        className="text-[11px] font-bold text-stone-600 hover:text-stone-900 bg-white hover:bg-stone-100 px-2.5 py-1 rounded-lg border border-stone-200 flex items-center gap-1 transition-colors"
+                                        title="Copy number"
+                                      >
+                                        {copiedAccountId === account.id ? (
+                                          <>
+                                            <Check className="w-3 h-3 text-emerald-600" />
+                                            <span className="text-emerald-700">{lang === 'sw' ? 'Imenakiliwa' : 'Copied'}</span>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Copy className="w-3 h-3 text-stone-400" />
+                                            <span>{lang === 'sw' ? 'Nakili' : 'Copy'}</span>
+                                          </>
+                                        )}
+                                      </button>
+                                      <div
+                                        className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                                          isSelected ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-300 bg-white'
+                                        }`}
+                                      >
+                                        {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="mt-2 flex items-baseline justify-between gap-2">
+                                    <div>
+                                      <div className="font-mono text-base sm:text-lg font-black text-stone-900 tracking-wide">
+                                        {account.accountNumber}
+                                      </div>
+                                      <div className="text-[11px] text-stone-500 mt-0.5">
+                                        {lang === 'sw' ? 'Jina Lililosajiliwa:' : 'Registered Name:'}{' '}
+                                        <strong className="text-stone-800 font-semibold">{account.accountName}</strong>
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
-                                <span className={`text-xs font-bold leading-tight ${isSelected ? 'text-white' : 'text-stone-900'}`}>
-                                  {method.label}
-                                </span>
-                              </button>
-                            );
-                          })}
+                              );
+                            })}
+
+                            {/* Cash on Delivery Option */}
+                            <div
+                              id="payment-acc-cash"
+                              onClick={() => setSelectedAccountId('cash')}
+                              className={`p-3 rounded-2xl border transition-all cursor-pointer relative ${
+                                selectedAccountId === 'cash'
+                                  ? 'border-stone-900 bg-stone-50 ring-2 ring-stone-900/10 shadow-2xs'
+                                  : 'bg-stone-50 border-stone-200 hover:bg-stone-100/80'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-stone-800 text-white">
+                                    {lang === 'sw' ? 'Pesa Taslimu' : 'Cash'}
+                                  </span>
+                                  <span className="text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                                    {lang === 'sw' ? 'Dar es Salaam Pekee' : 'Dar es Salaam Only'}
+                                  </span>
+                                </div>
+                                <div
+                                  className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                                    selectedAccountId === 'cash' ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-300 bg-white'
+                                  }`}
+                                >
+                                  {selectedAccountId === 'cash' && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                                </div>
+                              </div>
+                              <p className="text-xs text-stone-600 mt-1.5 font-medium">
+                                {lang === 'sw'
+                                  ? 'Lipa mkononi wakati wa kupokea mzigo kutoka kwa msafirishaji (Inapatikana maeneo ya Dar es Salaam).'
+                                  : 'Pay cash on delivery upon physical receipt of package (Available within Dar es Salaam).'}
+                              </p>
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-[11px] text-stone-500 mt-1.5">
-                          {lang === 'sw'
-                            ? 'Msambazaji atakutumia Lipa Namba au maelezo sahihi ya mtandao huu mara tu atakapopokea agizo lako WhatsApp.'
-                            : 'Your coach will share the exact merchant till / Lipa Namba for your chosen network upon receiving your order on WhatsApp.'}
-                        </p>
-                      </div>
                     </div>
                   )}
 

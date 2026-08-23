@@ -28,8 +28,6 @@ export function AppHeader({
   searchValue = '',
   onSearchChange,
   onOpenFlyerStudio,
-  onOpenDistributorAuth,
-  onOpenBackOffice,
   onOpenStoreLinkModal,
 }: AppHeaderProps) {
   const { lang, setLang } = useLang();
@@ -210,31 +208,28 @@ export function AppHeader({
           </motion.button>
 
           {/* Distributor Leader Portal / Back-Office Cockpit Trigger */}
-          {(onOpenBackOffice || onOpenDistributorAuth) && (
-            <button
-              id="distributor-auth-trigger-btn"
-              onClick={() => {
-                if (onOpenBackOffice) onOpenBackOffice();
-                else if (onOpenDistributorAuth) onOpenDistributorAuth();
-              }}
-              className={`p-2 rounded-xl border transition-all flex items-center gap-1.5 ${
-                isAdminAuthenticated
-                  ? 'bg-emerald-700 text-white border-emerald-800 shadow-2xs'
-                  : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-700 border-neutral-200'
-              }`}
-              title={
-                isAdminAuthenticated
-                  ? `${distributor.name} • ${lang === 'sw' ? 'Fungua Ofisi ya Msambazaji' : 'Leader Back-Office'}`
-                  : (lang === 'sw' ? 'Kuingia Msambazaji (Leader PIN)' : 'Distributor Leader Portal')
-              }
-              aria-label="Distributor Account & Back-Office"
-            >
-              <ShieldCheck className="w-4 h-4 text-amber-400" />
-              <span className="hidden xl:inline text-[11px] font-extrabold">
-                {isAdminAuthenticated ? (lang === 'sw' ? 'Ofisi Yangu' : 'Back-Office') : (lang === 'sw' ? 'Msambazaji' : 'Distributor')}
-              </span>
-            </button>
-          )}
+          <button
+            id="distributor-auth-trigger-btn"
+            onClick={() => onNavigate('distributor')}
+            className={`p-2 rounded-xl border transition-all flex items-center gap-1.5 cursor-pointer ${
+              currentScreen === 'distributor'
+                ? 'bg-emerald-800 text-white border-emerald-900 shadow-xs'
+                : isAdminAuthenticated
+                ? 'bg-emerald-700 text-white border-emerald-800 shadow-2xs hover:bg-emerald-800'
+                : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-700 border-neutral-200'
+            }`}
+            title={
+              isAdminAuthenticated
+                ? `${distributor.name} • ${lang === 'sw' ? 'Fungua Ofisi ya Msambazaji (Full Page)' : 'Leader Back-Office (Full Page)'}`
+                : (lang === 'sw' ? 'Ofisi ya Msambazaji (Leader PIN)' : 'Distributor Leader Portal')
+            }
+            aria-label="Distributor Account & Back-Office"
+          >
+            <ShieldCheck className="w-4 h-4 text-amber-400" />
+            <span className="hidden xl:inline text-[11px] font-extrabold">
+              {isAdminAuthenticated ? (lang === 'sw' ? 'Ofisi Yangu' : 'Back-Office') : (lang === 'sw' ? 'Msambazaji' : 'Distributor')}
+            </span>
+          </button>
 
           {/* Direct Admin link if verified */}
           <Link

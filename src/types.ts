@@ -45,13 +45,26 @@ export interface CartItem extends Omit<Product, 'name' | 'description' | 'usage'
   quantity: number;
 }
 
-export type PaymentMethodOption = 'mpesa' | 'tigopesa' | 'airtel' | 'halopesa' | 'cash';
+export type PaymentNetwork = 'mpesa' | 'tigopesa' | 'airtel' | 'halopesa' | 'bank' | 'cash';
+export type PaymentAccountType = 'till' | 'paybill' | 'phone' | 'bank_account' | 'cash';
+
+export interface DistributorPaymentAccount {
+  id: string;
+  network: PaymentNetwork;
+  networkName: string; // e.g. 'Vodacom M-Pesa'
+  accountType: PaymentAccountType;
+  accountTypeName: string; // e.g. 'Lipa Kwa Simu (Till)'
+  accountNumber: string; // e.g. '543210' or '0783481416'
+  accountName: string; // e.g. 'Mwanahamisi Lissu (ED Retail)'
+  isDefault?: boolean;
+}
 
 export interface CustomerDetails {
   name: string;
   phone: string;
   location: string;
-  paymentMethod?: PaymentMethodOption;
+  paymentMethod?: PaymentNetwork;
+  selectedPaymentAccount?: DistributorPaymentAccount;
 }
 
 export interface Category {

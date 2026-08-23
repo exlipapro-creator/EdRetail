@@ -162,7 +162,12 @@ function App() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2 }}
             >
-              <DistributorView onOpenBackOffice={() => setIsBackOfficeOpen(true)} />
+              <DistributorView
+                onNavigateHome={() => setCurrentScreen('home')}
+                onNavigateProducts={() => setCurrentScreen('products')}
+                onOpenFlyerStudio={() => setIsFlyerStudioOpen(true)}
+                onOpenStoreLinkModal={() => setIsStoreLinkOpen(true)}
+              />
             </motion.div>
           )}
 

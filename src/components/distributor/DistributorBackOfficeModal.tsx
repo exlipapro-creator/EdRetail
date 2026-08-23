@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   X,
   ShieldCheck,
@@ -8,21 +8,25 @@ import {
   TrendingUp,
   Award,
   BookOpen,
+  CreditCard,
   Bot,
   Sparkles,
   Plus,
   Send,
+  ArrowLeft,
+  Zap,
   RefreshCw,
   CheckCircle2,
-  Zap,
 } from 'lucide-react';
 import { useLang } from '../../context/LangContext';
 import { useDistributorStore } from '../../store/distributorStore';
 import { MaintenanceTrackerPanel } from '../chat/MaintenanceTrackerPanel';
 import { FieldLedgerPanel } from '../chat/FieldLedgerPanel';
 import { AdminDashboardPanel } from '../chat/AdminDashboardPanel';
+import { PaymentAccountsManager } from './PaymentAccountsManager';
+import { LogOfflineSaleModal } from './LogOfflineSaleModal';
 import { parseCustomerOrDistributorIntent, ChatMessage } from '../../utils/chatbotEngine';
-import { WHATSAPP_LINK, DISTRIBUTOR_PHONE, DISTRIBUTOR_NAME } from '../../utils/whatsappCompiler';
+import { WHATSAPP_LINK } from '../../utils/whatsappCompiler';
 
 interface DistributorBackOfficeModalProps {
   isOpen: boolean;
@@ -40,21 +44,11 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
   const isAdminAuthenticated = useDistributorStore((s) => s.isAdminAuthenticated);
   const setAdminAuthenticated = useDistributorStore((s) => s.setAdminAuthenticated);
   const verifyPin = useDistributorStore((s) => s.verifyPin);
-  const addSale = useDistributorStore((s) => s.addSale);
-  const getLiveProducts = useDistributorStore((s) => s.getEffectiveProducts);
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'maintenance' | 'ledger' | 'catalog' | 'automations'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'payments' | 'maintenance' | 'ledger' | 'automations' | 'profile'>('overview');
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState(false);
   const [showSaleModal, setShowSaleModal] = useState(false);
-
-  // Sale form states
-  const [saleCustomerName, setSaleCustomerName] = useState('');
-  const [salePhone, setSalePhone] = useState('');
-  const [saleProduct, setSaleProduct] = useState('shake-off-phyto');
-  const [saleAmountPaid, setSaleAmountPaid] = useState('');
-  const [saleType, setSaleType] = useState<'cash' | 'credit' | 'mobile_money'>('cash');
-  const [saleDueDate, setSaleDueDate] = useState('');
 
   // Automation & Assistant Simulator States
   const [simQuery, setSimQuery] = useState('Nina vidonda vya tumbo nitumie nini?');
@@ -64,8 +58,6 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
   const [customClientProduct, setCustomClientProduct] = useState('Shake Off & MRT Complex');
 
   if (!isOpen) return null;
-
-  const liveProducts = getLiveProducts();
 
   const handleVerifyPin = () => {
     const success = verifyPin(pinInput);
@@ -89,17 +81,17 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
 
     if (sequenceType === 'day3_detox') {
       msg =
-        `Habari ${customClientName}! Ni ${DISTRIBUTOR_NAME} kutoka ED Retail. ` +
+        `Habari ${customClientName}! Ni ${distributor.name} kutoka ED Retail. ` +
         `Uko kwenye Siku ya 3 ya dozi yako ya ${customClientProduct}. ` +
         `Je, unakunywa maji ya kutosha (lita 2–3 kwa siku)? Utumbo unavyojisafisha unahitaji maji mengi kurahisisha kutoa sumu. Nambie jinsi unavyojisikia leo!`;
     } else if (sequenceType === 'day7_ulcer') {
       msg =
-        `Habari ${customClientName}! Ni ${DISTRIBUTOR_NAME}. ` +
+        `Habari ${customClientName}! Ni ${distributor.name}. ` +
         `Hongera kwa kukamilisha wiki ya kwanza ya mpango wako wa ${customClientProduct}. ` +
         `Je, maumivu ya tumbo, kiungulia, au gesi vimepungua? Splina na Spirulina zinaendelea kutibu kuta za utumbo. Tuma mrejesho wako!`;
     } else if (sequenceType === 'day14_refill') {
       msg =
-        `Habari ${customClientName}! Ni ${DISTRIBUTOR_NAME}. ` +
+        `Habari ${customClientName}! Ni ${distributor.name}. ` +
         `Umefika nusu ya ratiba yako ya ${customClientProduct}. ` +
         `Ili usikatishe dozi yako na matokeo yaendelee kwa kasi, ungependa nikuwekee oda ya kifurushi cha pili mapema kabla ya stoo kuisha?`;
     } else {
@@ -114,235 +106,233 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
     window.open(waUrl, '_blank');
   };
 
-  const handleSaveOfflineSale = (e: React.FormEvent) => {
-    e.preventDefault();
-    const prodObj = liveProducts.find((p) => p.id === saleProduct) || liveProducts[0];
-    const totalAmount = prodObj.price;
-    const paid = saleType === 'cash' || saleType === 'mobile_money' ? totalAmount : parseInt(saleAmountPaid || '0', 10);
-    const balance = Math.max(0, totalAmount - paid);
-    const status = balance === 0 ? 'paid' : paid > 0 ? 'partial' : 'unpaid';
-
-    addSale({
-      customerName: saleCustomerName || 'Mteja wa Mkononi',
-      customerPhone: salePhone,
-      customerLocation: 'Dar es Salaam',
-      productId: prodObj.id,
-      productName: prodObj.name.sw,
-      quantity: 1,
-      unitPrice: prodObj.price,
-      totalAmount,
-      paymentType: saleType,
-      amountPaid: paid,
-      balanceDue: balance,
-      dueDate: saleDueDate || undefined,
-      status,
-    });
-
-    setShowSaleModal(false);
-    setSaleCustomerName('');
-    setSalePhone('');
-    setSaleAmountPaid('');
-    setSaleDueDate('');
-
-    // Prompt receipt dispatch
-    const receiptText =
-      `🧾 *RISITI YA MAUZO - ED RETAIL*\n` +
-      `Mteja: ${saleCustomerName}\n` +
-      `Bidhaa: ${prodObj.name.sw}\n` +
-      `Jumla: TZS ${totalAmount.toLocaleString()}\n` +
-      `Kiasi Kilicholipwa: TZS ${paid.toLocaleString()}\n` +
-      `${balance > 0 ? `Salio Lililobaki: TZS ${balance.toLocaleString()}\nTarehe ya Malipo: ${saleDueDate || 'Makubaliano'}\n` : 'Hali: IMELIPWA YOTE ✅\n'}` +
-      `Msambazaji: ${DISTRIBUTOR_NAME} (${DISTRIBUTOR_PHONE})`;
-
-    const cleanPhone = salePhone.replace(/\D/g, '').replace(/^0/, '255');
-    const waUrl = salePhone
-      ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(receiptText)}`
-      : `${WHATSAPP_LINK}?text=${encodeURIComponent(receiptText)}`;
-    window.open(waUrl, '_blank');
-  };
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-stone-950/80 backdrop-blur-xs">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.96 }}
-        className="w-full max-w-4xl h-[94vh] sm:h-[820px] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-stone-200"
-      >
-        {/* ── LEADER PORTAL HEADER ── */}
-        <div className="px-5 py-4 bg-[#0C271E] text-stone-100 flex items-center justify-between border-b border-[#1A3D31]">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.99 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.99 }}
+      className="fixed inset-0 z-50 bg-stone-100 flex flex-col overflow-hidden"
+    >
+      {/* ── FULL SCREEN TOP COMMAND BAR ── */}
+      <header className="px-4 sm:px-6 py-3.5 bg-[#0C271E] text-stone-100 flex items-center justify-between border-b border-[#1A3D31] shadow-md z-20 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onClose}
+            className="p-2 -ml-1 text-stone-300 hover:text-white rounded-xl hover:bg-white/10 transition-colors flex items-center gap-1.5 font-bold text-xs"
+            title={lang === 'sw' ? 'Rudi Dukani' : 'Back to Store'}
+          >
+            <ArrowLeft className="w-5 h-5 text-amber-400" />
+            <span className="hidden sm:inline">{lang === 'sw' ? 'Rudi Dukani' : 'Back to Store'}</span>
+          </button>
+
+          <div className="h-6 w-px bg-white/20 hidden sm:block" />
+
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#164132] border border-[#235844] flex items-center justify-center text-[#E5C378] shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-[#164132] border border-[#235844] flex items-center justify-center text-[#E5C378] shadow-xs flex-shrink-0">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="font-extrabold text-base sm:text-lg text-white">
-                  {lang === 'sw' ? 'Ofisi ya Msambazaji (Leader Back-Office)' : 'Distributor Leader Portal'}
-                </h2>
-                <span className="px-2 py-0.5 bg-[#C5A059]/20 border border-[#C5A059]/40 text-[#E5C378] text-[10px] font-black rounded-md uppercase">
+                <h1 className="font-extrabold text-sm sm:text-base text-white leading-none">
+                  {lang === 'sw' ? 'Ofisi Kuu ya Msambazaji (Distributor Portal)' : 'Distributor Enterprise Back-Office'}
+                </h1>
+                <span className="px-2 py-0.5 bg-[#C5A059]/20 border border-[#C5A059]/40 text-[#E5C378] text-[10px] font-black rounded-md uppercase tracking-wider">
                   {isAdminAuthenticated ? 'Unlocked' : 'PIN Protected'}
                 </span>
               </div>
-              <p className="text-xs text-stone-300">
-                {distributor.name} • {distributor.rank || 'Crown Manager'} • Live Fund Pacing & Automation Center
+              <p className="text-[11px] sm:text-xs text-stone-300 mt-1 flex items-center gap-2">
+                <span className="font-semibold text-white">{distributor.name}</span>
+                <span>•</span>
+                <span>{distributor.rank || 'Crown Manager'}</span>
+                <span>•</span>
+                <span className="text-emerald-400">{distributor.city}</span>
               </p>
             </div>
           </div>
-
-          <div className="flex items-center gap-2">
-            {isAdminAuthenticated && (
-              <button
-                onClick={() => setAdminAuthenticated(false)}
-                title={lang === 'sw' ? 'Funga Ofisi (Lock)' : 'Lock Back-Office'}
-                className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-stone-200 text-xs font-bold transition-all flex items-center gap-1"
-              >
-                <Unlock className="w-4 h-4 text-emerald-400" />
-                <span className="hidden sm:inline">{lang === 'sw' ? 'Funga' : 'Lock'}</span>
-              </button>
-            )}
-
-            <button
-              onClick={onClose}
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-stone-200 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
         </div>
 
-        {/* ── SECURITY PIN CHECK IF LOCKED ── */}
-        {!isAdminAuthenticated ? (
-          <div className="flex-1 flex items-center justify-center p-6 bg-stone-50">
-            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-lg border border-stone-200 text-center space-y-4">
-              <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 flex items-center justify-center mx-auto shadow-2xs">
-                <Lock className="w-7 h-7" />
-              </div>
+        {/* Header Right Actions */}
+        <div className="flex items-center gap-2">
+          {onOpenFlyerStudio && (
+            <button
+              onClick={onOpenFlyerStudio}
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 border border-amber-400/40 rounded-xl text-xs font-bold transition-colors"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Flyer Studio</span>
+            </button>
+          )}
 
-              <div>
-                <h3 className="text-lg font-extrabold text-stone-900">
-                  {lang === 'sw' ? 'Fungua Ofisi ya Msambazaji' : 'Unlock Leader Back-Office'}
-                </h3>
-                <p className="text-xs text-stone-500 mt-1">
-                  {lang === 'sw'
-                    ? 'Weka PIN yako ya msambazaji kutazama 3-Month Fund, Daftari la Mauzo, na Katalogi.'
-                    : 'Enter your distributor PIN to manage fund pacing, sales ledger, and automation.'}
+          {isAdminAuthenticated && (
+            <button
+              onClick={() => setAdminAuthenticated(false)}
+              title={lang === 'sw' ? 'Funga Ofisi (Lock)' : 'Lock Back-Office'}
+              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-stone-200 text-xs font-bold transition-all flex items-center gap-1"
+            >
+              <Unlock className="w-4 h-4 text-emerald-400" />
+              <span className="hidden sm:inline">{lang === 'sw' ? 'Funga' : 'Lock'}</span>
+            </button>
+          )}
+
+          <button
+            onClick={onClose}
+            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-stone-200 transition-colors flex items-center gap-1.5 text-xs font-bold"
+            aria-label="Close Portal"
+          >
+            <X className="w-5 h-5" />
+            <span className="hidden md:inline">{lang === 'sw' ? 'Toka' : 'Exit'}</span>
+          </button>
+        </div>
+      </header>
+
+      {/* ── SECURITY PIN CHECK IF LOCKED ── */}
+      {!isAdminAuthenticated ? (
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 bg-stone-100 overflow-y-auto">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-xl border border-stone-200 text-center space-y-5 my-auto">
+            <div className="w-16 h-16 rounded-3xl bg-amber-50 border border-amber-200 text-amber-800 flex items-center justify-center mx-auto shadow-2xs">
+              <Lock className="w-8 h-8" />
+            </div>
+
+            <div>
+              <h2 className="text-xl font-black text-stone-900">
+                {lang === 'sw' ? 'Fungua Ofisi ya Msambazaji' : 'Unlock Distributor Portal'}
+              </h2>
+              <p className="text-xs text-stone-600 mt-1.5 leading-relaxed">
+                {lang === 'sw'
+                  ? 'Weka PIN yako ya msambazaji kutazama mauzo ya mtandaoni, kuweka Lipa Namba, daftari la stoo, na pointi za SV.'
+                  : 'Enter your distributor security PIN to access the sales ledger, till number management, inventory, and SV pacing.'}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <input
+                type="password"
+                value={pinInput}
+                onChange={(e) => setPinInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleVerifyPin();
+                }}
+                placeholder="••••"
+                className="w-full text-center tracking-widest text-2xl font-black py-3.5 border border-stone-300 rounded-2xl focus:ring-2 focus:ring-emerald-700 focus:outline-none bg-stone-50"
+                autoFocus
+              />
+              {pinError && (
+                <p className="text-xs text-red-600 font-bold">
+                  {lang === 'sw' ? 'PIN siyo sahihi. PIN ya awali ni: 2024 au 255' : 'Incorrect PIN. Default is: 2024 or 255'}
                 </p>
-              </div>
+              )}
+              <p className="text-[11px] text-stone-400">
+                {lang === 'sw' ? 'PIN ya majaribio: 2024 au 1234 au 255' : 'Demo PIN: 2024 or 1234 or 255'}
+              </p>
+            </div>
 
-              <div className="space-y-2">
-                <input
-                  type="password"
-                  value={pinInput}
-                  onChange={(e) => setPinInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleVerifyPin();
-                  }}
-                  placeholder="PIN..."
-                  className="w-full text-center tracking-widest text-xl font-black py-3 border border-stone-300 rounded-2xl focus:ring-2 focus:ring-emerald-700 focus:outline-none bg-stone-50"
-                  autoFocus
-                />
-                {pinError && (
-                  <p className="text-xs text-red-600 font-bold">
-                    {lang === 'sw' ? 'PIN siyo sahihi. PIN ya awali ni: 2024 au 255' : 'Incorrect PIN. Default is: 2024 or 255'}
-                  </p>
-                )}
-                <p className="text-[11px] text-stone-400">
-                  {lang === 'sw' ? 'PIN ya majaribio: 2024 au 1234 au 255' : 'Demo PIN: 2024 or 1234 or 255'}
-                </p>
-              </div>
+            <button
+              onClick={handleVerifyPin}
+              className="w-full py-3.5 bg-[#0C271E] hover:bg-[#164132] text-white font-black text-sm rounded-2xl shadow-md transition-transform active:scale-98 cursor-pointer"
+            >
+              {lang === 'sw' ? 'Thibitisha & Ingia Ofisini' : 'Unlock Full Portal'}
+            </button>
 
+            <div className="pt-2">
               <button
-                onClick={handleVerifyPin}
-                className="w-full py-3 bg-[#0C271E] hover:bg-[#164132] text-white font-extrabold rounded-xl shadow-xs transition-transform active:scale-98"
+                onClick={onClose}
+                className="text-xs text-stone-500 hover:text-stone-900 font-semibold"
               >
-                {lang === 'sw' ? 'Thibitisha & Ingia' : 'Unlock Back-Office'}
+                {lang === 'sw' ? 'Rudi kwenye Duka la Wateja' : 'Return to Customer Store'}
               </button>
             </div>
           </div>
-        ) : (
-          <>
-            {/* ── NAVIGATION TABS ── */}
-            <div className="px-4 py-2.5 bg-stone-100 border-b border-stone-200 flex items-center justify-between gap-2 overflow-x-auto">
-              <div className="flex items-center gap-1.5 min-w-max">
-                <button
-                  onClick={() => setActiveTab('overview')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all ${
-                    activeTab === 'overview'
-                      ? 'bg-white text-stone-900 shadow-xs border border-stone-200'
-                      : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
-                  }`}
-                >
-                  <TrendingUp className="w-4 h-4 text-emerald-800" />
-                  <span>{lang === 'sw' ? 'Muhtasari wa Fedha' : 'Financials & CRM'}</span>
-                </button>
+        </div>
+      ) : (
+        <div className="flex-1 flex flex-col min-h-0 bg-stone-100">
+          {/* ── ENTERPRISE SUB-NAVIGATION TABS ── */}
+          <nav className="px-4 sm:px-6 py-2.5 bg-white border-b border-stone-200 flex items-center justify-between gap-3 overflow-x-auto flex-shrink-0">
+            <div className="flex items-center gap-1.5 min-w-max">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all cursor-pointer ${
+                  activeTab === 'overview'
+                    ? 'bg-stone-900 text-white shadow-xs'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                }`}
+              >
+                <TrendingUp className="w-4 h-4 text-emerald-400" />
+                <span>{lang === 'sw' ? 'Muhtasari & Mauzo' : 'Financials & CRM'}</span>
+              </button>
 
-                <button
-                  onClick={() => setActiveTab('maintenance')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all ${
-                    activeTab === 'maintenance'
-                      ? 'bg-white text-stone-900 shadow-xs border border-stone-200'
-                      : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
-                  }`}
-                >
-                  <Award className="w-4 h-4 text-emerald-800" />
-                  <span>{lang === 'sw' ? '3-Month Funds (2,000 SV)' : '3-Month Maintenance'}</span>
-                </button>
+              <button
+                onClick={() => setActiveTab('payments')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all cursor-pointer ${
+                  activeTab === 'payments'
+                    ? 'bg-stone-900 text-white shadow-xs'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                }`}
+              >
+                <CreditCard className="w-4 h-4 text-amber-400" />
+                <span>{lang === 'sw' ? 'Lipa Namba & Tills' : 'Payment Accounts'}</span>
+              </button>
 
-                <button
-                  onClick={() => setActiveTab('ledger')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all ${
-                    activeTab === 'ledger'
-                      ? 'bg-white text-stone-900 shadow-xs border border-stone-200'
-                      : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
-                  }`}
-                >
-                  <BookOpen className="w-4 h-4 text-emerald-800" />
-                  <span>{lang === 'sw' ? 'Daftari la Mauzo & Madeni' : 'Field Sales & Debts'}</span>
-                </button>
+              <button
+                onClick={() => setActiveTab('ledger')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all cursor-pointer ${
+                  activeTab === 'ledger'
+                    ? 'bg-stone-900 text-white shadow-xs'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                }`}
+              >
+                <BookOpen className="w-4 h-4 text-emerald-400" />
+                <span>{lang === 'sw' ? 'Daftari la Mauzo & Madeni' : 'Field Sales & Debts'}</span>
+              </button>
 
-                <button
-                  onClick={() => setActiveTab('automations')}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-extrabold flex items-center gap-2 transition-all ${
-                    activeTab === 'automations'
-                      ? 'bg-white text-stone-900 shadow-xs border border-stone-200'
-                      : 'text-stone-600 hover:text-stone-900 hover:bg-white/60'
-                  }`}
-                >
-                  <Bot className="w-4 h-4 text-indigo-600" />
-                  <span>{lang === 'sw' ? 'Msaidizi & Automations' : 'Assistant & Automations'}</span>
-                </button>
-              </div>
+              <button
+                onClick={() => setActiveTab('maintenance')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all cursor-pointer ${
+                  activeTab === 'maintenance'
+                    ? 'bg-stone-900 text-white shadow-xs'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                }`}
+              >
+                <Award className="w-4 h-4 text-amber-400" />
+                <span>{lang === 'sw' ? '3-Month Funds (2,000 SV)' : '3-Month Maintenance'}</span>
+              </button>
 
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <button
-                  onClick={() => setShowSaleModal(true)}
-                  className="px-3 py-1.5 bg-[#C5A059] hover:bg-[#d6b068] text-stone-950 font-black text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-transform active:scale-95"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>{lang === 'sw' ? 'Rekodi Mauzo' : 'Log Sale'}</span>
-                </button>
-
-                {onOpenFlyerStudio && (
-                  <button
-                    onClick={onOpenFlyerStudio}
-                    className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-extrabold text-xs rounded-xl shadow-2xs flex items-center gap-1.5"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                    <span>Flyer Studio</span>
-                  </button>
-                )}
-              </div>
+              <button
+                onClick={() => setActiveTab('automations')}
+                className={`px-3.5 py-2 rounded-xl text-xs font-black flex items-center gap-2 transition-all cursor-pointer ${
+                  activeTab === 'automations'
+                    ? 'bg-stone-900 text-white shadow-xs'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
+                }`}
+              >
+                <Bot className="w-4 h-4 text-indigo-400" />
+                <span>{lang === 'sw' ? 'Automations & Msaidizi' : 'Automations & Concierge'}</span>
+              </button>
             </div>
 
-            {/* ── TAB BODIES ── */}
-            <div className="flex-1 overflow-y-auto bg-stone-50 p-4 sm:p-6">
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={() => setShowSaleModal(true)}
+                className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>{lang === 'sw' ? 'Rekodi Mauzo' : 'Log Sale'}</span>
+              </button>
+            </div>
+          </nav>
+
+          {/* ── FULL SCREEN MAIN VIEWPORT CONTENT ── */}
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            <div className="max-w-7xl mx-auto space-y-6">
               {activeTab === 'overview' && (
                 <AdminDashboardPanel
                   onOpenSaleForm={() => setShowSaleModal(true)}
                   onNavigateToTab={(t) => setActiveTab(t === 'chat' ? 'automations' : t as any)}
                   lang={lang}
                 />
+              )}
+
+              {activeTab === 'payments' && (
+                <PaymentAccountsManager lang={lang} />
               )}
 
               {activeTab === 'maintenance' && (
@@ -362,22 +352,22 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
               {activeTab === 'automations' && (
                 <div className="space-y-6">
                   {/* Overview Hero */}
-                  <div className="p-5 sm:p-6 bg-gradient-to-br from-[#0C271E] to-[#164132] rounded-3xl text-white shadow-lg space-y-3">
+                  <div className="p-6 bg-gradient-to-br from-[#0C271E] to-[#164132] rounded-3xl text-white shadow-lg space-y-3">
                     <div className="flex items-center gap-2 text-[#E5C378]">
                       <Bot className="w-6 h-6" />
                       <h3 className="text-lg font-black">
-                        {lang === 'sw' ? 'Kituo cha Automations na ED-Assistant' : 'ED-Assistant & WhatsApp Automation Center'}
+                        {lang === 'sw' ? 'Kituo cha Automations na Ufuatiliaji wa Wateja' : 'Client Follow-Up & WhatsApp Automation Center'}
                       </h3>
                     </div>
                     <p className="text-xs text-stone-200 max-w-2xl leading-relaxed">
                       {lang === 'sw'
-                        ? 'Hapa unadhibiti na kujaribu injini ya majibu ya msaidizi wa afya, ratiba za ufuatiliaji wa wateja WhatsApp (Day 3, 7, 14), na kurusha picha za masoko.'
-                        : 'Manage and test the customer health concierge NLP engine, trigger 1-tap WhatsApp client follow-up sequences (Day 3, 7, 14), and launch marketing flyers.'}
+                        ? 'Dhibiti ratiba za ufuatiliaji wa wateja WhatsApp (Day 3, 7, 14, 30), jaribu injini ya maswali na majibu, na kagua jinsi wateja wanavyopokea majibu mtandaoni.'
+                        : 'Manage 1-tap client follow-up sequences, test the automated health assistant NLP response engine, and prepare customer re-orders.'}
                     </p>
                   </div>
 
                   {/* ── MODULE 1: AUTOMATED WHATSAPP SEQUENCES ── */}
-                  <div className="bg-white rounded-3xl p-5 sm:p-6 border border-stone-200 shadow-xs space-y-4">
+                  <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-xs space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-stone-900">
                         <Zap className="w-5 h-5 text-amber-500" />
@@ -388,7 +378,7 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                     </div>
 
                     {/* Personalization Fields */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 bg-stone-50 rounded-2xl border border-stone-200 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-stone-50 rounded-2xl border border-stone-200 text-xs">
                       <div>
                         <label className="block font-bold text-stone-600 mb-1">
                           {lang === 'sw' ? 'Jina la Mteja:' : 'Client Name:'}
@@ -425,7 +415,7 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                     </div>
 
                     {/* Sequence Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                       <div className="p-4 bg-emerald-50/70 border border-emerald-200 rounded-2xl flex flex-col justify-between gap-3">
                         <div>
                           <div className="flex items-center justify-between mb-1">
@@ -434,10 +424,10 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                             </span>
                           </div>
                           <h5 className="font-bold text-emerald-950 text-xs">
-                            {lang === 'sw' ? 'Ufuatiliaji wa Maji & Kusafisha Utumbo' : 'Hydration & Motility Follow-up'}
+                            {lang === 'sw' ? 'Ufuatiliaji wa Maji & Utumbo' : 'Hydration & Motility'}
                           </h5>
                           <p className="text-[11px] text-emerald-800 mt-1 leading-relaxed">
-                            Hukumbusha mteja kunywa maji ya kutosha na kuuliza maendeleo ya utumbo kutoa sumu.
+                            Hukumbusha mteja kunywa maji ya kutosha na kuuliza maendeleo ya kutoa sumu.
                           </p>
                         </div>
                         <button
@@ -445,7 +435,7 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                           className="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                         >
                           <Send className="w-3.5 h-3.5" />
-                          <span>Tuma kwa WhatsApp</span>
+                          <span>Tuma WhatsApp</span>
                         </button>
                       </div>
 
@@ -457,7 +447,7 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                             </span>
                           </div>
                           <h5 className="font-bold text-blue-950 text-xs">
-                            {lang === 'sw' ? 'Mrejesho wa Vidonda / Uzito' : 'Ulcer Relief & Weight Check'}
+                            {lang === 'sw' ? 'Mrejesho wa Vidonda / Uzito' : 'Ulcer Relief & Weight'}
                           </h5>
                           <p className="text-[11px] text-blue-800 mt-1 leading-relaxed">
                             Hufuatilia kama maumivu ya tumbo, kiungulia, au gesi vimepungua baada ya wiki moja.
@@ -468,7 +458,7 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                           className="w-full py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                         >
                           <Send className="w-3.5 h-3.5" />
-                          <span>Tuma kwa WhatsApp</span>
+                          <span>Tuma WhatsApp</span>
                         </button>
                       </div>
 
@@ -480,7 +470,7 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                             </span>
                           </div>
                           <h5 className="font-bold text-amber-950 text-xs">
-                            {lang === 'sw' ? 'Muda wa Kujaza Oda ya Pili (Refill)' : 'Restock / Refill Prompt'}
+                            {lang === 'sw' ? 'Muda wa Refill ya Pili' : 'Restock / Refill Prompt'}
                           </h5>
                           <p className="text-[11px] text-amber-800 mt-1 leading-relaxed">
                             Huandaa mteja kuagiza pakiti inayofuata kabla ya stoo kuisha ili asikatishe dozi.
@@ -491,7 +481,7 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                           className="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                         >
                           <Send className="w-3.5 h-3.5" />
-                          <span>Tuma kwa WhatsApp</span>
+                          <span>Tuma WhatsApp</span>
                         </button>
                       </div>
 
@@ -499,11 +489,11 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                         <div>
                           <div className="flex items-center justify-between mb-1">
                             <span className="px-2 py-0.5 bg-purple-600 text-white rounded text-[10px] font-bold uppercase">
-                              Day 30 Review & Loyalty
+                              Day 30 Review
                             </span>
                           </div>
                           <h5 className="font-bold text-purple-950 text-xs">
-                            {lang === 'sw' ? 'Ushuhuda & Ofa ya Uanachama' : 'Testimonial & Partner Invite'}
+                            {lang === 'sw' ? 'Ushuhuda & Uanachama' : 'Testimonial & Partner'}
                           </h5>
                           <p className="text-[11px] text-purple-800 mt-1 leading-relaxed">
                             Hupongeza mteja, huomba ushuhuda, na kutoa punguzo la mteja mwaminifu.
@@ -514,14 +504,14 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                           className="w-full py-2 bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                         >
                           <Send className="w-3.5 h-3.5" />
-                          <span>Tuma kwa WhatsApp</span>
+                          <span>Tuma WhatsApp</span>
                         </button>
                       </div>
                     </div>
                   </div>
 
                   {/* ── MODULE 2: LIVE ASSISTANT NLP SIMULATOR ── */}
-                  <div className="bg-white rounded-3xl p-5 sm:p-6 border border-stone-200 shadow-xs space-y-4">
+                  <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-xs space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-stone-900">
                         <Bot className="w-5 h-5 text-indigo-600" />
@@ -529,9 +519,6 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                           {lang === 'sw' ? 'Jaribu Majibu ya ED-Assistant (Live Simulator)' : 'ED-Assistant NLP Live Simulator'}
                         </h4>
                       </div>
-                      <span className="text-xs text-stone-400">
-                        {lang === 'sw' ? 'Angalia jinsi chatbot inavyowajibu wateja' : 'Verify how the chatbot responds to buyers'}
-                      </span>
                     </div>
 
                     <div className="flex gap-2">
@@ -544,7 +531,7 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                       />
                       <button
                         onClick={handleRunSimulator}
-                        className="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-2xl flex items-center gap-1.5 shadow-xs"
+                        className="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs rounded-2xl flex items-center gap-1.5 shadow-xs cursor-pointer"
                       >
                         <RefreshCw className="w-4 h-4" />
                         <span>{lang === 'sw' ? 'Jaribu' : 'Test'}</span>
@@ -568,7 +555,7 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                             const res = parseCustomerOrDistributorIntent(chip, false, lang);
                             setSimResult(res);
                           }}
-                          className="px-2.5 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg transition-colors"
+                          className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl transition-colors cursor-pointer"
                         >
                           {chip}
                         </button>
@@ -583,7 +570,7 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                           <span>{lang === 'sw' ? 'Majibu Yaliyotolewa kwa Mteja:' : 'Simulated Response to Customer:'}</span>
                         </div>
 
-                        <div className="p-3.5 bg-white rounded-xl border border-stone-200 text-xs leading-relaxed whitespace-pre-wrap text-stone-800">
+                        <div className="p-4 bg-white rounded-xl border border-stone-200 text-xs leading-relaxed whitespace-pre-wrap text-stone-800 font-medium">
                           {simResult.text}
                         </div>
 
@@ -610,161 +597,15 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                 </div>
               )}
             </div>
-          </>
-        )}
+          </main>
+        </div>
+      )}
 
-        {/* ── LOG OFFLINE SALE QUICK MODAL ── */}
-        <AnimatePresence>
-          {showSaleModal && (
-            <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-              <motion.div
-                initial={{ scale: 0.92, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.92, opacity: 0 }}
-                className="bg-white rounded-3xl p-5 sm:p-6 max-w-md w-full shadow-2xl border border-stone-200 space-y-4"
-              >
-                <div className="flex items-center justify-between border-b border-stone-200 pb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
-                      <Plus className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-sm text-stone-900">
-                        {lang === 'sw' ? 'Rekodi Mauzo ya Mkononi' : 'Log Field Sale'}
-                      </h3>
-                      <p className="text-[10px] text-stone-500">
-                        {lang === 'sw' ? 'Hurekodiwa kwenye stoo, ripoti, na alama za SV' : 'Saves to inventory, CRM, and calculates SV'}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setShowSaleModal(false)}
-                    className="p-1 rounded-lg text-stone-400 hover:text-stone-700"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <form onSubmit={handleSaveOfflineSale} className="space-y-3 text-xs">
-                  <div>
-                    <label className="block font-bold text-stone-700 mb-1">
-                      {lang === 'sw' ? 'Jina la Mteja:' : 'Customer Name:'}
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={saleCustomerName}
-                      onChange={(e) => setSaleCustomerName(e.target.value)}
-                      placeholder="Mfano: Baba Kelvin"
-                      className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-stone-700 mb-1">
-                      {lang === 'sw' ? 'Namba ya Simu (WhatsApp):' : 'Phone Number:'}
-                    </label>
-                    <input
-                      type="tel"
-                      value={salePhone}
-                      onChange={(e) => setSalePhone(e.target.value)}
-                      placeholder="07XXXXXXXX"
-                      className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-stone-700 mb-1">
-                      {lang === 'sw' ? 'Bidhaa Iliyouzwa:' : 'Product Sold:'}
-                    </label>
-                    <select
-                      value={saleProduct}
-                      onChange={(e) => setSaleProduct(e.target.value)}
-                      className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl"
-                    >
-                      {liveProducts.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name.sw} - TZS {p.price.toLocaleString()} ({Math.round(p.price / 3500)} SV)
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-stone-700 mb-1">
-                      {lang === 'sw' ? 'Njia ya Malipo:' : 'Payment Type:'}
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[
-                        { id: 'cash', label: 'Cash' },
-                        { id: 'mobile_money', label: 'M-Pesa' },
-                        { id: 'credit', label: 'Deni' },
-                      ].map((pt) => (
-                        <button
-                          key={pt.id}
-                          type="button"
-                          onClick={() => setSaleType(pt.id as any)}
-                          className={`py-2 rounded-xl font-bold border transition-all ${
-                            saleType === pt.id
-                              ? 'bg-[#0C271E] text-white border-[#0C271E]'
-                              : 'bg-stone-50 text-stone-700 border-stone-200'
-                          }`}
-                        >
-                          {pt.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {saleType === 'credit' && (
-                    <div className="grid grid-cols-2 gap-2 bg-amber-50 p-2.5 rounded-xl border border-amber-200">
-                      <div>
-                        <label className="block font-bold text-amber-900 mb-1">
-                          {lang === 'sw' ? 'Kiasi Alichotoa:' : 'Deposit Paid:'}
-                        </label>
-                        <input
-                          type="number"
-                          value={saleAmountPaid}
-                          onChange={(e) => setSaleAmountPaid(e.target.value)}
-                          placeholder="0"
-                          className="w-full p-2 bg-white border border-amber-300 rounded-lg"
-                        />
-                      </div>
-                      <div>
-                        <label className="block font-bold text-amber-900 mb-1">
-                          {lang === 'sw' ? 'Tarehe ya Kumalizia:' : 'Due Date:'}
-                        </label>
-                        <input
-                          type="date"
-                          value={saleDueDate}
-                          onChange={(e) => setSaleDueDate(e.target.value)}
-                          className="w-full p-2 bg-white border border-amber-300 rounded-lg"
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="pt-2 flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowSaleModal(false)}
-                      className="flex-1 py-2.5 rounded-xl border border-stone-300 font-bold text-stone-700 hover:bg-stone-100"
-                    >
-                      {lang === 'sw' ? 'Ghairi' : 'Cancel'}
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-1 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 font-bold text-white shadow-xs"
-                    >
-                      {lang === 'sw' ? 'Hifadhi & Tuma Risiti' : 'Save & Send Receipt'}
-                    </button>
-                  </div>
-                </form>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    </div>
+      {/* ── STANDALONE SOLID LOG OFFLINE SALE MODAL ── */}
+      <LogOfflineSaleModal
+        isOpen={showSaleModal}
+        onClose={() => setShowSaleModal(false)}
+      />
+    </motion.div>
   );
 };

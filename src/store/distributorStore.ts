@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { Product, Bundle } from '../types';
+import { Product, Bundle, DistributorPaymentAccount } from '../types';
 import productsData from '../data/products.json';
 import bundlesData from '../data/bundles.json';
 import { EDMARK_KNOWLEDGE_BASE } from '../data/edmarkKnowledgeBase';
@@ -12,6 +12,7 @@ export interface DistributorProfile {
   phone: string;
   whatsappDigits: string;
   lipaNumber?: string;
+  paymentAccounts?: DistributorPaymentAccount[];
   email: string;
   slug: string;
   rank: string;
@@ -41,6 +42,36 @@ export const CENTRAL_COMPANY_HUB: DistributorProfile = {
   phone: '+255 783 481 416',
   whatsappDigits: '255783481416',
   lipaNumber: 'Lipa Namba: 543210 (Central Dispatch / ED Retail TZ)',
+  paymentAccounts: [
+    {
+      id: 'acc-central-mpesa',
+      network: 'mpesa',
+      networkName: 'Vodacom M-Pesa',
+      accountType: 'till',
+      accountTypeName: 'Lipa Kwa Simu (Till)',
+      accountNumber: '543210',
+      accountName: 'ED Retail Central Hub',
+      isDefault: true,
+    },
+    {
+      id: 'acc-central-tigo',
+      network: 'tigopesa',
+      networkName: 'Tigo Pesa (Mixx by Yas)',
+      accountType: 'till',
+      accountTypeName: 'Lipa Namba (Till)',
+      accountNumber: '543211',
+      accountName: 'ED Retail Central Hub',
+    },
+    {
+      id: 'acc-central-airtel',
+      network: 'airtel',
+      networkName: 'Airtel Money',
+      accountType: 'till',
+      accountTypeName: 'Lipa Merchant',
+      accountNumber: '543212',
+      accountName: 'ED Retail Central Hub',
+    },
+  ],
   email: 'support@edretail.tz',
   slug: 'central',
   rank: 'Authorized Central Distribution Network',
@@ -60,6 +91,36 @@ export const DEFAULT_DISTRIBUTOR: DistributorProfile = {
   phone: '+255 783 481 416',
   whatsappDigits: '255783481416',
   lipaNumber: 'Lipa Namba: 543210 (M-Pesa / Tigo Pesa)',
+  paymentAccounts: [
+    {
+      id: 'acc-mwana-mpesa',
+      network: 'mpesa',
+      networkName: 'Vodacom M-Pesa',
+      accountType: 'till',
+      accountTypeName: 'Lipa Kwa Simu (Buy Goods)',
+      accountNumber: '543210',
+      accountName: 'Mwanahamisi Lissu (ED Retail)',
+      isDefault: true,
+    },
+    {
+      id: 'acc-mwana-tigo',
+      network: 'tigopesa',
+      networkName: 'Tigo Pesa (Mixx by Yas)',
+      accountType: 'till',
+      accountTypeName: 'Lipa Namba (Till)',
+      accountNumber: '632190',
+      accountName: 'Mwanahamisi Lissu',
+    },
+    {
+      id: 'acc-mwana-airtel',
+      network: 'airtel',
+      networkName: 'Airtel Money',
+      accountType: 'phone',
+      accountTypeName: 'Namba ya Simu',
+      accountNumber: '0783481416',
+      accountName: 'Mwanahamisi Lissu',
+    },
+  ],
   email: 'mwanahamisi@edretail.tz',
   slug: 'mwanahamisi',
   rank: 'Crown Manager & Wellness Coach',
@@ -81,6 +142,27 @@ export const INITIAL_DISTRIBUTORS_REGISTRY: DistributorProfile[] = [
     phone: '+255 714 882 109',
     whatsappDigits: '255714882109',
     lipaNumber: 'Lipa Namba: 882109 (Airtel Money)',
+    paymentAccounts: [
+      {
+        id: 'acc-fatuma-airtel',
+        network: 'airtel',
+        networkName: 'Airtel Money',
+        accountType: 'till',
+        accountTypeName: 'Lipa Merchant',
+        accountNumber: '882109',
+        accountName: 'Fatuma Kassim (Edmark Arusha)',
+        isDefault: true,
+      },
+      {
+        id: 'acc-fatuma-mpesa',
+        network: 'mpesa',
+        networkName: 'Vodacom M-Pesa',
+        accountType: 'phone',
+        accountTypeName: 'Namba ya Simu / Send Money',
+        accountNumber: '0714882109',
+        accountName: 'Fatuma Kassim',
+      },
+    ],
     email: 'fatuma.edmark@gmail.com',
     slug: 'fatuma',
     rank: 'Diamond Star Distributor',
@@ -98,6 +180,27 @@ export const INITIAL_DISTRIBUTORS_REGISTRY: DistributorProfile[] = [
     phone: '+255 755 930 114',
     whatsappDigits: '255755930114',
     lipaNumber: 'Lipa Namba: 930114 (Vodacom M-Pesa)',
+    paymentAccounts: [
+      {
+        id: 'acc-juma-mpesa',
+        network: 'mpesa',
+        networkName: 'Vodacom M-Pesa',
+        accountType: 'till',
+        accountTypeName: 'Lipa Kwa Simu (Till)',
+        accountNumber: '930114',
+        accountName: 'Juma Rashid (Edmark Mwanza)',
+        isDefault: true,
+      },
+      {
+        id: 'acc-juma-tigo',
+        network: 'tigopesa',
+        networkName: 'Tigo Pesa (Mixx by Yas)',
+        accountType: 'phone',
+        accountTypeName: 'Namba ya Simu',
+        accountNumber: '0755930114',
+        accountName: 'Juma Rashid',
+      },
+    ],
     email: 'juma.edmark.mwanza@gmail.com',
     slug: 'juma',
     rank: 'Emerald Manager',
@@ -115,6 +218,27 @@ export const INITIAL_DISTRIBUTORS_REGISTRY: DistributorProfile[] = [
     phone: '+255 762 441 890',
     whatsappDigits: '255762441890',
     lipaNumber: 'Lipa Namba: 441890 (Tigo Pesa)',
+    paymentAccounts: [
+      {
+        id: 'acc-grace-tigo',
+        network: 'tigopesa',
+        networkName: 'Tigo Pesa (Mixx by Yas)',
+        accountType: 'till',
+        accountTypeName: 'Lipa Namba (Till)',
+        accountNumber: '441890',
+        accountName: 'Grace Kimaro (Edmark Dodoma)',
+        isDefault: true,
+      },
+      {
+        id: 'acc-grace-airtel',
+        network: 'airtel',
+        networkName: 'Airtel Money',
+        accountType: 'phone',
+        accountTypeName: 'Namba ya Simu',
+        accountNumber: '0762441890',
+        accountName: 'Grace Kimaro',
+      },
+    ],
     email: 'grace.edmark.dodoma@gmail.com',
     slug: 'grace',
     rank: 'Ruby Distributor & Nutritionist',
