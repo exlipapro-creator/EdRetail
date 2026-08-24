@@ -11,14 +11,12 @@ import {
   MessageCircle,
   Activity,
   Coffee,
-  Calculator,
   Search,
   CheckCircle2,
   UserCheck,
 } from 'lucide-react';
 import { HeroCarousel } from '../HeroCarousel';
 import { ReferralShareButton } from '../ReferralShare';
-import { BmiHealthCalculatorModal } from '../calculator/BmiHealthCalculatorModal';
 import { NativeAdBanner } from '../ads/NativeAdBanner';
 import { CATEGORIES, Product } from '../../types';
 import { useCartStore } from '../../store/cartStore';
@@ -59,7 +57,6 @@ export function HomePage({
   const favourites = useCartStore((s) => s.favourites);
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [isBmiModalOpen, setIsBmiModalOpen] = useState(false);
 
   // 4 Top Best Sellers with high customer demand
   const popularProducts = useMemo(() => liveProducts.slice(0, 4), [liveProducts]);
@@ -304,40 +301,7 @@ export function HomePage({
         </div>
       </section>
 
-      {/* ── 5. BODY PROFILE & BMI ASSESSMENT (FIXED BALANCED PADDING) ── */}
-      <section className="bg-[#E7F4EE] rounded-3xl p-5 sm:p-7 border border-emerald-200/90 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-5">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#0E6B52] text-white flex items-center justify-center flex-shrink-0 shadow-2xs">
-            <Calculator className="w-6 h-6" />
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <h3 className="font-black text-sm sm:text-base text-neutral-900">
-                {lang === 'sw' ? 'Kikokotoo cha Afya & Uzito (BMI)' : 'Body Profile & BMI Assessment'}
-              </h3>
-              <span className="px-2 py-0.5 bg-emerald-100 text-[#0E6B52] text-[10px] font-extrabold rounded-md uppercase border border-emerald-200">
-                Interactive
-              </span>
-            </div>
-            <p className="text-xs text-neutral-600 max-w-lg leading-relaxed">
-              {lang === 'sw'
-                ? 'Fahamu hali ya mwili wako na upate muongozo wa dozi kulingana na lengo lako la afya.'
-                : 'Understand your body profile and receive tailored dosage guidance based on your wellness goal.'}
-            </p>
-          </div>
-        </div>
-
-        <button
-          onClick={() => setIsBmiModalOpen(true)}
-          className="w-full sm:w-auto px-5 py-3 bg-[#0E6B52] hover:bg-[#082F28] text-white rounded-xl font-extrabold text-xs sm:text-sm transition-colors flex items-center justify-center gap-2 shadow-2xs cursor-pointer whitespace-nowrap active:scale-98"
-        >
-          <Calculator className="w-4 h-4 text-emerald-200" />
-          <span>{lang === 'sw' ? 'Pima BMI Yangu' : 'Start Body Check'}</span>
-          <ArrowRight className="w-4 h-4 ml-1" />
-        </button>
-      </section>
-
-      {/* ── 6. CONSOLIDATED TRUST & GUARANTEE PANEL (FIXED BALANCED PADDING) ── */}
+      {/* ── 5. CONSOLIDATED TRUST & GUARANTEE PANEL ── */}
       <section className="bg-white rounded-3xl border border-neutral-200/90 p-5 sm:p-7 shadow-2xs space-y-4">
         <div className="text-[11px] font-black text-neutral-400 uppercase tracking-wider">
           {lang === 'sw' ? 'KWANINI UNUNUE NASI' : 'WHY SHOP WITH US'}
@@ -387,11 +351,11 @@ export function HomePage({
         </div>
       </section>
 
-      {/* ── 7. NATIVE PARTNER SPONSOR BANNER (PASSIVE INCOME) ── */}
+      {/* ── 6. NATIVE PARTNER SPONSOR BANNER (PASSIVE INCOME) ── */}
       <NativeAdBanner placement="storefront_hero" />
 
-      {/* ── 8. FEATURED PROMOTIONAL HERO SLIDER (Moved to Bottom) ── */}
-      <section className="pt-2">
+      {/* ── 7. FEATURED PROMOTIONAL HERO SLIDER (Full Width on Mobile) ── */}
+      <section className="-mx-4 sm:mx-0 pt-2">
         <HeroCarousel onNavigate={onNavigate} />
       </section>
 
@@ -419,17 +383,6 @@ export function HomePage({
           © {new Date().getFullYear()} ED Retail Tanzania · {distributor.name}. Genuine Edmark product trademarks belong to Edmark International.
         </p>
       </footer>
-
-      {/* ── BMI HEALTH ASSESSMENT MODAL (PROGRESSIVE DISCLOSURE) ── */}
-      <BmiHealthCalculatorModal
-        isOpen={isBmiModalOpen}
-        onClose={() => setIsBmiModalOpen(false)}
-        onSelectProduct={onSelectProduct}
-        onOpenGoalFinder={() => {
-          setIsBmiModalOpen(false);
-          onNavigate('goals');
-        }}
-      />
     </div>
   );
 }

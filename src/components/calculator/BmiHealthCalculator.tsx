@@ -234,34 +234,34 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
   return (
     <div
       id="bmi-health-calculator-section"
-      className="bg-white rounded-3xl border border-neutral-200/90 shadow-sm overflow-hidden"
+      className="bg-white rounded-2xl border border-neutral-200/90 shadow-xs overflow-hidden"
     >
       {/* ── HEADER BANNER ── */}
-      <div className="bg-[#0C271E] p-6 sm:p-8 text-stone-100 border-b border-[#1A3D31] relative overflow-hidden">
-        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full text-xs font-bold text-[#E5C378] border border-white/10">
+      <div className="bg-[#0C271E] p-4 sm:p-5 text-stone-100 border-b border-[#1A3D31] relative overflow-hidden">
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-white/10 rounded-full text-[11px] font-bold text-[#E5C378] border border-white/10">
               <Calculator className="w-3.5 h-3.5 text-[#E5C378]" />
               <span>{lang === 'sw' ? 'Kikokotoo cha Afya & BMI' : 'Clinical BMI & Health Engine'}</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+            <h2 className="text-base sm:text-lg font-bold tracking-tight text-white">
               {lang === 'sw'
                 ? 'Pima Hali ya Mwili & Pata Dozi Yako ya Edmark'
                 : 'Calculate Your BMI & Custom Edmark Protocol'}
             </h2>
-            <p className="text-xs sm:text-sm text-stone-300 max-w-xl leading-relaxed">
+            <p className="text-xs text-stone-300 max-w-xl leading-relaxed">
               {lang === 'sw'
                 ? 'Ingiza uzito na urefu wako upate uchambuzi wa kitaalamu na ratiba ya asili ya P4 Slimming au afya ya tumbo.'
                 : 'Enter your biometric indicators for an instant clinical BMI evaluation, metabolic risk analysis, and tailored dosage recommendations.'}
             </p>
           </div>
 
-          <div className="flex-shrink-0 bg-white/5 border border-white/15 p-4 rounded-2xl text-center min-w-[150px] shadow-sm">
-            <p className="text-[11px] uppercase tracking-wider text-stone-300 font-bold">
-              {lang === 'sw' ? 'Alama ya BMI Yako' : 'Your BMI Score'}
+          <div className="shrink-0 bg-white/5 border border-white/15 p-3 rounded-xl text-center min-w-[130px] shadow-xs">
+            <p className="text-[10px] uppercase tracking-wider text-stone-300 font-bold">
+              {lang === 'sw' ? 'Alama ya BMI' : 'BMI Score'}
             </p>
-            <div className="text-3xl sm:text-4xl font-black text-[#E5C378] my-0.5">{bmi}</div>
-            <div className="text-[10px] font-extrabold text-white px-2.5 py-0.5 rounded-md bg-white/15 inline-block">
+            <div className="text-2xl sm:text-3xl font-black text-[#E5C378] my-0.5">{bmi}</div>
+            <div className="text-[10px] font-extrabold text-white px-2 py-0.5 rounded-md bg-white/15 inline-block">
               {lang === 'sw' ? bmiCategory.labelSw.split(' ')[0] : bmiCategory.labelEn.split(' ')[0]}
             </div>
           </div>
@@ -269,25 +269,25 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
       </div>
 
       {/* ── INTERACTIVE CONTROLS & RESULTS ── */}
-      <div className="p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="p-4 sm:p-5 grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
         {/* LEFT COLUMN: INPUT SLIDERS & GOAL PICKER (5 Cols) */}
-        <div className="lg:col-span-5 space-y-6">
-          <div className="space-y-4">
-            <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
-              <Scale className="w-4 h-4 text-emerald-700" />
+        <div className="lg:col-span-5 space-y-4">
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold text-stone-900 flex items-center gap-1.5 uppercase tracking-wider">
+              <Scale className="w-3.5 h-3.5 text-emerald-700" />
               <span>{lang === 'sw' ? '1. Taarifa za Mwili Wako' : '1. Biometric Parameters'}</span>
             </h3>
 
             {/* Gender Toggle */}
             <div>
-              <label className="text-xs font-semibold text-stone-600 block mb-1.5">
+              <label className="text-[11px] font-semibold text-stone-600 block mb-1">
                 {lang === 'sw' ? 'Jinsia:' : 'Gender:'}
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => setGender('female')}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 ${
+                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     gender === 'female'
                       ? 'bg-rose-50 border-rose-300 text-rose-800 shadow-xs'
                       : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100'
@@ -299,7 +299,7 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
                 <button
                   type="button"
                   onClick={() => setGender('male')}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 ${
+                  className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     gender === 'male'
                       ? 'bg-blue-50 border-blue-300 text-blue-800 shadow-xs'
                       : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100'
@@ -312,12 +312,12 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
             </div>
 
             {/* Weight Slider */}
-            <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-stone-700">
+            <div className="bg-stone-50 p-3 rounded-xl border border-stone-200">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-bold text-stone-700">
                   {lang === 'sw' ? 'Uzito wa Sasa:' : 'Current Weight:'}
                 </span>
-                <span className="text-base font-extrabold text-emerald-800 bg-white px-2.5 py-0.5 rounded-lg border border-stone-200 shadow-2xs">
+                <span className="text-xs font-extrabold text-emerald-800 bg-white px-2 py-0.5 rounded-md border border-stone-200 shadow-2xs">
                   {weightKg} kg
                 </span>
               </div>
@@ -329,7 +329,7 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
                 step={1}
                 value={weightKg}
                 onChange={(e) => setWeightKg(parseInt(e.target.value, 10))}
-                className="w-full h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-emerald-700"
+                className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-emerald-700"
               />
               <div className="flex justify-between text-[10px] text-stone-400 mt-1">
                 <span>40 kg</span>
@@ -339,12 +339,12 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
             </div>
 
             {/* Height Slider */}
-            <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-stone-700">
+            <div className="bg-stone-50 p-3 rounded-xl border border-stone-200">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-bold text-stone-700">
                   {lang === 'sw' ? 'Urefu Wako:' : 'Height:'}
                 </span>
-                <span className="text-base font-extrabold text-emerald-800 bg-white px-2.5 py-0.5 rounded-lg border border-stone-200 shadow-2xs">
+                <span className="text-xs font-extrabold text-emerald-800 bg-white px-2 py-0.5 rounded-md border border-stone-200 shadow-2xs">
                   {heightCm} cm ({(heightCm / 100).toFixed(2)}m)
                 </span>
               </div>
@@ -356,7 +356,7 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
                 step={1}
                 value={heightCm}
                 onChange={(e) => setHeightCm(parseInt(e.target.value, 10))}
-                className="w-full h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-emerald-700"
+                className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-emerald-700"
               />
               <div className="flex justify-between text-[10px] text-stone-400 mt-1">
                 <span>130 cm</span>
@@ -366,12 +366,12 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
             </div>
 
             {/* Age Input */}
-            <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-stone-700">
+            <div className="bg-stone-50 p-3 rounded-xl border border-stone-200">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] font-bold text-stone-700">
                   {lang === 'sw' ? 'Umri:' : 'Age:'}
                 </span>
-                <span className="text-base font-extrabold text-emerald-800 bg-white px-2.5 py-0.5 rounded-lg border border-stone-200 shadow-2xs">
+                <span className="text-xs font-extrabold text-emerald-800 bg-white px-2 py-0.5 rounded-md border border-stone-200 shadow-2xs">
                   {age} {lang === 'sw' ? 'miaka' : 'yrs'}
                 </span>
               </div>
@@ -383,30 +383,30 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
                 step={1}
                 value={age}
                 onChange={(e) => setAge(parseInt(e.target.value, 10))}
-                className="w-full h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-emerald-700"
+                className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-emerald-700"
               />
             </div>
           </div>
 
           {/* Goal Selector */}
-          <div className="space-y-2.5 pt-2">
-            <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#C5A059]" />
-              <span>{lang === 'sw' ? '2. Chagua Lengo Lako Kuu' : '2. Primary Wellness Objective'}</span>
+          <div className="space-y-2 pt-1">
+            <h3 className="text-xs font-bold text-stone-900 flex items-center gap-1.5 uppercase tracking-wider">
+              <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
+              <span>{lang === 'sw' ? '2. Chagua Lengo Lako Kuu' : '2. Primary Objective'}</span>
             </h3>
 
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setGoal('weight_loss')}
-                className={`p-3.5 rounded-2xl text-left border transition-all ${
+                className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
                   goal === 'weight_loss'
                     ? 'bg-emerald-50/80 border-emerald-600 shadow-xs ring-1 ring-emerald-600/20'
                     : 'bg-white border-stone-200 hover:bg-stone-50'
                 }`}
               >
-                <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center mb-2">
-                  <Flame className="w-4 h-4" />
+                <div className="w-6 h-6 rounded-md bg-amber-100 text-amber-800 flex items-center justify-center mb-1.5">
+                  <Flame className="w-3.5 h-3.5" />
                 </div>
                 <div className="text-xs font-bold text-stone-900 leading-tight">
                   {lang === 'sw' ? 'Kupunguza Kitambi & Uzito' : 'Weight Loss & Flat Tummy'}
@@ -419,14 +419,14 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
               <button
                 type="button"
                 onClick={() => setGoal('ulcers')}
-                className={`p-3.5 rounded-2xl text-left border transition-all ${
+                className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
                   goal === 'ulcers'
                     ? 'bg-emerald-50/80 border-emerald-600 shadow-xs ring-1 ring-emerald-600/20'
                     : 'bg-white border-stone-200 hover:bg-stone-50'
                 }`}
               >
-                <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center mb-2">
-                  <Leaf className="w-4 h-4" />
+                <div className="w-6 h-6 rounded-md bg-emerald-100 text-emerald-800 flex items-center justify-center mb-1.5">
+                  <Leaf className="w-3.5 h-3.5" />
                 </div>
                 <div className="text-xs font-bold text-stone-900 leading-tight">
                   {lang === 'sw' ? 'Vidonda vya Tumbo & Gesi' : 'Stomach Ulcers & Acid'}
@@ -439,14 +439,14 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
               <button
                 type="button"
                 onClick={() => setGoal('energy')}
-                className={`p-3.5 rounded-2xl text-left border transition-all ${
+                className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
                   goal === 'energy'
                     ? 'bg-emerald-50/80 border-emerald-600 shadow-xs ring-1 ring-emerald-600/20'
                     : 'bg-white border-stone-200 hover:bg-stone-50'
                 }`}
               >
-                <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center mb-2">
-                  <Zap className="w-4 h-4" />
+                <div className="w-6 h-6 rounded-md bg-amber-100 text-amber-800 flex items-center justify-center mb-1.5">
+                  <Zap className="w-3.5 h-3.5" />
                 </div>
                 <div className="text-xs font-bold text-stone-900 leading-tight">
                   {lang === 'sw' ? 'Nguvu & Stamina ya Mwili' : 'Male Stamina & Energy'}
@@ -459,14 +459,14 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
               <button
                 type="button"
                 onClick={() => setGoal('detox')}
-                className={`p-3.5 rounded-2xl text-left border transition-all ${
+                className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
                   goal === 'detox'
                     ? 'bg-emerald-50/80 border-emerald-600 shadow-xs ring-1 ring-emerald-600/20'
                     : 'bg-white border-stone-200 hover:bg-stone-50'
                 }`}
               >
-                <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center mb-2">
-                  <Sparkles className="w-4 h-4" />
+                <div className="w-6 h-6 rounded-md bg-emerald-100 text-emerald-800 flex items-center justify-center mb-1.5">
+                  <Sparkles className="w-3.5 h-3.5" />
                 </div>
                 <div className="text-xs font-bold text-stone-900 leading-tight">
                   {lang === 'sw' ? 'Kusafisha Utumbo & Sumu' : 'Colon Cleanse & Detox'}
@@ -480,31 +480,31 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
         </div>
 
         {/* RIGHT COLUMN: CLINICAL DIAGNOSIS & PRESCRIPTION CARD (7 Cols) */}
-        <div className="lg:col-span-7 space-y-5">
+        <div className="lg:col-span-7 space-y-4">
           {/* Status Breakdown Box */}
-          <div className={`p-5 rounded-2xl border ${bmiCategory.color} transition-all`}>
+          <div className={`p-4 rounded-xl border ${bmiCategory.color} transition-all`}>
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <span className={`w-3 h-3 rounded-full ${bmiCategory.badgeColor}`} />
-                <span className="text-sm font-bold">
+                <span className={`w-2.5 h-2.5 rounded-full ${bmiCategory.badgeColor}`} />
+                <span className="text-xs sm:text-sm font-bold">
                   {lang === 'sw' ? bmiCategory.labelSw : bmiCategory.labelEn}
                 </span>
               </div>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/90 border border-stone-200 shadow-2xs">
+              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-white/90 border border-stone-200 shadow-2xs">
                 BMI: <strong>{bmi}</strong> kg/m²
               </span>
             </div>
 
             {/* Visual Risk Gauge Meter */}
-            <div className="mt-3.5 mb-2">
-              <div className="h-3 w-full bg-stone-200 rounded-full overflow-hidden flex">
+            <div className="mt-2.5 mb-1.5">
+              <div className="h-2 w-full bg-stone-200 rounded-full overflow-hidden flex">
                 <div className="w-[18%] bg-sky-500" title="Underweight (<18.5)" />
                 <div className="w-[30%] bg-emerald-600" title="Normal (18.5-24.9)" />
                 <div className="w-[22%] bg-amber-500" title="Overweight (25-29.9)" />
                 <div className="w-[18%] bg-orange-500" title="Obesity I (30-34.9)" />
                 <div className="w-[12%] bg-rose-600" title="Severe (>35)" />
               </div>
-              <div className="flex justify-between text-[9px] text-stone-500 mt-1 font-semibold">
+              <div className="flex justify-between text-[9px] text-stone-500 mt-0.5 font-semibold">
                 <span>18.5</span>
                 <span>25.0</span>
                 <span>30.0</span>
@@ -512,28 +512,28 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
               </div>
             </div>
 
-            <div className="flex items-start gap-1.5 text-xs mt-2 text-stone-800 leading-relaxed font-medium">
-              <Lightbulb className="w-3.5 h-3.5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-1.5 text-xs mt-1.5 text-stone-800 leading-relaxed font-medium">
+              <Lightbulb className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
               <p>
                 <strong>{lang === 'sw' ? 'Tathmini ya Kiafya:' : 'Clinical Assessment:'}</strong>{' '}
                 {lang === 'sw' ? bmiCategory.riskLevelSw : bmiCategory.riskLevelEn}
               </p>
             </div>
 
-            <div className="mt-3 pt-3 border-t border-stone-200/80 grid grid-cols-2 gap-2 text-xs">
+            <div className="mt-2.5 pt-2.5 border-t border-stone-200/80 grid grid-cols-2 gap-2 text-xs">
               <div>
-                <span className="text-stone-500 block text-[11px]">
+                <span className="text-stone-500 block text-[10px]">
                   {lang === 'sw' ? 'Uzito Unaotakiwa Kuwa:' : 'Ideal Healthy Range:'}
                 </span>
-                <span className="font-bold text-stone-900">
+                <span className="font-bold text-stone-900 text-xs">
                   {idealWeightMin} – {idealWeightMax} kg
                 </span>
               </div>
               <div>
-                <span className="text-stone-500 block text-[11px]">
-                  {lang === 'sw' ? 'Uzito Unaopaswa Kupunguza:' : 'Target Weight Reduction:'}
+                <span className="text-stone-500 block text-[10px]">
+                  {lang === 'sw' ? 'Uzito wa Kupunguza:' : 'Target Reduction:'}
                 </span>
-                <span className={`font-bold ${excessWeight > 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
+                <span className={`font-bold text-xs ${excessWeight > 0 ? 'text-rose-600' : 'text-emerald-700'}`}>
                   {excessWeight > 0 ? `~${excessWeight} kg` : lang === 'sw' ? 'Uko sawa kabisa!' : 'On Target'}
                 </span>
               </div>
@@ -541,37 +541,37 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
           </div>
 
           {/* PRESCRIPTION BUNDLE CARD */}
-          <div className="p-5 sm:p-6 bg-[#0E2E23] text-stone-100 rounded-3xl border border-[#1A3D31] shadow-md space-y-4">
-            <div className="flex items-start justify-between gap-3">
+          <div className="p-4 sm:p-5 bg-[#0E2E23] text-stone-100 rounded-2xl border border-[#1A3D31] shadow-xs space-y-3.5">
+            <div className="flex items-start justify-between gap-2">
               <div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#C5A059] text-stone-950 text-[10px] font-black uppercase tracking-wider mb-1.5">
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#C5A059] text-stone-950 text-[10px] font-black uppercase tracking-wider mb-1">
                   <ShieldCheck className="w-3 h-3" />
-                  <span>{lang === 'sw' ? 'Dozi Iliyopendekezwa na Mfumo' : 'System Recommended Protocol'}</span>
+                  <span>{lang === 'sw' ? 'Dozi Iliyopendekezwa' : 'Recommended Protocol'}</span>
                 </div>
-                <h4 className="text-base sm:text-lg font-black text-white leading-snug">
+                <h4 className="text-sm sm:text-base font-bold text-white leading-snug">
                   {lang === 'sw' ? prescription.titleSw : prescription.titleEn}
                 </h4>
-                <p className="text-xs text-stone-300 mt-1 leading-relaxed">
+                <p className="text-xs text-stone-300 mt-0.5 leading-relaxed">
                   {lang === 'sw' ? prescription.descSw : prescription.descEn}
                 </p>
               </div>
             </div>
 
             {/* Product Items Included in Recommended Plan */}
-            <div className="space-y-2 pt-2 border-t border-[#1A3D31]">
-              <span className="text-[11px] font-bold text-[#E5C378] uppercase tracking-wider block">
-                {lang === 'sw' ? 'Bidhaa Zilizomo Kwenye Mpango Huu:' : 'Included Package Components:'}
+            <div className="space-y-1.5 pt-1.5 border-t border-[#1A3D31]">
+              <span className="text-[10px] font-bold text-[#E5C378] uppercase tracking-wider block">
+                {lang === 'sw' ? 'Bidhaa Zilizomo Kwenye Mpango:' : 'Included Package Components:'}
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {prescription.items.map((prod) => (
                   <div
                     key={prod.id}
-                    className="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2.5"
+                    className="p-2 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2"
                   >
                     <img
                       src={prod.image}
                       alt={prod.name.en}
-                      className="w-10 h-10 object-contain rounded-lg bg-white/15 p-1 flex-shrink-0"
+                      className="w-9 h-9 object-contain rounded-lg bg-white/15 p-1 shrink-0"
                     />
                     <div className="min-w-0">
                       <h5 className="text-xs font-bold text-white truncate">
@@ -587,34 +587,34 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
             </div>
 
             {/* Pricing Summary with 10% Discount */}
-            <div className="p-3.5 bg-white/5 rounded-2xl border border-white/10 flex flex-wrap items-center justify-between gap-3">
+            <div className="p-3 bg-white/5 rounded-xl border border-white/10 flex flex-wrap items-center justify-between gap-2.5">
               <div>
-                <span className="text-[11px] text-stone-400 line-through block">
-                  {lang === 'sw' ? 'Bei ya kawaida:' : 'Regular Total:'} TZS {formatPrice(originalTotalPrice)}
+                <span className="text-[10px] text-stone-400 line-through block">
+                  {lang === 'sw' ? 'Bei ya kawaida:' : 'Regular:'} TZS {formatPrice(originalTotalPrice)}
                 </span>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg sm:text-xl font-black text-[#E5C378]">
+                  <span className="text-base sm:text-lg font-black text-[#E5C378]">
                     TZS {formatPrice(discountedTotalPrice)}
                   </span>
-                  <span className="px-2 py-0.5 bg-rose-600 text-white font-extrabold text-[10px] rounded-md uppercase">
+                  <span className="px-1.5 py-0.5 bg-rose-600 text-white font-extrabold text-[9px] rounded-md uppercase">
                     10% {lang === 'sw' ? 'Punguzo' : 'Off'}
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 text-[11px] text-stone-300 font-medium">
+              <div className="flex items-center gap-1 text-[11px] text-stone-300 font-medium">
                 <Clock className="w-3.5 h-3.5 text-[#E5C378]" />
                 <span>{lang === 'sw' ? prescription.timelineSw : prescription.timelineEn}</span>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
               <button
                 type="button"
                 id="bmi-add-bundle-cart-btn"
                 onClick={handleAddAllToCart}
-                className="w-full py-3 px-4 rounded-xl bg-[#C5A059] hover:bg-[#d6b068] text-stone-950 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all transform active:scale-95 cursor-pointer"
+                className="w-full py-2.5 px-3.5 rounded-xl bg-[#C5A059] hover:bg-[#d6b068] text-stone-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all transform active:scale-95 cursor-pointer"
               >
                 {addedNotice ? (
                   <>
@@ -624,7 +624,7 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
                 ) : (
                   <>
                     <ShoppingBag className="w-4 h-4" />
-                    <span>{lang === 'sw' ? 'Weka Mpango Wote Mkobani' : 'Add Bundle to Cart'}</span>
+                    <span>{lang === 'sw' ? 'Weka Mpango Mkobani' : 'Add Bundle to Cart'}</span>
                   </>
                 )}
               </button>
@@ -633,7 +633,7 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
                 type="button"
                 id="bmi-consult-whatsapp-btn"
                 onClick={handleConsultWhatsApp}
-                className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all transform active:scale-95 cursor-pointer"
+                className="w-full py-2.5 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all transform active:scale-95 cursor-pointer"
               >
                 <MessageCircle className="w-4 h-4 text-white" />
                 <span>

@@ -328,15 +328,15 @@ export function SettingsPage() {
   const currentMode: AdNetworkMode = monetizationConfig?.mode || 'hybrid';
 
   return (
-    <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto animate-fadeIn text-stone-100">
+    <div className="p-3 sm:p-6 space-y-6 max-w-7xl mx-auto animate-fadeIn text-stone-100 w-full max-w-full min-w-0 overflow-x-hidden">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-800 pb-5">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2.5">
-            <Settings className="w-6 h-6 text-indigo-400" />
-            <span>Admin Settings, Backups & Audit Logs</span>
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2.5 flex-wrap">
+            <Settings className="w-6 h-6 text-indigo-400 shrink-0" />
+            <span className="break-words">Admin Settings, Backups & Audit Logs</span>
           </h1>
-          <p className="text-xs text-stone-400 mt-1">
+          <p className="text-xs text-stone-400 mt-1 break-words">
             Advanced system controls: Master database backups, activity audit logs, native ad monetization & logistics.
           </p>
         </div>
@@ -344,65 +344,65 @@ export function SettingsPage() {
         {/* Global Toast Notification */}
         {notification && (
           <div
-            className={`px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 shadow-lg transition-all animate-fadeIn ${
+            className={`px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 shadow-lg transition-all animate-fadeIn shrink-0 ${
               notification.type === 'success'
                 ? 'bg-emerald-500 text-stone-950'
                 : 'bg-red-500 text-white'
             }`}
           >
-            {notification.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
-            <span>{notification.message}</span>
+            {notification.type === 'success' ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertTriangle className="w-4 h-4 shrink-0" />}
+            <span className="break-words">{notification.message}</span>
           </div>
         )}
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-1.5 bg-stone-900/90 p-1.5 rounded-2xl border border-stone-800 overflow-x-auto text-xs">
+      <div className="flex items-center gap-1.5 bg-stone-900/90 p-1.5 rounded-2xl border border-stone-800 overflow-x-auto max-w-full text-xs">
         <button
           onClick={() => setActiveTab('backups')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-black transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-black transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'backups'
               ? 'bg-indigo-600 text-white shadow-md'
               : 'text-stone-400 hover:text-white'
           }`}
         >
-          <Download className="w-4 h-4" />
-          <span>Database Backups & Export</span>
+          <Download className="w-4 h-4 shrink-0" />
+          <span>Database Backups</span>
         </button>
 
         <button
           onClick={() => setActiveTab('logs')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-black transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-black transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'logs'
               ? 'bg-indigo-600 text-white shadow-md'
               : 'text-stone-400 hover:text-white'
           }`}
         >
-          <Activity className="w-4 h-4" />
+          <Activity className="w-4 h-4 shrink-0" />
           <span>System Audit Logs ({auditLogs?.length || 0})</span>
         </button>
 
         <button
           onClick={() => setActiveTab('ads')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-black transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-black transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'ads'
               ? 'bg-indigo-600 text-white shadow-md'
               : 'text-stone-400 hover:text-white'
           }`}
         >
-          <Sparkles className="w-4 h-4 text-amber-400" />
+          <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
           <span>Native Ads (Passive Income)</span>
         </button>
 
         <button
           onClick={() => setActiveTab('logistics')}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-black transition-all cursor-pointer whitespace-nowrap ${
+          className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-black transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'logistics'
               ? 'bg-indigo-600 text-white shadow-md'
               : 'text-stone-400 hover:text-white'
           }`}
         >
-          <Shield className="w-4 h-4" />
+          <Shield className="w-4 h-4 shrink-0" />
           <span>Platform & Logistics</span>
         </button>
       </div>
@@ -1181,7 +1181,7 @@ export function SettingsPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
                   <label className="block text-xs font-bold text-stone-300 mb-1">
                     Title (English) *
@@ -1209,7 +1209,7 @@ export function SettingsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
                   <label className="block text-xs font-bold text-stone-300 mb-1">
                     Offer Tagline (English) *
@@ -1237,7 +1237,7 @@ export function SettingsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
                   <label className="block text-xs font-bold text-stone-300 mb-1">
                     Placement Spot
@@ -1267,7 +1267,7 @@ export function SettingsPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
                   <label className="block text-xs font-bold text-stone-300 mb-1">
                     Banner Image URL

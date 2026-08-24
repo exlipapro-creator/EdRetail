@@ -86,7 +86,7 @@ export function HeroCarousel({ onNavigate }: HeroCarouselProps) {
   return (
     <section
       id="featured-wellness-banner"
-      className="relative rounded-3xl overflow-hidden bg-stone-900 border border-stone-200/80 shadow-2xs"
+      className="relative rounded-none sm:rounded-3xl overflow-hidden bg-stone-900 border-y sm:border border-stone-800/60 sm:border-stone-200/80 shadow-none sm:shadow-2xs w-full"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
