@@ -1,7 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { LangProvider } from './context/LangContext';
-import { AuthProvider, useAuth } from './admin/AuthContext';
 import { Spinner } from './components/ui';
 import App from './App';
 
@@ -36,30 +35,6 @@ function AdminFallback() {
       <Spinner />
     </div>
   );
-}
-
-function AdminSpinner() {
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <Spinner />
-    </div>
-  );
-}
-
-// Super Admin Auth Protection
-function AdminLogin() {
-  const { user, loading } = useAuth();
-  if (loading) return <AdminSpinner />;
-  if (user) return <Navigate to="/admin/dashboard" replace />;
-  // LoginPage lives inside the lazy admin chunk — rendered via AdminApp's route
-  return <Navigate to="/admin" replace />;
-}
-
-function AdminProtected({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
-  if (loading) return <AdminSpinner />;
-  if (!user) return <Navigate to="/admin" replace />;
-  return <>{children}</>;
 }
 
 // Distributor Portal Auth Protection

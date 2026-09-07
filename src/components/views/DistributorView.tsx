@@ -34,6 +34,7 @@ import {
 import { useDistributorStore, DistributorProfile } from '../../store/distributorStore';
 import { useLang } from '../../context/LangContext';
 import { supabase } from '../../lib/supabase';
+import { DEMO_UNLOCK_ENABLED, DEMO_PIN } from '../../lib/devFlags';
 import { RegionalDistributorLocator } from '../distributor/RegionalDistributorLocator';
 import { FieldLedgerPanel } from '../chat/FieldLedgerPanel';
 import { MaintenanceTrackerPanel } from '../chat/MaintenanceTrackerPanel';
@@ -113,7 +114,8 @@ export function DistributorView({
   };
 
   const handleQuickDemoUnlock = () => {
-    verifyPin('2580');
+    if (!DEMO_UNLOCK_ENABLED || !DEMO_PIN) return; // dev-only shortcut (devFlags)
+    verifyPin(DEMO_PIN);
     setPinError(false);
     setPinInput('');
   };
@@ -331,7 +333,7 @@ export function DistributorView({
                 className="px-3 py-2 bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-xs rounded-xl shadow-xs transition-transform active:scale-95 flex items-center gap-1.5 cursor-pointer"
               >
                 <Unlock className="w-3.5 h-3.5" />
-                <span>PIN (2580)</span>
+                <span>PIN</span>
               </button>
             )}
           </div>
@@ -428,7 +430,7 @@ export function DistributorView({
                         if (pinError) setPinError(false);
                       }}
                       onKeyDown={(e) => e.key === 'Enter' && handleVerifyPin()}
-                      placeholder={lang === 'sw' ? 'Weka PIN (mfano: 2580)' : 'Enter PIN (e.g., 2580)'}
+                      placeholder={lang === 'sw' ? 'Weka PIN' : 'Enter PIN'}
                       className="w-full text-center text-sm font-mono tracking-wider py-3 px-4 bg-stone-950/90 border border-stone-700 rounded-2xl text-white placeholder:text-stone-600 focus:outline-none focus:border-[#C5A059] focus:ring-2 focus:ring-[#C5A059]/20"
                     />
 
@@ -438,7 +440,7 @@ export function DistributorView({
                         animate={{ opacity: 1, y: 0 }}
                         className="text-xs font-bold text-red-400 text-center"
                       >
-                        {lang === 'sw' ? 'Taarifa sio sahihi. Jaribu PIN 2580 au bofya Ingia na Google.' : 'Incorrect credentials. Try PIN 2580 or Google Sign-In.'}
+                        {lang === 'sw' ? 'Taarifa sio sahihi. Jaribu tena au bofya Ingia na Google.' : 'Incorrect credentials. Try again or use Google Sign-In.'}
                       </motion.p>
                     )}
 
@@ -451,15 +453,17 @@ export function DistributorView({
                     </button>
                   </div>
 
-                  <div className="pt-3 border-t border-stone-800 flex items-center justify-between text-xs text-stone-400">
-                    <span>Demo 1-Tap Access:</span>
-                    <button
-                      onClick={handleQuickDemoUnlock}
-                      className="font-mono font-black text-amber-300 hover:text-amber-200 underline cursor-pointer"
-                    >
-                      Unlock with 2580
-                    </button>
-                  </div>
+                  {DEMO_UNLOCK_ENABLED && (
+                    <div className="pt-3 border-t border-stone-800 flex items-center justify-between text-xs text-stone-400">
+                      <span>Demo 1-Tap Access:</span>
+                      <button
+                        onClick={handleQuickDemoUnlock}
+                        className="font-mono font-black text-amber-300 hover:text-amber-200 underline cursor-pointer"
+                      >
+                        Unlock with {DEMO_PIN}
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -694,7 +698,7 @@ export function DistributorView({
                   </div>
                 </div>
                 <p className="text-[11px] text-indigo-300/80 font-mono mt-1">
-                  Portal URL: <span className="text-indigo-300 underline font-bold">edretail.store/admin</span> · Default Login: <span className="text-amber-300 font-bold">admin@edretail.tz / admin123</span>
+                  Portal URL: <span className="text-indigo-300 underline font-bold">edretail.store/admin</span>
                 </p>
               </div>
 

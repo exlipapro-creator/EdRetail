@@ -24,6 +24,7 @@ import {
 import { useDistributorStore, DEFAULT_DISTRIBUTOR } from '../../store/distributorStore';
 import { useLang } from '../../context/LangContext';
 import { supabase } from '../../lib/supabase';
+import { DEMO_UNLOCK_ENABLED, DEMO_PIN } from '../../lib/devFlags';
 
 export function DistributorLoginPage() {
   const { lang, setLang } = useLang();
@@ -49,7 +50,7 @@ export function DistributorLoginPage() {
   // ── Pull Up Twice Gesture State for Super Admin Dialog Modal ──
   const [showSuperAdminModal, setShowSuperAdminModal] = useState(false);
   const [adminEmailInput, setAdminEmailInput] = useState('admin@edretail.tz');
-  const [adminPassInput, setAdminPassInput] = useState('admin123');
+  const [adminPassInput, setAdminPassInput] = useState(DEMO_UNLOCK_ENABLED ? 'admin123' : '');
   const [adminError, setAdminError] = useState('');
   const lastPullTimeRef = useRef<number>(0);
   const touchStartYRef = useRef<number | null>(null);
@@ -136,7 +137,7 @@ export function DistributorLoginPage() {
       setLoginError('');
       navigate('/portal/dashboard');
     } else {
-      setLoginError(lang === 'sw' ? 'PIN sio sahihi. Jaribu 2580 au Google.' : 'Incorrect PIN. Try 2580 or Google Sign-In.');
+      setLoginError(lang === 'sw' ? 'PIN sio sahihi. Jaribu tena au Ingia na Google.' : 'Incorrect PIN. Try again or use Google Sign-In.');
     }
   };
 
@@ -186,9 +187,11 @@ export function DistributorLoginPage() {
     }
   };
 
+  // Demo unlock exists only in development (devFlags); production has no shortcut
   const handleQuickDemoUnlock = () => {
-    setPinInput('2580');
-    verifyPin('2580');
+    if (!DEMO_UNLOCK_ENABLED || !DEMO_PIN) return;
+    setPinInput(DEMO_PIN);
+    verifyPin(DEMO_PIN);
     setAdminAuthenticated(true);
     navigate('/portal/dashboard');
   };
@@ -198,6 +201,7 @@ export function DistributorLoginPage() {
     e.preventDefault();
     setAdminError('');
     if (
+      DEMO_UNLOCK_ENABLED &&
       (adminEmailInput.trim().toLowerCase() === 'admin@edretail.tz' ||
         adminEmailInput.trim().toLowerCase() === 'admin@edretail.com' ||
         adminEmailInput.trim().toLowerCase() === 'admin') &&
@@ -211,6 +215,7 @@ export function DistributorLoginPage() {
   };
 
   const handleQuickAdminDemo = () => {
+    if (!DEMO_UNLOCK_ENABLED) return; // no unauthenticated shortcut in production
     setShowSuperAdminModal(false);
     navigate('/admin/dashboard');
   };
@@ -468,17 +473,19 @@ export function DistributorLoginPage() {
                     </motion.p>
                   )}
 
-                  {/* 1-Tap Demo helper */}
-                  <div className="pt-2 border-t border-stone-800/80 flex items-center justify-between text-xs text-stone-400">
-                    <span>Default Owner PIN:</span>
-                    <button
-                      type="button"
-                      onClick={handleQuickDemoUnlock}
-                      className="font-mono font-black text-amber-300 hover:text-amber-200 underline cursor-pointer"
-                    >
-                      1-Tap 2580
-                    </button>
-                  </div>
+                  {/* 1-Tap Demo helper — development only (devFlags) */}
+                  {DEMO_UNLOCK_ENABLED && (
+                    <div className="pt-2 border-t border-stone-800/80 flex items-center justify-between text-xs text-stone-400">
+                      <span>Default Owner PIN:</span>
+                      <button
+                        type="button"
+                        onClick={handleQuickDemoUnlock}
+                        className="font-mono font-black text-amber-300 hover:text-amber-200 underline cursor-pointer"
+                      >
+                        1-Tap {DEMO_PIN}
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 

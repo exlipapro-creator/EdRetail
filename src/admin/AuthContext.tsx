@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { DEMO_UNLOCK_ENABLED } from '../lib/devFlags';
 
 interface AuthCtx {
   user: User | null;
@@ -49,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           (email.trim().toLowerCase() === 'admin@edretail.com' ||
             email.trim().toLowerCase() === 'admin@edretail.tz' ||
             email.trim().toLowerCase() === 'admin') &&
-          (password === 'admin123' || password === 'admin' || password === '255' || password === '1234')
+          (DEMO_UNLOCK_ENABLED && (password === 'admin123' || password === 'admin' || password === '255' || password === '1234'))
         ) {
           const mockUser: User = {
             id: 'admin-demo-user',
@@ -79,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         (email.trim().toLowerCase() === 'admin@edretail.com' ||
           email.trim().toLowerCase() === 'admin@edretail.tz' ||
           email.trim().toLowerCase() === 'admin') &&
-        (password === 'admin123' || password === 'admin' || password === '255' || password === '1234')
+        (DEMO_UNLOCK_ENABLED && (password === 'admin123' || password === 'admin' || password === '255' || password === '1234'))
       ) {
         const mockUser: User = {
           id: 'admin-demo-user',
