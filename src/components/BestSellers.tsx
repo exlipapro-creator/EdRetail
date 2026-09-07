@@ -68,17 +68,17 @@ export function BestSellers() {
   // Loading — show 3 skeleton cards
   if (loading) {
     return (
-      <section className="max-w-lg mx-auto px-4 py-5">
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">
-          {lang === 'sw' ? 'Bidhaa Maarufu' : 'Best Sellers'}
-        </h2>
-        <p className="text-xs text-gray-400 mb-4">
-          {lang === 'sw' ? 'Bidhaa zinazonunuliwa zaidi' : 'Most purchased products'}
-        </p>
-        <div className="grid grid-cols-3 gap-3">
-          {[0, 1, 2].map((i) => <SkeletonCard key={i} />)}
-        </div>
-      </section>
+    <section className="container-page py-5">
+      <h2 className="text-2xl font-bold text-gray-900 mb-1">
+        {lang === 'sw' ? 'Bidhaa Maarufu' : 'Best Sellers'}
+      </h2>
+      <p className="text-xs text-gray-400 mb-4">
+        {lang === 'sw' ? 'Bidhaa zinazonunuliwa zaidi' : 'Most purchased products'}
+      </p>
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+        {[0, 1, 2].map((i) => <SkeletonCard key={i} />)}
+      </div>
+    </section>
     );
   }
 
@@ -93,18 +93,18 @@ export function BestSellers() {
   if (resolved.length < 3) return null;
 
   return (
-    <section className="max-w-lg mx-auto px-4 py-5">
+    <section className="container-page py-5">
       <h2 className="text-2xl font-bold text-gray-900 mb-1">
         {lang === 'sw' ? 'Bidhaa Maarufu' : 'Best Sellers'}
       </h2>
       <p className="text-xs text-gray-400 mb-4">
         {lang === 'sw' ? 'Bidhaa zinazonunuliwa zaidi' : 'Most purchased products'}
       </p>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         {resolved.map((product, idx) => (
           <div key={product.id} className="relative">
             {idx === 0 && (
-              <span className="absolute -top-2 -left-1 z-10 px-2 py-0.5 bg-amber-400 text-amber-900 text-[9px] font-bold rounded-full uppercase tracking-wide shadow-sm">
+              <span className="absolute -top-2 -left-1 z-10 px-2 py-0.5 bg-gold-400 text-gold-900 text-[9px] font-bold rounded-full uppercase tracking-wide">
                 #1
               </span>
             )}

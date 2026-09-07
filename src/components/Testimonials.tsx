@@ -3,6 +3,7 @@ import { Star, Quote, BadgeCheck } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { TESTIMONIALS as STATIC_TESTIMONIALS } from '../types';
 import { useLang } from '../context/LangContext';
+import { SectionHeader } from './ui';
 
 interface TestimonialRow {
   id: string;
@@ -16,12 +17,6 @@ interface TestimonialRow {
 const CARD_W  = 252;
 const GAP     = 12;
 const INTERVAL = 3200;
-
-const ACCENTS = [
-  { bg: 'from-indigo-50 to-white', ring: 'border-indigo-100', dot: 'bg-indigo-500' },
-  { bg: 'from-violet-50 to-white', ring: 'border-violet-100', dot: 'bg-violet-500' },
-  { bg: 'from-blue-50 to-white',   ring: 'border-blue-100',   dot: 'bg-blue-500'   },
-];
 
 function useTestimonials() {
   const [items, setItems]   = useState<TestimonialRow[]>([]);
@@ -102,32 +97,26 @@ export function Testimonials() {
   if (loading) return null; // silent — section appears once data is ready
 
   return (
-    <section className="py-6">
+    <section id="reviews" className="py-6 scroll-mt-20">
       {/* ── Header ── */}
-      <div className="max-w-lg mx-auto px-4 mb-4">
-        <div className="flex items-end justify-between">
-          <div>
-            <span className="inline-block text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-full uppercase tracking-widest mb-2">
-              {lang === 'sw' ? 'Ushuhuda' : 'Testimonials'}
-            </span>
-            <h2 className="text-2xl font-bold text-gray-900 leading-tight">
-              {lang === 'sw' ? 'Wanachosema Wateja Wetu' : 'What Our Customers Say'}
-            </h2>
-          </div>
-
-          {/* Aggregate rating block */}
-          <div className="flex flex-col items-center bg-indigo-600 rounded-2xl px-4 py-2.5 shadow-md flex-shrink-0">
-            <span className="text-xl font-extrabold text-white leading-none">4.9</span>
-            <div className="flex gap-0.5 my-1">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-2.5 h-2.5 fill-amber-300 text-amber-300" />
-              ))}
+      <div className="container-page mb-4">
+        <SectionHeader
+          label={lang === 'sw' ? 'Ushuhuda' : 'Testimonials'}
+          title={lang === 'sw' ? 'Wanachosema Wateja Wetu' : 'What Our Customers Say'}
+          aside={
+            <div className="flex flex-col items-center bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-card">
+              <span className="text-xl font-extrabold text-gray-900 leading-none">4.9</span>
+              <div className="flex gap-0.5 my-1" aria-label="Rated 4.9 out of 5">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-2.5 h-2.5 fill-gold-400 text-gold-400" />
+                ))}
+              </div>
+              <span className="text-[9px] font-semibold text-gray-500 uppercase tracking-wide">
+                {lang === 'sw' ? 'Wastani' : 'Avg. rating'}
+              </span>
             </div>
-            <span className="text-[9px] font-semibold text-indigo-200 uppercase tracking-wide">
-              {lang === 'sw' ? 'Wastani' : 'Avg. rating'}
-            </span>
-          </div>
-        </div>
+          }
+        />
       </div>
 
       {/* ── Scrollable track ── */}
@@ -141,58 +130,55 @@ export function Testimonials() {
         className="flex gap-3 overflow-x-auto px-4 pb-3 scrollbar-hide snap-x snap-mandatory"
         style={{ scrollSnapType: 'x mandatory' }}
       >
-        {items.map((item, idx) => {
-          const ac = ACCENTS[idx % ACCENTS.length];
-          return (
-            <div
-              key={item.id}
-              style={{ width: CARD_W, minWidth: CARD_W }}
-              className={`snap-start bg-gradient-to-br ${ac.bg} rounded-2xl border ${ac.ring} shadow-sm p-4 flex flex-col gap-3 flex-shrink-0`}
-            >
-              <div className={`w-7 h-7 ${ac.dot} rounded-lg flex items-center justify-center shadow-sm`}>
-                <Quote className="w-3.5 h-3.5 text-white" />
-              </div>
+        {items.map((item) => (
+          <div
+            key={item.id}
+            style={{ width: CARD_W, minWidth: CARD_W }}
+            className="snap-start bg-white rounded-xl border border-gray-100 shadow-card p-4 flex flex-col gap-3 flex-shrink-0"
+          >
+            <div className="w-7 h-7 bg-primary-50 rounded-lg flex items-center justify-center">
+              <Quote className="w-3.5 h-3.5 text-primary-600" />
+            </div>
 
-              <p className="text-[12px] text-gray-700 leading-relaxed italic line-clamp-4 flex-1">
-                "{item.text}"
-              </p>
+            <p className="text-[12px] text-gray-700 leading-relaxed italic line-clamp-4 flex-1">
+              "{item.text}"
+            </p>
 
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
-                ))}
-              </div>
+            <div className="flex gap-0.5" aria-label="Rated 5 out of 5">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-3 h-3 fill-gold-400 text-gold-400" />
+              ))}
+            </div>
 
-              <div className="h-px bg-gray-200 opacity-60" />
+            <div className="h-px bg-gray-100" />
 
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className={`w-8 h-8 rounded-full ${ac.dot} flex items-center justify-center flex-shrink-0 shadow-sm`}>
-                    <span className="text-xs font-bold text-white">{item.name.charAt(0)}</span>
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1">
-                      <p className="text-xs font-bold text-gray-900 truncate">{item.name}</p>
-                      <BadgeCheck className="w-3 h-3 text-indigo-500 flex-shrink-0" />
-                    </div>
-                    <p className="text-[10px] text-gray-400 truncate">{item.location}</p>
-                  </div>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs font-bold text-gray-600">{item.name.charAt(0)}</span>
                 </div>
-                {item.result && (
-                  <span className="text-[10px] font-bold text-green-700 bg-green-100 border border-green-200 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
-                    {item.result}
-                  </span>
-                )}
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1">
+                    <p className="text-xs font-bold text-gray-900 truncate">{item.name}</p>
+                    <BadgeCheck className="w-3 h-3 text-primary-500 flex-shrink-0" />
+                  </div>
+                  <p className="text-[10px] text-gray-400 truncate">{item.location}</p>
+                </div>
               </div>
-
-              {item.product && (
-                <span className="self-start text-[10px] font-medium text-gray-500 bg-white border border-gray-100 px-2.5 py-0.5 rounded-full">
-                  {item.product}
+              {item.result && (
+                <span className="text-[10px] font-bold text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
+                  {item.result}
                 </span>
               )}
             </div>
-          );
-        })}
+
+            {item.product && (
+              <span className="self-start text-[10px] font-medium text-gray-500 bg-gray-50 border border-gray-100 px-2.5 py-0.5 rounded-full">
+                {item.product}
+              </span>
+            )}
+          </div>
+        ))}
         <div className="flex-shrink-0 w-4" aria-hidden="true" />
       </div>
 
@@ -205,7 +191,7 @@ export function Testimonials() {
             aria-label={`Review ${i + 1}`}
             className={`rounded-full transition-all duration-300 outline-none [-webkit-tap-highlight-color:transparent] ${
               i === active
-                ? 'w-5 h-1.5 bg-indigo-600'
+                ? 'w-5 h-1.5 bg-primary-600'
                 : 'w-1.5 h-1.5 bg-gray-300 hover:bg-gray-400'
             }`}
           />

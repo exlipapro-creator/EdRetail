@@ -2,9 +2,13 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { formatPrice } from '../../utils/whatsappCompiler';
 import { AdminProduct } from '../types';
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Loader2, X, Save } from 'lucide-react';
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Loader2, Save } from 'lucide-react';
 import { useDistributorStore } from '../../store/distributorStore';
 import { PRODUCTS } from '../../types';
+import {
+  PageHeader, Modal, Field, inputClasses, buttonClasses,
+  Badge, EmptyState, Spinner, cn,
+} from '../../components/ui';
 
 const EMPTY: Omit<AdminProduct, 'created_at' | 'updated_at'> = {
   id: '', name_en: '', name_sw: '', category: 'health-wellness',
@@ -121,43 +125,82 @@ export function ProductsPage() {
   };
 
   const CATEGORIES = ['p4-slimming', 'health-wellness', 'lifestyle-beverages'];
+  const isEditing = Boolean(editing?.id && products.find(p => p.id === editing.id));
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-bold text-white">Products</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{products.length} products in catalogue</p>
-        </div>
-        <button
-          onClick={openNew}
-          className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Add Product
-        </button>
-      </div>
+    <div className="p-4 md:p-6 max-w-5xl">
+      <PageHeader
+        title="Products"
+        sub={`${products.length} products in catalogue`}
+        actions={
+          <button onClick={openNew} className={buttonClasses('primary')}>
+            <Plus className="w-4 h-4" /> Add Product
+          </button>
+        }
+      />
 
       {loading ? (
-        <div className="flex items-center justify-center h-48"><Loader2 className="w-8 h-8 text-indigo-500 animate-spin" /></div>
+        <div className="flex items-center justify-center h-48"><Spinner /></div>
+      ) : products.length === 0 ? (
+        <div className="bg-white border border-gray-200 rounded-xl">
+          <EmptyState
+            icon={<Plus className="w-5 h-5 text-gray-400" />}
+            title="No products yet"
+            sub="Add your first product to start selling on the storefront."
+            action={
+              <button onClick={openNew} className={buttonClasses('primary')}>
+                <Plus className="w-4 h-4" /> Add Product
+              </button>
+            }
+          />
+        </div>
       ) : (
         <div className="space-y-2">
           {products.map(p => (
-            <div key={p.id} className="bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 flex items-center gap-4">
-              <img src={p.image} alt={p.name_en} className="w-12 h-12 object-contain rounded-lg bg-gray-800 flex-shrink-0" onError={e => { e.currentTarget.style.display = 'none'; }} />
+            <div
+              key={p.id}
+              className="bg-white border border-gray-200 rounded-lg px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3"
+            >
+              <img
+                src={p.image}
+                alt={p.name_en}
+                className="w-12 h-12 object-contain rounded-md bg-gray-50 border border-gray-100 flex-shrink-0 self-start sm:self-center"
+                onError={e => { e.currentTarget.style.visibility = 'hidden'; }}
+              />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className="text-sm font-semibold text-white truncate">{p.name_en}</p>
-                  {p.badge && <span className="text-[10px] font-bold text-indigo-300 bg-indigo-950 border border-indigo-800 px-2 py-0.5 rounded-full">{p.badge}</span>}
-                  {p.stock_qty <= 5 && p.in_stock && <span className="text-[10px] font-bold text-amber-300 bg-amber-950 border border-amber-800 px-2 py-0.5 rounded-full">Low stock</span>}
+                  <p className="text-sm font-semibold text-gray-900 truncate">{p.name_en}</p>
+                  {p.badge && <Badge tone="primary">{p.badge}</Badge>}
+                  {p.stock_qty <= 5 && p.in_stock && <Badge tone="warning">Low stock</Badge>}
+                  {!p.in_stock && <Badge tone="danger">Out of stock</Badge>}
                 </div>
-                <p className="text-xs text-gray-500 mt-0.5">{p.category} · {formatPrice(p.price)} TZS · Stock: {p.stock_qty}</p>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {p.category} · {formatPrice(p.price)} TZS · Stock: {p.stock_qty}
+                </p>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <button onClick={() => toggleStock(p)} className="text-gray-500 hover:text-white transition-colors" title={p.in_stock ? 'Mark out of stock' : 'Mark in stock'}>
-                  {p.in_stock ? <ToggleRight className="w-5 h-5 text-green-500" /> : <ToggleLeft className="w-5 h-5" />}
+              <div className="flex items-center gap-1 flex-shrink-0 self-end sm:self-center">
+                <button
+                  onClick={() => toggleStock(p)}
+                  className="p-2 rounded-md text-gray-400 hover:text-gray-700 transition-colors outline-none"
+                  title={p.in_stock ? 'Mark out of stock' : 'Mark in stock'}
+                  aria-label={p.in_stock ? `Mark ${p.name_en} out of stock` : `Mark ${p.name_en} in stock`}
+                >
+                  {p.in_stock ? <ToggleRight className="w-5 h-5 text-green-600" /> : <ToggleLeft className="w-5 h-5" />}
                 </button>
-                <button onClick={() => openEdit(p)} className="p-1.5 text-gray-500 hover:text-indigo-400 transition-colors"><Pencil className="w-4 h-4" /></button>
-                <button onClick={() => handleDelete(p.id)} className="p-1.5 text-gray-500 hover:text-red-400 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                <button
+                  onClick={() => openEdit(p)}
+                  className="p-2 rounded-md text-gray-400 hover:text-primary-600 transition-colors outline-none"
+                  aria-label={`Edit ${p.name_en}`}
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleDelete(p.id)}
+                  className="p-2 rounded-md text-gray-400 hover:text-red-600 transition-colors outline-none"
+                  aria-label={`Delete ${p.name_en}`}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
             </div>
           ))}
@@ -165,80 +208,142 @@ export function ProductsPage() {
       )}
 
       {/* Edit / Add Modal */}
-      {editing && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-end md:items-center justify-center p-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
-              <h2 className="text-base font-bold text-white">{editing.id && products.find(p => p.id === editing.id) ? 'Edit Product' : 'New Product'}</h2>
-              <button onClick={close} className="text-gray-500 hover:text-white"><X className="w-5 h-5" /></button>
+      <Modal
+        open={Boolean(editing)}
+        onClose={close}
+        title={isEditing ? 'Edit Product' : 'New Product'}
+        footer={
+          <>
+            <button onClick={close} className={buttonClasses('secondary', 'flex-1')}>Cancel</button>
+            <button onClick={handleSave} disabled={saving} className={buttonClasses('primary', 'flex-1')}>
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4" /> Save</>}
+            </button>
+          </>
+        }
+      >
+        {editing && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Field label="Name (English)">
+                <input
+                  value={editing.name_en ?? ''}
+                  onChange={e => setEditing(v => ({ ...v, name_en: e.target.value }))}
+                  className={inputClasses}
+                />
+              </Field>
+              <Field label="Name (Swahili)">
+                <input
+                  value={editing.name_sw ?? ''}
+                  onChange={e => setEditing(v => ({ ...v, name_sw: e.target.value }))}
+                  className={inputClasses}
+                />
+              </Field>
             </div>
-            <div className="px-5 py-4 space-y-3">
-              {([['name_en','Name (English)'],['name_sw','Name (Swahili)'],['image','Image path']] as [keyof AdminProduct, string][]).map(([field, label]) => (
-                <div key={field}>
-                  <label className="block text-xs font-semibold text-gray-400 mb-1">{label}</label>
-                  <input
-                    value={(editing[field] as string) ?? ''}
-                    onChange={e => setEditing(v => ({ ...v, [field]: e.target.value }))}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                </div>
-              ))}
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-400 mb-1">Price (TZS)</label>
-                  <input type="number" value={editing.price ?? 0} onChange={e => setEditing(v => ({ ...v, price: +e.target.value }))}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-400 mb-1">Stock Qty</label>
-                  <input type="number" value={editing.stock_qty ?? 0} onChange={e => setEditing(v => ({ ...v, stock_qty: +e.target.value }))}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-                </div>
-              </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Price (TZS)">
+                <input
+                  type="number"
+                  value={editing.price ?? 0}
+                  onChange={e => setEditing(v => ({ ...v, price: +e.target.value }))}
+                  className={cn(inputClasses, 'tabular-nums')}
+                />
+              </Field>
+              <Field label="Stock Qty">
+                <input
+                  type="number"
+                  value={editing.stock_qty ?? 0}
+                  onChange={e => setEditing(v => ({ ...v, stock_qty: +e.target.value }))}
+                  className={cn(inputClasses, 'tabular-nums')}
+                />
+              </Field>
+            </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Category</label>
-                <select value={editing.category ?? 'health-wellness'} onChange={e => setEditing(v => ({ ...v, category: e.target.value as AdminProduct['category'] }))}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Field label="Category">
+                <select
+                  value={editing.category ?? 'health-wellness'}
+                  onChange={e => setEditing(v => ({ ...v, category: e.target.value as AdminProduct['category'] }))}
+                  className={inputClasses}
+                >
                   {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Badge (optional)</label>
-                <input value={editing.badge ?? ''} onChange={e => setEditing(v => ({ ...v, badge: e.target.value || null }))}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="e.g. Bestseller" />
-              </div>
-
-              {([['description_en','Description (EN)'],['description_sw','Description (SW)'],['usage_en','Usage (EN)'],['usage_sw','Usage (SW)']] as [keyof AdminProduct, string][]).map(([field, label]) => (
-                <div key={field}>
-                  <label className="block text-xs font-semibold text-gray-400 mb-1">{label}</label>
-                  <textarea rows={2} value={(editing[field] as string) ?? ''}
-                    onChange={e => setEditing(v => ({ ...v, [field]: e.target.value }))}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none" />
-                </div>
-              ))}
-
-              <div className="flex items-center gap-3 pt-1">
-                <label className="text-xs font-semibold text-gray-400">In Stock</label>
-                <button type="button" onClick={() => setEditing(v => ({ ...v, in_stock: !v?.in_stock }))}>
-                  {editing.in_stock ? <ToggleRight className="w-6 h-6 text-green-500" /> : <ToggleLeft className="w-6 h-6 text-gray-500" />}
-                </button>
-              </div>
-
-              {error && <p className="text-xs text-red-400 bg-red-950/50 border border-red-900 rounded-lg px-3 py-2">{error}</p>}
+              </Field>
+              <Field label="Badge (optional)">
+                <input
+                  value={editing.badge ?? ''}
+                  onChange={e => setEditing(v => ({ ...v, badge: e.target.value || null }))}
+                  className={inputClasses}
+                  placeholder="e.g. Bestseller"
+                />
+              </Field>
             </div>
-            <div className="px-5 py-4 border-t border-gray-800 flex gap-3">
-              <button onClick={close} className="flex-1 py-2.5 border border-gray-700 text-gray-400 text-sm font-semibold rounded-xl hover:bg-gray-800 transition-colors">Cancel</button>
-              <button onClick={handleSave} disabled={saving} className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-60">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4" /> Save</>}
+
+            <Field label="Image path">
+              <input
+                value={editing.image ?? ''}
+                onChange={e => setEditing(v => ({ ...v, image: e.target.value }))}
+                className={inputClasses}
+                placeholder="/products/example.png"
+              />
+            </Field>
+
+            <div className="border-t border-gray-100 pt-3 space-y-3">
+              <Field label="Description (English)">
+                <textarea
+                  rows={2}
+                  value={editing.description_en ?? ''}
+                  onChange={e => setEditing(v => ({ ...v, description_en: e.target.value }))}
+                  className={cn(inputClasses, 'resize-none')}
+                />
+              </Field>
+              <Field label="Description (Swahili)">
+                <textarea
+                  rows={2}
+                  value={editing.description_sw ?? ''}
+                  onChange={e => setEditing(v => ({ ...v, description_sw: e.target.value }))}
+                  className={cn(inputClasses, 'resize-none')}
+                />
+              </Field>
+              <Field label="Usage (English)">
+                <textarea
+                  rows={2}
+                  value={editing.usage_en ?? ''}
+                  onChange={e => setEditing(v => ({ ...v, usage_en: e.target.value }))}
+                  className={cn(inputClasses, 'resize-none')}
+                />
+              </Field>
+              <Field label="Usage (Swahili)">
+                <textarea
+                  rows={2}
+                  value={editing.usage_sw ?? ''}
+                  onChange={e => setEditing(v => ({ ...v, usage_sw: e.target.value }))}
+                  className={cn(inputClasses, 'resize-none')}
+                />
+              </Field>
+            </div>
+
+            <div className="flex items-center gap-3 border-t border-gray-100 pt-3">
+              <label className="text-xs font-semibold text-gray-500">In Stock</label>
+              <button
+                type="button"
+                onClick={() => setEditing(v => ({ ...v, in_stock: !v?.in_stock }))}
+                aria-label={editing.in_stock ? 'Mark in stock' : 'Mark out of stock'}
+              >
+                {editing.in_stock
+                  ? <ToggleRight className="w-6 h-6 text-green-600" />
+                  : <ToggleLeft className="w-6 h-6 text-gray-400" />}
               </button>
             </div>
+
+            {error && (
+              <p role="alert" className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+                {error}
+              </p>
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
     </div>
   );
 }

@@ -1,18 +1,16 @@
-import React from 'react';
-import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import React, { lazy, Suspense } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { LangProvider } from './context/LangContext';
 import { AuthProvider, useAuth } from './admin/AuthContext';
-import { AdminLayout } from './admin/components/AdminLayout';
-import { LoginPage as AdminLoginPage } from './admin/pages/LoginPage';
-import { DashboardPage as AdminDashboardPage } from './admin/pages/DashboardPage';
-import { ProductsPage as AdminProductsPage } from './admin/pages/ProductsPage';
-import { DistributorsPage as AdminDistributorsPage } from './admin/pages/DistributorsPage';
-import { SalesPage as AdminSalesPage } from './admin/pages/SalesPage';
-import { LoansPage as AdminLoansPage } from './admin/pages/LoansPage';
-import { CashFlowPage as AdminCashFlowPage } from './admin/pages/CashFlowPage';
-import { TestimonialsPage as AdminTestimonialsPage } from './admin/pages/TestimonialsPage';
-import { SettingsPage as AdminSettingsPage } from './admin/pages/SettingsPage';
+import { Spinner } from './components/ui';
+import App from './App';
 
+// Admin portal is code-split: its Supabase queries and auth context never
+// load for storefront visitors.
+const AdminApp = lazy(() => import('./admin/AdminApp'));
+
+// Distributor portal pages (part of the main bundle for now — the distributor
+// audience loads them directly via /portal links)
 import { useDistributorStore } from './store/distributorStore';
 import { DistributorLayout } from './distributor/components/DistributorLayout';
 import { DistributorLoginPage } from './distributor/pages/DistributorLoginPage';
@@ -23,8 +21,6 @@ import { DistributorCrmPage } from './distributor/pages/DistributorCrmPage';
 import { DistributorPaymentsPage } from './distributor/pages/DistributorPaymentsPage';
 import { DistributorProfilePage } from './distributor/pages/DistributorProfilePage';
 
-import App from './App';
-
 // Storefront Wrapper with LangProvider
 function StorefrontRoute() {
   return (
@@ -34,27 +30,36 @@ function StorefrontRoute() {
   );
 }
 
+function AdminFallback() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <Spinner />
+    </div>
+  );
+}
+
+function AdminSpinner() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <Spinner />
+    </div>
+  );
+}
+
 // Super Admin Auth Protection
 function AdminLogin() {
   const { user, loading } = useAuth();
   if (loading) return <AdminSpinner />;
   if (user) return <Navigate to="/admin/dashboard" replace />;
-  return <AdminLoginPage />;
+  // LoginPage lives inside the lazy admin chunk — rendered via AdminApp's route
+  return <Navigate to="/admin" replace />;
 }
 
 function AdminProtected({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) return <AdminSpinner />;
   if (!user) return <Navigate to="/admin" replace />;
-  return <AdminLayout>{children}</AdminLayout>;
-}
-
-function AdminSpinner() {
-  return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+  return <>{children}</>;
 }
 
 // Distributor Portal Auth Protection
@@ -71,23 +76,14 @@ export function AppRouter() {
   const isAdmin = pathname.startsWith('/admin');
   const isPortal = pathname.startsWith('/portal') || pathname.startsWith('/distributor');
 
-  // 1. Super Admin Routes (Wrapped in AuthProvider)
+  // 1. Super Admin Routes (AuthProvider lives inside the lazy AdminApp chunk)
   if (isAdmin) {
     return (
-      <AuthProvider>
+      <Suspense fallback={<AdminFallback />}>
         <Routes>
-          <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminProtected><AdminDashboardPage /></AdminProtected>} />
-          <Route path="/admin/products" element={<AdminProtected><AdminProductsPage /></AdminProtected>} />
-          <Route path="/admin/distributors" element={<AdminProtected><AdminDistributorsPage /></AdminProtected>} />
-          <Route path="/admin/sales" element={<AdminProtected><AdminSalesPage /></AdminProtected>} />
-          <Route path="/admin/loans" element={<AdminProtected><AdminLoansPage /></AdminProtected>} />
-          <Route path="/admin/cashflow" element={<AdminProtected><AdminCashFlowPage /></AdminProtected>} />
-          <Route path="/admin/testimonials" element={<AdminProtected><AdminTestimonialsPage /></AdminProtected>} />
-          <Route path="/admin/settings" element={<AdminProtected><AdminSettingsPage /></AdminProtected>} />
-          <Route path="/admin/*" element={<Navigate to="/admin" replace />} />
+          <Route path="/admin/*" element={<AdminApp />} />
         </Routes>
-      </AuthProvider>
+      </Suspense>
     );
   }
 
@@ -103,70 +99,14 @@ export function AppRouter() {
           <Route path="/distributor" element={<DistributorLoginPage />} />
 
           {/* Protected Distributor Operations Portal */}
-          <Route
-            path="/portal/dashboard"
-            element={
-              <DistributorProtected>
-                <DistributorDashboardPage />
-              </DistributorProtected>
-            }
-          />
-          <Route
-            path="/portal/ledger"
-            element={
-              <DistributorProtected>
-                <DistributorDashboardPage />
-              </DistributorProtected>
-            }
-          />
-          <Route
-            path="/portal/inventory"
-            element={
-              <DistributorProtected>
-                <DistributorInventoryPage />
-              </DistributorProtected>
-            }
-          />
-          <Route
-            path="/portal/goals"
-            element={
-              <DistributorProtected>
-                <DistributorGoalsPage />
-              </DistributorProtected>
-            }
-          />
-          <Route
-            path="/portal/crm"
-            element={
-              <DistributorProtected>
-                <DistributorCrmPage />
-              </DistributorProtected>
-            }
-          />
-          <Route
-            path="/portal/payments"
-            element={
-              <DistributorProtected>
-                <DistributorPaymentsPage />
-              </DistributorProtected>
-            }
-          />
-          <Route
-            path="/portal/profile"
-            element={
-              <DistributorProtected>
-                <DistributorProfilePage />
-              </DistributorProtected>
-            }
-          />
-          <Route
-            path="/portal/storefront"
-            element={
-              <DistributorProtected>
-                <DistributorProfilePage />
-              </DistributorProtected>
-            }
-          />
+          <Route path="/portal/dashboard" element={<DistributorProtected><DistributorDashboardPage /></DistributorProtected>} />
+          <Route path="/portal/ledger"    element={<DistributorProtected><DistributorDashboardPage /></DistributorProtected>} />
+          <Route path="/portal/inventory" element={<DistributorProtected><DistributorInventoryPage /></DistributorProtected>} />
+          <Route path="/portal/goals"     element={<DistributorProtected><DistributorGoalsPage /></DistributorProtected>} />
+          <Route path="/portal/crm"       element={<DistributorProtected><DistributorCrmPage /></DistributorProtected>} />
+          <Route path="/portal/payments"  element={<DistributorProtected><DistributorPaymentsPage /></DistributorProtected>} />
+          <Route path="/portal/profile"   element={<DistributorProtected><DistributorProfilePage /></DistributorProtected>} />
+          <Route path="/portal/storefront" element={<DistributorProtected><DistributorProfilePage /></DistributorProtected>} />
           <Route path="/portal/*" element={<Navigate to="/portal/dashboard" replace />} />
         </Routes>
       </LangProvider>

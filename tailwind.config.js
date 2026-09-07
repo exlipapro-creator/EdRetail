@@ -51,6 +51,21 @@ export default {
           DEFAULT: '#C89D4D',
         },
 
+        // Gold ramp — premium / achievement / financial accents (ratings,
+        // best-seller ranks, distributor status). Never for buttons.
+        gold: {
+          50: '#FBF7EB',
+          100: '#F5EDD8',
+          200: '#EADDB4',
+          300: '#DCC687',
+          400: '#CFAE5C',
+          500: '#C29A3F',
+          600: '#A67F30',
+          700: '#856426',
+          800: '#5F481D',
+          900: '#3D2E13',
+        },
+
         // Neutral / surface system (70% foundation)
         neutral: {
           50: '#F6F7F8',
@@ -65,24 +80,31 @@ export default {
           900: '#0E1722',
         },
 
-        // Semantic states
+        // Semantic states — status only, never decoration
         success: { DEFAULT: '#0E6B52', 50: '#E7F4EE', 100: '#CDE9DE', 600: '#0E6B52' },
         warning: { DEFAULT: '#C89D4D', 50: '#F8EFD9', 100: '#FEF3C7', 600: '#B4883A' },
         danger:  { DEFAULT: '#D9252A', 50: '#FCE8E8', 100: '#FEE2E2', 600: '#D9252A' },
         info:    { DEFAULT: '#123B6D', 50: '#F0F4F9', 100: '#E1E9F3', 600: '#123B6D' },
       },
 
+      // Border-radius scale — intentional radii, not everything-is-a-pill.
       borderRadius: {
         sm: '4px',
+        DEFAULT: '8px',
         md: '8px',
         lg: '12px',
         xl: '16px',
         '2xl': '20px',
         '3xl': '24px',
       },
+
+      // Shadows — quiet, layered; no glows
+      boxShadow: {
+        card:   '0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06)',
+        raised: '0 4px 12px rgba(16, 24, 40, 0.08)',
+        overlay:'0 24px 48px rgba(16, 24, 40, 0.18)',
+      },
     },
   },
   plugins: [],
 }
-
-

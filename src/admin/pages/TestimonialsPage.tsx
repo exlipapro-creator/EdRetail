@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Loader2, X, Save, Star } from 'lucide-react';
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Loader2, Save, Star } from 'lucide-react';
 import testimonialsData from '../../data/testimonials.json';
+import {
+  PageHeader, Modal, Field, inputClasses, buttonClasses,
+  Badge, EmptyState, Spinner, cn,
+} from '../../components/ui';
 
 interface DBTestimonial {
   id: string;
@@ -104,66 +108,80 @@ export function TestimonialsPage() {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-bold text-white">Testimonials</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            {items.filter(t => t.visible).length} visible · {items.length} total
-          </p>
-        </div>
-        <button
-          onClick={openNew}
-          className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Add Review
-        </button>
-      </div>
+    <div className="p-4 md:p-6 max-w-5xl">
+      <PageHeader
+        title="Testimonials"
+        sub={`${items.filter(t => t.visible).length} visible · ${items.length} total`}
+        actions={
+          <button onClick={openNew} className={buttonClasses('primary')}>
+            <Plus className="w-4 h-4" /> Add Review
+          </button>
+        }
+      />
 
       {loading ? (
-        <div className="flex items-center justify-center h-48">
-          <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
-        </div>
+        <div className="flex items-center justify-center h-48"><Spinner /></div>
       ) : items.length === 0 ? (
-        <p className="text-center text-gray-600 py-16 text-sm">No testimonials yet. Add the first one.</p>
+        <div className="bg-white border border-gray-200 rounded-xl">
+          <EmptyState
+            icon={<Star className="w-5 h-5 text-gray-400" />}
+            title="No testimonials yet"
+            sub="Add the first customer review — it will appear on the storefront once visible."
+            action={
+              <button onClick={openNew} className={buttonClasses('primary')}>
+                <Plus className="w-4 h-4" /> Add Review
+              </button>
+            }
+          />
+        </div>
       ) : (
         <div className="space-y-2">
           {items.map(t => (
-            <div key={t.id} className="bg-gray-900 border border-gray-800 rounded-xl px-4 py-3 flex items-start gap-3">
+            <div
+              key={t.id}
+              className="bg-white border border-gray-200 rounded-lg px-4 py-3 flex flex-col sm:flex-row sm:items-start gap-3"
+            >
               {/* Stars */}
-              <div className="flex gap-0.5 mt-0.5 flex-shrink-0">
+              <div className="flex gap-0.5 flex-shrink-0" aria-label="Rated 5 out of 5">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                  <Star key={i} className="w-3 h-3 fill-gold-400 text-gold-400" />
                 ))}
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                  <span className="text-sm font-semibold text-white">{t.name}</span>
+                  <span className="text-sm font-semibold text-gray-900">{t.name}</span>
                   {t.location && <span className="text-xs text-gray-500">{t.location}</span>}
-                  {t.result && (
-                    <span className="text-[10px] font-bold text-green-400 bg-green-950 border border-green-800 px-2 py-0.5 rounded-full">
-                      {t.result}
-                    </span>
-                  )}
-                  {!t.visible && (
-                    <span className="text-[10px] font-bold text-gray-500 bg-gray-800 px-2 py-0.5 rounded-full">Hidden</span>
-                  )}
+                  {t.result && <Badge tone="success">{t.result}</Badge>}
+                  {!t.visible && <Badge tone="neutral">Hidden</Badge>}
                 </div>
                 {t.product && <p className="text-[10px] text-gray-500 mb-1">{t.product}</p>}
-                <p className="text-xs text-gray-400 leading-relaxed line-clamp-2 italic">"{t.text}"</p>
+                <p className="text-xs text-gray-500 leading-relaxed line-clamp-2 italic">"{t.text}"</p>
               </div>
 
-              <div className="flex items-center gap-1.5 flex-shrink-0">
-                <button onClick={() => toggleVisible(t)} title={t.visible ? 'Hide' : 'Show'}>
+              <div className="flex items-center gap-1 flex-shrink-0 self-end sm:self-start">
+                <button
+                  onClick={() => toggleVisible(t)}
+                  className="p-2 rounded-md text-gray-400 hover:text-gray-700 transition-colors outline-none"
+                  title={t.visible ? 'Hide from storefront' : 'Show on storefront'}
+                  aria-label={t.visible ? `Hide testimonial from ${t.name}` : `Show testimonial from ${t.name}`}
+                >
                   {t.visible
-                    ? <ToggleRight className="w-5 h-5 text-green-500" />
-                    : <ToggleLeft className="w-5 h-5 text-gray-600" />}
+                    ? <ToggleRight className="w-5 h-5 text-green-600" />
+                    : <ToggleLeft className="w-5 h-5" />}
                 </button>
-                <button onClick={() => openEdit(t)} className="p-1.5 text-gray-500 hover:text-indigo-400 transition-colors">
+                <button
+                  onClick={() => openEdit(t)}
+                  className="p-2 rounded-md text-gray-400 hover:text-primary-600 transition-colors outline-none"
+                  aria-label={`Edit testimonial from ${t.name}`}
+                >
                   <Pencil className="w-4 h-4" />
                 </button>
-                <button onClick={() => handleDelete(t.id)} className="p-1.5 text-gray-500 hover:text-red-400 transition-colors">
+                <button
+                  onClick={() => handleDelete(t.id)}
+                  className="p-2 rounded-md text-gray-400 hover:text-red-600 transition-colors outline-none"
+                  aria-label={`Delete testimonial from ${t.name}`}
+                >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -173,113 +191,89 @@ export function TestimonialsPage() {
       )}
 
       {/* Add / Edit Modal */}
-      {editing && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-end md:items-center justify-center p-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
-              <h2 className="text-base font-bold text-white">
-                {editing.id ? 'Edit Review' : 'Add Review'}
-              </h2>
-              <button onClick={close} className="text-gray-500 hover:text-white">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      <Modal
+        open={Boolean(editing)}
+        onClose={close}
+        title={editing?.id ? 'Edit Review' : 'Add Review'}
+        footer={
+          <>
+            <button onClick={close} className={buttonClasses('secondary', 'flex-1')}>Cancel</button>
+            <button onClick={handleSave} disabled={saving} className={buttonClasses('primary', 'flex-1')}>
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4" /> Save</>}
+            </button>
+          </>
+        }
+      >
+        {editing && (
+          <div className="space-y-3">
+            <Field label="Customer Name *">
+              <input
+                value={editing.name ?? ''}
+                onChange={e => setEditing(v => ({ ...v, name: e.target.value }))}
+                className={inputClasses}
+                placeholder="e.g. Amina J."
+              />
+            </Field>
 
-            <div className="px-5 py-4 space-y-3">
-              {/* Name */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Customer Name *</label>
-                <input
-                  value={editing.name ?? ''}
-                  onChange={e => setEditing(v => ({ ...v, name: e.target.value }))}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="e.g. Amina J."
-                />
-              </div>
-
-              {/* Location */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Location</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Field label="Location">
                 <input
                   value={editing.location ?? ''}
                   onChange={e => setEditing(v => ({ ...v, location: e.target.value }))}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className={inputClasses}
                   placeholder="e.g. Dar es Salaam"
                 />
-              </div>
-
-              {/* Product */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Product Used</label>
+              </Field>
+              <Field label="Product Used">
                 <input
                   value={editing.product ?? ''}
                   onChange={e => setEditing(v => ({ ...v, product: e.target.value }))}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className={inputClasses}
                   placeholder="e.g. Splina Chlorophyll"
                 />
-              </div>
-
-              {/* Result badge */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Result Badge</label>
-                <input
-                  value={editing.result ?? ''}
-                  onChange={e => setEditing(v => ({ ...v, result: e.target.value }))}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="e.g. −8kg in 6 weeks"
-                />
-              </div>
-
-              {/* Review text */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-400 mb-1">Review Text *</label>
-                <textarea
-                  rows={4}
-                  value={editing.text ?? ''}
-                  onChange={e => setEditing(v => ({ ...v, text: e.target.value }))}
-                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-                  placeholder="Write what the customer said..."
-                />
-              </div>
-
-              {/* Visible toggle */}
-              <div className="flex items-center gap-3 pt-1">
-                <label className="text-xs font-semibold text-gray-400">Visible on storefront</label>
-                <button
-                  type="button"
-                  onClick={() => setEditing(v => ({ ...v, visible: !v?.visible }))}
-                >
-                  {editing.visible
-                    ? <ToggleRight className="w-6 h-6 text-green-500" />
-                    : <ToggleLeft className="w-6 h-6 text-gray-500" />}
-                </button>
-              </div>
-
-              {error && (
-                <p className="text-xs text-red-400 bg-red-950/50 border border-red-900 rounded-lg px-3 py-2">
-                  {error}
-                </p>
-              )}
+              </Field>
             </div>
 
-            <div className="px-5 py-4 border-t border-gray-800 flex gap-3">
+            <Field label="Result Badge">
+              <input
+                value={editing.result ?? ''}
+                onChange={e => setEditing(v => ({ ...v, result: e.target.value }))}
+                className={inputClasses}
+                placeholder="e.g. −8kg in 6 weeks"
+              />
+            </Field>
+
+            <Field label="Review Text *">
+              <textarea
+                rows={4}
+                value={editing.text ?? ''}
+                onChange={e => setEditing(v => ({ ...v, text: e.target.value }))}
+                className={cn(inputClasses, 'resize-none')}
+                placeholder="Write what the customer said..."
+              />
+            </Field>
+
+            <div className="flex items-center gap-3 border-t border-gray-100 pt-3">
+              <label className="text-xs font-semibold text-gray-500">Visible on storefront</label>
               <button
-                onClick={close}
-                className="flex-1 py-2.5 border border-gray-700 text-gray-400 text-sm font-semibold rounded-xl hover:bg-gray-800 transition-colors"
+                type="button"
+                onClick={() => setEditing(v => ({ ...v, visible: !v?.visible }))}
+                aria-label={editing.visible ? 'Hide on storefront' : 'Show on storefront'}
               >
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-60"
-              >
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4" /> Save</>}
+                {editing.visible
+                  ? <ToggleRight className="w-6 h-6 text-green-600" />
+                  : <ToggleLeft className="w-6 h-6 text-gray-400" />}
               </button>
             </div>
+
+            {error && (
+              <p role="alert" className="text-xs text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+                {error}
+              </p>
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
     </div>
   );
 }

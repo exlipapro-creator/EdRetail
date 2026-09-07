@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { formatPrice } from '../../utils/whatsappCompiler';
-import { TrendingUp, ShoppingBag, CreditCard, Package, AlertTriangle } from 'lucide-react';
+import { TrendingUp, ShoppingBag, CreditCard, Package, AlertTriangle, CircleAlert } from 'lucide-react';
 import { useDistributorStore } from '../../store/distributorStore';
+import { PageHeader, Spinner, cn } from '../../components/ui';
 
 interface Stats {
   totalRevenue: number;
@@ -13,6 +14,49 @@ interface Stats {
   outstandingLoans: number;
   activeLoans: number;
   lowStockCount: number;
+}
+
+type IconTone = 'success' | 'primary' | 'neutral' | 'warning' | 'danger';
+
+const ICON_TONES: Record<IconTone, string> = {
+  success: 'bg-green-50 text-green-600',
+  primary: 'bg-primary-50 text-primary-600',
+  neutral: 'bg-gray-100 text-gray-500',
+  warning: 'bg-amber-50 text-amber-600',
+  danger:  'bg-red-50 text-red-600',
+};
+
+function StatCard({
+  label,
+  value,
+  icon,
+  tone,
+}: {
+  label: string;
+  value: string;
+  icon: React.ReactNode;
+  tone: IconTone;
+}) {
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg p-4">
+      <div className="flex items-center gap-2.5 mb-2.5">
+        <div className={cn('w-8 h-8 rounded-md flex items-center justify-center', ICON_TONES[tone])}>
+          {icon}
+        </div>
+        <p className="text-[11px] text-gray-500 font-semibold uppercase tracking-wide">{label}</p>
+      </div>
+      <p className="text-lg font-bold text-gray-900 leading-tight tabular-nums">{value}</p>
+    </div>
+  );
+}
+
+function MetricSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="mb-6">
+      <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-2.5">{title}</h2>
+      {children}
+    </section>
+  );
 }
 
 export function DashboardPage() {
@@ -80,46 +124,51 @@ export function DashboardPage() {
     load();
   }, []);
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" /></div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Spinner />
+      </div>
+    );
+  }
 
   const s = stats!;
 
-  const cards = [
-    { label: 'Total Revenue',      value: `${formatPrice(s.totalRevenue)} TZS`,  icon: <TrendingUp className="w-5 h-5" />,  color: 'bg-green-500/10 text-green-400',  border: 'border-green-900/50' },
-    { label: 'This Month',         value: `${formatPrice(s.monthRevenue)} TZS`,  icon: <TrendingUp className="w-5 h-5" />,  color: 'bg-blue-500/10 text-blue-400',    border: 'border-blue-900/50'  },
-    { label: 'Today',              value: `${formatPrice(s.todayRevenue)} TZS`,  icon: <TrendingUp className="w-5 h-5" />,  color: 'bg-indigo-500/10 text-indigo-400',border: 'border-indigo-900/50'},
-    { label: 'Total Sales',        value: s.totalSales.toString(),               icon: <ShoppingBag className="w-5 h-5" />, color: 'bg-violet-500/10 text-violet-400', border: 'border-violet-900/50'},
-    { label: 'Pending Orders',     value: s.pendingSales.toString(),             icon: <ShoppingBag className="w-5 h-5" />, color: 'bg-amber-500/10 text-amber-400',   border: 'border-amber-900/50' },
-    { label: 'Outstanding Loans',  value: `${formatPrice(s.outstandingLoans)} TZS`, icon: <CreditCard className="w-5 h-5" />, color: 'bg-red-500/10 text-red-400',    border: 'border-red-900/50'   },
-    { label: 'Active Loans',       value: s.activeLoans.toString(),             icon: <CreditCard className="w-5 h-5" />,  color: 'bg-orange-500/10 text-orange-400', border: 'border-orange-900/50'},
-    { label: 'Low Stock Items',    value: s.lowStockCount.toString(),           icon: <Package className="w-5 h-5" />,     color: s.lowStockCount > 0 ? 'bg-red-500/10 text-red-400' : 'bg-gray-800 text-gray-400', border: s.lowStockCount > 0 ? 'border-red-900/50' : 'border-gray-800' },
-  ];
-
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-white">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Overview of your store performance</p>
-      </div>
+    <div className="p-4 md:p-6 max-w-5xl">
+      <PageHeader title="Dashboard" sub="Overview of your store performance" />
 
       {s.lowStockCount > 0 && (
-        <div className="flex items-center gap-2 bg-amber-950/50 border border-amber-900/60 rounded-xl px-4 py-3 mb-6">
-          <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0" />
-          <p className="text-sm text-amber-300">{s.lowStockCount} product{s.lowStockCount > 1 ? 's' : ''} running low on stock. Check the Products page.</p>
+        <div className="flex items-center gap-2.5 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-6">
+          <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+          <p className="text-sm text-amber-800">
+            {s.lowStockCount} product{s.lowStockCount > 1 ? 's' : ''} running low on stock. Check the Products page.
+          </p>
         </div>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {cards.map(c => (
-          <div key={c.label} className={`bg-gray-900 border ${c.border} rounded-2xl p-4`}>
-            <div className={`w-9 h-9 ${c.color} rounded-xl flex items-center justify-center mb-3`}>
-              {c.icon}
-            </div>
-            <p className="text-[11px] text-gray-500 font-medium uppercase tracking-wide">{c.label}</p>
-            <p className="text-base font-bold text-white mt-0.5 leading-tight">{c.value}</p>
-          </div>
-        ))}
-      </div>
+      <MetricSection title="Revenue">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <StatCard label="Total Revenue"     value={`${formatPrice(s.totalRevenue)} TZS`} icon={<TrendingUp className="w-4 h-4" />} tone="success" />
+          <StatCard label="This Month"        value={`${formatPrice(s.monthRevenue)} TZS`} icon={<TrendingUp className="w-4 h-4" />} tone="primary" />
+          <StatCard label="Today"             value={`${formatPrice(s.todayRevenue)} TZS`} icon={<TrendingUp className="w-4 h-4" />} tone="neutral" />
+        </div>
+      </MetricSection>
+
+      <MetricSection title="Operations">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <StatCard label="Total Sales"       value={s.totalSales.toString()}   icon={<ShoppingBag className="w-4 h-4" />} tone="neutral" />
+          <StatCard label="Pending Orders"    value={s.pendingSales.toString()} icon={<CircleAlert className="w-4 h-4" />}  tone="warning" />
+          <StatCard label="Low Stock Items"   value={s.lowStockCount.toString()} icon={<Package className="w-4 h-4" />}    tone={s.lowStockCount > 0 ? 'warning' : 'neutral'} />
+        </div>
+      </MetricSection>
+
+      <MetricSection title="Credit">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <StatCard label="Outstanding Loans" value={`${formatPrice(s.outstandingLoans)} TZS`} icon={<CreditCard className="w-4 h-4" />} tone="danger" />
+          <StatCard label="Active Loans"      value={s.activeLoans.toString()}                icon={<CreditCard className="w-4 h-4" />} tone="neutral" />
+        </div>
+      </MetricSection>
     </div>
   );
 }

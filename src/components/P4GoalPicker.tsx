@@ -100,9 +100,9 @@ export function P4GoalPicker() {
   })();
 
   return (
-    <section className="max-w-lg mx-auto px-4 py-4">
+    <section className="container-page py-4">
       <div className="mb-4">
-        <span className="inline-block text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-full uppercase tracking-widest mb-2">
+        <span className="section-label mb-2">
           {lang === 'sw' ? 'Kipengele cha P4' : 'P4 Goal Finder'}
         </span>
         <h2 className="text-lg font-bold text-gray-900 leading-tight">
@@ -120,11 +120,11 @@ export function P4GoalPicker() {
             onClick={() => handleSelect(goal.id)}
             className={`text-left min-h-[64px] p-2.5 rounded-lg border-2 transition-all outline-none [-webkit-tap-highlight-color:transparent] ${
               selected === goal.id
-                ? 'bg-indigo-50 border-indigo-400 shadow-sm'
-                : 'bg-white border-gray-200 hover:border-indigo-200'
+                ? 'bg-primary-50 border-primary-400 shadow-card'
+                : 'bg-white border-gray-200 hover:border-primary-200'
             }`}
           >
-            <div className={`text-[11px] font-bold leading-tight mb-1 ${selected === goal.id ? 'text-indigo-700' : 'text-gray-800'}`}>
+            <div className={`text-[11px] font-bold leading-tight mb-1 ${selected === goal.id ? 'text-primary-700' : 'text-gray-800'}`}>
               {lang === 'sw' ? goal.label.sw : goal.label.en}
             </div>
             <div className="text-[10px] text-gray-400 leading-tight">
@@ -144,9 +144,9 @@ export function P4GoalPicker() {
             transition={{ duration: motionTokens.durations.medium, ease: motionTokens.easings.inOut }}
             className="overflow-hidden"
           >
-            <div className="relative bg-gradient-to-br from-primary-50 via-white to-primary-50 border border-primary-200 rounded-lg p-3.5 shadow-sm overflow-visible">
+            <div className="relative bg-white border border-primary-200 rounded-lg p-3.5 shadow-card overflow-visible">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center flex-shrink-0 border border-primary-100 shadow-sm">
+                <div className="w-10 h-10 bg-white rounded-md flex items-center justify-center flex-shrink-0 border border-primary-100">
                   <ShoppingBag className="w-[18px] h-[18px] text-primary-600" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -184,10 +184,10 @@ export function P4GoalPicker() {
                 onClick={handleAdd}
                 disabled={added}
                 whileTap={{ scale: 0.97 }}
-                className={`w-full mt-2 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold transition-all outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-2 [-webkit-tap-highlight-color:transparent] shadow-sm ${
+                className={`w-full mt-2 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-bold transition-all outline-none focus-visible:ring-2 focus-visible:ring-primary-300 focus-visible:ring-offset-2 [-webkit-tap-highlight-color:transparent] shadow-card ${
                   added
-                    ? 'bg-green-500 text-white'
-                    : 'bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800'
                 }`}
               >
                 {added ? (
@@ -209,7 +209,7 @@ export function P4GoalPicker() {
                   animate={{ opacity: 1, y: -28, scale: 1.05 }}
                   exit={{ opacity: 0, y: -60, scale: 0.8 }}
                   transition={{ duration: 0.6, ease: 'easeOut' }}
-                  className="absolute right-3 top-3 text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded-full shadow-sm"
+                  className="absolute right-3 top-3 text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded-full"
                 >
                   +1
                 </motion.span>

@@ -21,6 +21,40 @@
   button {
     @apply cursor-pointer;
   }
+
+  /* Consistent keyboard focus across the whole product */
+  :focus-visible {
+    outline: 2px solid theme('colors.primary.500');
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  /*
+   * Page container — the single source of truth for content width.
+   * Mobile-first (max-w-lg) like the original design; opens up to a
+   * deliberate two-column-capable desktop composition on lg screens.
+   */
+  .container-page {
+    @apply max-w-lg mx-auto px-4;
+  }
+  @media (min-width: 1024px) {
+    .container-page {
+      max-width: 72rem;
+      @apply px-6;
+    }
+  }
+
+  /* Uppercase micro-label used above every section (one style, everywhere) */
+  .section-label {
+    @apply inline-block text-[10px] font-bold text-primary-600 bg-primary-50 border border-primary-100 px-2.5 py-0.5 rounded-full uppercase tracking-widest;
+  }
+
+  /* Elevated surface — replaces ad-hoc bg-white rounded-xl border shadow-sm */
+  .card-surface {
+    @apply bg-white border border-gray-100 shadow-card;
+  }
 }
 
 @layer utilities {

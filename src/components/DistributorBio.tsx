@@ -14,16 +14,16 @@ export function DistributorBio() {
   const firstName = DISTRIBUTOR_NAME.split(' ')[0];
 
   return (
-    <section className="max-w-lg mx-auto px-4 py-5">
+    <section className="container-page py-5">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.45, ease: 'easeOut' }}
-        className="relative bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm"
+        className="relative bg-white rounded-xl overflow-hidden border border-gray-100 shadow-card"
       >
-        {/* ── Gradient banner ── */}
-        <div className="h-20 bg-gradient-to-r from-indigo-700 via-indigo-600 to-indigo-700" />
+        {/* ── Brand banner ── */}
+        <div className="h-20 bg-primary-600" />
 
         {/* ── Avatar ── */}
         <div className="absolute top-8 left-5">
@@ -34,7 +34,7 @@ export function DistributorBio() {
               className="w-20 h-20 rounded-full object-cover border-[3px] border-white shadow-md"
             />
             {/* Crown badge */}
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-amber-400 rounded-full flex items-center justify-center border-2 border-white shadow-sm">
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gold-400 rounded-full flex items-center justify-center border-2 border-white">
               <Crown className="w-3 h-3 text-amber-900" strokeWidth={2.5} />
             </div>
           </div>
@@ -105,7 +105,7 @@ export function DistributorBio() {
           <motion.a
             href={WHATSAPP_LINK}
             whileTap={{ scale: 0.97 }}
-            className="flex items-center justify-center gap-2 w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-semibold transition-colors outline-none [-webkit-tap-highlight-color:transparent] shadow-sm"
+            className="flex items-center justify-center gap-2 w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-semibold transition-colors outline-none [-webkit-tap-highlight-color:transparent] shadow-card"
           >
             <MessageCircle className="w-4 h-4" />
             {lang === 'sw' ? `Ongea na ${firstName} sasa` : `Chat with ${firstName} now`}
