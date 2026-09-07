@@ -1,5 +1,6 @@
 import { EDMARK_KNOWLEDGE_BASE } from '../data/edmarkKnowledgeBase';
 import { useDistributorStore } from '../store/distributorStore';
+import { DEMO_UNLOCK_ENABLED } from '../lib/devFlags';
 import { WHATSAPP_LINK, DISTRIBUTOR_NAME } from './whatsappCompiler';
 
 // Helper to retrieve live dynamic catalog with admin price/stock overrides applied
@@ -31,15 +32,21 @@ export function parseCustomerOrDistributorIntent(
   const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const msgId = 'msg-' + Date.now();
 
-  // ── 1. ADMIN PIN / UNLOCK COMMANDS ──
+  // ── 1. ADMIN PIN / UNLOCK COMMANDS (dev-only — devFlags) ──
+  // Never authenticates in production: the chat unlock shortcut exists only
+  // when DEMO_UNLOCK_ENABLED is set. Production distributors sign in via
+  // /portal or the PIN gate.
   if (
-    text === 'admin' ||
-    text === 'admin login' ||
-    text === '255' ||
-    text === '1234' ||
-    text.includes('distributor login') ||
-    text.includes('login') ||
-    text === '*255*'
+    DEMO_UNLOCK_ENABLED &&
+    (
+      text === 'admin' ||
+      text === 'admin login' ||
+      text === '255' ||
+      text === '1234' ||
+      text.includes('distributor login') ||
+      text.includes('login') ||
+      text === '*255*'
+    )
   ) {
     useDistributorStore.getState().setAdminAuthenticated(true);
     const activeDist = useDistributorStore.getState().getActiveDistributor();

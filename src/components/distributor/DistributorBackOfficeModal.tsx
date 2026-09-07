@@ -218,12 +218,9 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
               />
               {pinError && (
                 <p className="text-xs text-red-600 font-bold">
-                  {lang === 'sw' ? 'PIN siyo sahihi. PIN ya awali ni: 2024 au 255' : 'Incorrect PIN. Default is: 2024 or 255'}
+                  {lang === 'sw' ? 'PIN siyo sahihi. Tafadhali jaribu tena.' : 'Incorrect PIN. Please try again.'}
                 </p>
               )}
-              <p className="text-[11px] text-stone-400">
-                {lang === 'sw' ? 'PIN ya majaribio: 2024 au 1234 au 255' : 'Demo PIN: 2024 or 1234 or 255'}
-              </p>
             </div>
 
             <button

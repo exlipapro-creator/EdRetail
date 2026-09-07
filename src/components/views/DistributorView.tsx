@@ -327,7 +327,7 @@ export function DistributorView({
                 <LogOut className="w-3.5 h-3.5 text-red-400" />
                 <span>{lang === 'sw' ? 'Toka' : 'Sign Out'}</span>
               </button>
-            ) : (
+            ) : DEMO_UNLOCK_ENABLED ? (
               <button
                 onClick={handleQuickDemoUnlock}
                 className="px-3 py-2 bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-xs rounded-xl shadow-xs transition-transform active:scale-95 flex items-center gap-1.5 cursor-pointer"
@@ -335,7 +335,7 @@ export function DistributorView({
                 <Unlock className="w-3.5 h-3.5" />
                 <span>PIN</span>
               </button>
-            )}
+            ) : null}
           </div>
         </div>
       </header>

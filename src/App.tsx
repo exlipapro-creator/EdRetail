@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { AppHeader, ScreenId } from './components/navigation/AppHeader';
@@ -9,23 +9,41 @@ import { HomePage } from './components/views/HomePage';
 import { ProductsView } from './components/views/ProductsView';
 import { GoalsBundlesView } from './components/views/GoalsBundlesView';
 import { DeliveryView } from './components/views/DeliveryView';
-import { DistributorView } from './components/views/DistributorView';
 import { FavouritesView } from './components/views/FavouritesView';
 import { OrdersHelpView } from './components/views/OrdersHelpView';
 import { ProductDetailModal } from './components/views/ProductDetailModal';
 import { CheckoutSheet } from './components/CheckoutSheet';
-import { SmartAssistantModal } from './components/chat/SmartAssistantModal';
 import { FloatingChatbotTrigger } from './components/chat/FloatingChatbotTrigger';
 import { SplashScreen } from './components/splash/SplashScreen';
-import { FlyerStudioModal } from './components/marketing/FlyerStudioModal';
-import { DistributorAuthModal } from './components/auth/DistributorAuthModal';
-import { DistributorStoreLinkModal } from './components/distributor/DistributorStoreLinkModal';
-import { DistributorBackOfficeModal } from './components/distributor/DistributorBackOfficeModal';
 import { Product } from './types';
 import { useCartStore } from './store/cartStore';
 import { useDistributorStore } from './store/distributorStore';
 import { formatPrice } from './utils/whatsappCompiler';
 import { useLang } from './context/LangContext';
+
+// On-demand surfaces are code-split so the storefront's initial bundle stays
+// customer-focused. The distributor screen and heavy modals download only
+// when first opened; each stays mounted after that so internal state (chat
+// history, drafts) survives close/reopen exactly as before — the isOpen prop
+// still controls visibility.
+const DistributorView = lazy(() =>
+  import('./components/views/DistributorView').then((m) => ({ default: m.DistributorView }))
+);
+const SmartAssistantModal = lazy(() =>
+  import('./components/chat/SmartAssistantModal').then((m) => ({ default: m.SmartAssistantModal }))
+);
+const FlyerStudioModal = lazy(() =>
+  import('./components/marketing/FlyerStudioModal').then((m) => ({ default: m.FlyerStudioModal }))
+);
+const DistributorAuthModal = lazy(() =>
+  import('./components/auth/DistributorAuthModal').then((m) => ({ default: m.DistributorAuthModal }))
+);
+const DistributorStoreLinkModal = lazy(() =>
+  import('./components/distributor/DistributorStoreLinkModal').then((m) => ({ default: m.DistributorStoreLinkModal }))
+);
+const DistributorBackOfficeModal = lazy(() =>
+  import('./components/distributor/DistributorBackOfficeModal').then((m) => ({ default: m.DistributorBackOfficeModal }))
+);
 
 function App() {
   const { lang } = useLang();
@@ -38,6 +56,23 @@ function App() {
   const [isDistributorAuthOpen, setIsDistributorAuthOpen] = useState(false);
   const [isStoreLinkOpen, setIsStoreLinkOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+
+  // Latch: a modal chunk is fetched on first open; afterwards the component
+  // remains mounted (hidden via its own isOpen handling) to preserve state.
+  const [openedOnce, setOpenedOnce] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    setOpenedOnce((prev) => {
+      const next = {
+        ...(isChatOpen ? { chat: true } : null),
+        ...(isBackOfficeOpen ? { backoffice: true } : null),
+        ...(isFlyerStudioOpen ? { flyer: true } : null),
+        ...(isDistributorAuthOpen ? { auth: true } : null),
+        ...(isStoreLinkOpen ? { storelink: true } : null),
+      } as Record<string, boolean>;
+      const changed = Object.keys(next).some((k) => !prev[k]);
+      return changed ? { ...prev, ...next } : prev;
+    });
+  }, [isChatOpen, isBackOfficeOpen, isFlyerStudioOpen, isDistributorAuthOpen, isStoreLinkOpen]);
 
   const totalItems = useCartStore((s) => s.getTotalItems());
   const totalPrice = useCartStore((s) => s.getTotalPrice());
@@ -162,12 +197,14 @@ function App() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2 }}
             >
-              <DistributorView
-                onNavigateHome={() => setCurrentScreen('home')}
-                onNavigateProducts={() => setCurrentScreen('products')}
-                onOpenFlyerStudio={() => setIsFlyerStudioOpen(true)}
-                onOpenStoreLinkModal={() => setIsStoreLinkOpen(true)}
-              />
+              <Suspense fallback={null}>
+                <DistributorView
+                  onNavigateHome={() => setCurrentScreen('home')}
+                  onNavigateProducts={() => setCurrentScreen('products')}
+                  onOpenFlyerStudio={() => setIsFlyerStudioOpen(true)}
+                  onOpenStoreLinkModal={() => setIsStoreLinkOpen(true)}
+                />
+              </Suspense>
             </motion.div>
           )}
 
@@ -254,39 +291,59 @@ function App() {
       <FloatingChatbotTrigger onOpenChat={() => setIsChatOpen(true)} />
 
       {/* ── DEDICATED CUSTOMER WELLNESS SMART ASSISTANT MODAL ── */}
-      <SmartAssistantModal
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
-        onNavigateToScreen={(s) => setCurrentScreen(s as any)}
-        onSelectProduct={setSelectedProduct}
-        onOpenFlyerStudio={() => setIsFlyerStudioOpen(true)}
-      />
+      {openedOnce.chat && (
+        <Suspense fallback={null}>
+          <SmartAssistantModal
+            isOpen={isChatOpen}
+            onClose={() => setIsChatOpen(false)}
+            onNavigateToScreen={(s) => setCurrentScreen(s as any)}
+            onSelectProduct={setSelectedProduct}
+            onOpenFlyerStudio={() => setIsFlyerStudioOpen(true)}
+          />
+        </Suspense>
+      )}
 
       {/* ── DEDICATED DISTRIBUTOR LEADER BACK-OFFICE / PORTAL ── */}
-      <DistributorBackOfficeModal
-        isOpen={isBackOfficeOpen}
-        onClose={() => setIsBackOfficeOpen(false)}
-        onOpenFlyerStudio={() => setIsFlyerStudioOpen(true)}
-      />
+      {openedOnce.backoffice && (
+        <Suspense fallback={null}>
+          <DistributorBackOfficeModal
+            isOpen={isBackOfficeOpen}
+            onClose={() => setIsBackOfficeOpen(false)}
+            onOpenFlyerStudio={() => setIsFlyerStudioOpen(true)}
+          />
+        </Suspense>
+      )}
 
       {/* ── 1-TAP WHATSAPP STATUS FLYER STUDIO ── */}
-      <FlyerStudioModal
-        isOpen={isFlyerStudioOpen}
-        onClose={() => setIsFlyerStudioOpen(false)}
-      />
+      {openedOnce.flyer && (
+        <Suspense fallback={null}>
+          <FlyerStudioModal
+            isOpen={isFlyerStudioOpen}
+            onClose={() => setIsFlyerStudioOpen(false)}
+          />
+        </Suspense>
+      )}
 
       {/* ── DISTRIBUTOR AUTH & MULTI-PROFILE MODAL ── */}
-      <DistributorAuthModal
-        isOpen={isDistributorAuthOpen}
-        onClose={() => setIsDistributorAuthOpen(false)}
-        onSuccess={() => setIsDistributorAuthOpen(false)}
-      />
+      {openedOnce.auth && (
+        <Suspense fallback={null}>
+          <DistributorAuthModal
+            isOpen={isDistributorAuthOpen}
+            onClose={() => setIsDistributorAuthOpen(false)}
+            onSuccess={() => setIsDistributorAuthOpen(false)}
+          />
+        </Suspense>
+      )}
 
       {/* ── DISTRIBUTOR STOREFRONT LINK & REPLICATION MODAL ── */}
-      <DistributorStoreLinkModal
-        isOpen={isStoreLinkOpen}
-        onClose={() => setIsStoreLinkOpen(false)}
-      />
+      {openedOnce.storelink && (
+        <Suspense fallback={null}>
+          <DistributorStoreLinkModal
+            isOpen={isStoreLinkOpen}
+            onClose={() => setIsStoreLinkOpen(false)}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

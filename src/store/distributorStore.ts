@@ -317,7 +317,7 @@ export interface MonthlyChallengeRecord {
 interface DistributorStoreState {
   // Authentication & Multi-Distributor Profiles
   isAdminAuthenticated: boolean;
-  adminPin: string; // default "255" or "1234"
+  adminPin: string; // dev-only demo PIN (see lib/devFlags); empty string in production
   currentProfile: DistributorProfile;
   activeRefSlug: string | null;
   attribution: AttributionRecord | null;
