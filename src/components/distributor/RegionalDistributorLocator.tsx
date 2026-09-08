@@ -8,11 +8,12 @@ import {
   Users,
   Search,
   CheckCircle2,
-  Sparkles,
+  // Sparkles removed — replaced by EdIcon (brand layer)
   Award,
 } from 'lucide-react';
 import { useLang } from '../../context/LangContext';
 import { useDistributorStore, DistributorProfile } from '../../store/distributorStore';
+import { EdIcon } from '../brand/EdIcon';
 
 interface RegionalDistributorLocatorProps {
   onSelectDistributor?: (distributor: DistributorProfile) => void;
@@ -194,7 +195,7 @@ export const RegionalDistributorLocator: React.FC<RegionalDistributorLocatorProp
 
                   {leader.deliveryCoverage && (
                     <p className="text-[10px] text-neutral-600 bg-neutral-100/80 px-2 py-0.5 rounded-md mt-1.5 line-clamp-1">
-                      🚚 {leader.deliveryCoverage}
+                      {leader.deliveryCoverage}
                     </p>
                   )}
                 </div>
@@ -272,7 +273,7 @@ export const RegionalDistributorLocator: React.FC<RegionalDistributorLocatorProp
             onClick={onOpenJoinModal}
             className="w-full sm:w-auto px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-emerald-950 font-black rounded-xl text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 flex-shrink-0 cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <EdIcon name="distributor" className="w-3.5 h-3.5" />
             <span>{lang === 'sw' ? 'Jiunge / Unda Duka Lako' : 'Create Your Storefront'}</span>
           </button>
         )}

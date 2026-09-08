@@ -7,13 +7,16 @@ import {
   Mail,
   Eye,
   EyeOff,
-  Sparkles,
+  // Sparkles removed — replaced by EdIcon (brand layer)
   ArrowRight,
   CheckCircle2,
   AlertCircle,
 } from 'lucide-react';
 import { useLang } from '../../context/LangContext';
 import { useDistributorStore, DEFAULT_DISTRIBUTOR } from '../../store/distributorStore';
+import { supabase } from '../../lib/supabase';
+import { DEMO_UNLOCK_ENABLED } from '../../lib/devFlags';
+import { EdIcon } from '../brand/EdIcon';
 
 interface DistributorAuthModalProps {
   isOpen: boolean;
@@ -50,35 +53,60 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
     setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      const ok = loginWithEmail(email, password);
-      if (ok) {
-        setSuccessMessage(lang === 'sw' ? 'Umefanikiwa kuingia!' : 'Login successful!');
-        setTimeout(() => {
-          onSuccess?.();
-          onClose();
-        }, 800);
-      } else {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        // Development-only fallback; never auto-authenticates in production.
+        if (DEMO_UNLOCK_ENABLED) {
+          const ok = loginWithEmail(email, password);
+          if (ok) {
+            setSuccessMessage(lang === 'sw' ? 'Umefanikiwa kuingia!' : 'Login successful!');
+            setTimeout(() => {
+              onSuccess?.();
+              onClose();
+            }, 800);
+            return;
+          }
+        }
         setErrorMessage(
           lang === 'sw'
             ? 'Barua pepe au nenosiri sio sahihi. Jaribu tena au tumia Google.'
             : 'Invalid credentials. Please verify your email/password or use Google Sign-In.'
         );
+        return;
       }
-    }, 400);
+
+      if (data.session) {
+        // The dedicated portal owns the authenticated experience.
+        window.location.href = '/portal/dashboard';
+      }
+    } catch (err: any) {
+      setErrorMessage(err?.message || (lang === 'sw' ? 'Imeshindikana kuingia. Jaribu tena.' : 'Sign-in failed. Please try again.'));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
+
+    // Self-registration is a development-only convenience.
+    if (!DEMO_UNLOCK_ENABLED) {
+      setErrorMessage(
+        lang === 'sw'
+          ? 'Usajili wa wasambazaji unafanywa na ED Retail. Wasiliana nasi kupitia support@edretail.tz.'
+          : 'Distributor accounts are provisioned by ED Retail. Contact us at support@edretail.tz.'
+      );
+      return;
+    }
 
     if (!fullName.trim() || !email.trim() || !phone.trim() || password.length < 4) {
       setErrorMessage(
@@ -123,25 +151,56 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
     }, 500);
   };
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     setIsLoading(true);
     setErrorMessage('');
-    setTimeout(() => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin + '/portal/dashboard',
+        },
+      });
+      if (error) {
+        // Development-only fallback; never auto-authenticates in production.
+        if (DEMO_UNLOCK_ENABLED) {
+          const gProfile = loginWithGoogle();
+          setSuccessMessage(
+            lang === 'sw'
+              ? `Umeingia kupitia Google kama ${gProfile.name}!`
+              : `Connected via Google as ${gProfile.name}!`
+          );
+          setTimeout(() => {
+            onSuccess?.();
+            onClose();
+          }, 800);
+          return;
+        }
+        setErrorMessage(error.message || 'Google sign-in is unavailable. Use your email and password.');
+      }
+    } catch {
+      if (DEMO_UNLOCK_ENABLED) {
+        const gProfile = loginWithGoogle();
+        setSuccessMessage(
+          lang === 'sw'
+            ? `✅ Umeingia kupitia Google kama ${gProfile.name}!`
+            : `✅ Connected via Google as ${gProfile.name}!`
+        );
+        setTimeout(() => {
+          onSuccess?.();
+          onClose();
+        }, 800);
+        return;
+      }
+      setErrorMessage('Google sign-in is unavailable. Use your email and password.');
+    } finally {
       setIsLoading(false);
-      const gProfile = loginWithGoogle();
-      setSuccessMessage(
-        lang === 'sw'
-          ? `✅ Umeingia kupitia Google kama ${gProfile.name}!`
-          : `✅ Connected via Google as ${gProfile.name}!`
-      );
-      setTimeout(() => {
-        onSuccess?.();
-        onClose();
-      }, 800);
-    }, 400);
+    }
   };
 
   const handleQuickSwitch = (dist: typeof DEFAULT_DISTRIBUTOR) => {
+    // Development-only convenience for switching demo profiles.
+    if (!DEMO_UNLOCK_ENABLED) return;
     loginWithEmail(dist.email, 'password123');
     setSuccessMessage(
       lang === 'sw' ? `Umeingia kama ${dist.name}` : `Switched to ${dist.name}`
@@ -150,6 +209,35 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
       onSuccess?.();
       onClose();
     }, 600);
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      setErrorMessage(lang === 'sw' ? 'Weka barua pepe yako kwanza.' : 'Enter your email address first.');
+      return;
+    }
+    setErrorMessage('');
+    setSuccessMessage('');
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: window.location.origin + '/portal/reset-password',
+      });
+      if (error) {
+        setErrorMessage(error.message);
+      } else {
+        setSuccessMessage(
+          lang === 'sw'
+            ? 'Tumetuma kiungo cha kuweka upya nenosiri kwa barua pepe yako.'
+            : 'A password-reset link has been sent to your email.'
+        );
+        setMode('login');
+      }
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'Could not send the reset email. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -235,7 +323,16 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
               <div className="flex gap-2 pt-1">
                 <button
                   type="button"
-                  onClick={logoutDistributor}
+                  onClick={async () => {
+                    // Terminate the real Supabase session, not just local UI state.
+                    try {
+                      await supabase.auth.signOut();
+                    } catch {
+                      // session may already be gone
+                    }
+                    logoutDistributor();
+                    onClose();
+                  }}
                   className="flex-1 py-2 px-3 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-bold text-xs transition-colors"
                 >
                   {lang === 'sw' ? 'Ondoka (Logout)' : 'Logout'}
@@ -316,20 +413,22 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
                 >
                   {lang === 'sw' ? 'Ingia (Login)' : 'Sign In'}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode('register');
-                    setErrorMessage('');
-                  }}
-                  className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                    mode === 'register'
-                      ? 'bg-white text-neutral-900 shadow-2xs'
-                      : 'text-neutral-500 hover:text-neutral-900'
-                  }`}
-                >
-                  {lang === 'sw' ? 'Msambazaji Mpya (Register)' : 'New Distributor'}
-                </button>
+                {DEMO_UNLOCK_ENABLED && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode('register');
+                      setErrorMessage('');
+                    }}
+                    className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                      mode === 'register'
+                        ? 'bg-white text-neutral-900 shadow-2xs'
+                        : 'text-neutral-500 hover:text-neutral-900'
+                    }`}
+                  >
+                    {lang === 'sw' ? 'Msambazaji Mpya (Register)' : 'New Distributor'}
+                  </button>
+                )}
               </div>
 
               {/* Alerts */}
@@ -586,7 +685,7 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
                     disabled={isLoading}
                     className="w-full py-3 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-emerald-950 font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer mt-2"
                   >
-                    <Sparkles className="w-4 h-4" />
+                    <EdIcon name="commerce" className="w-4 h-4" />
                     <span>
                       {isLoading ? 'Inaunda duka...' : lang === 'sw' ? 'Tengeneza Duka Langu Sasa' : 'Launch My Storefront'}
                     </span>
@@ -596,41 +695,66 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
 
               {/* ── FORGOT PASSWORD ── */}
               {mode === 'forgot' && (
-                <div className="space-y-3 text-center py-3">
-                  <p className="text-xs text-neutral-600">
+                <div className="space-y-3 py-2">
+                  <p className="text-xs text-neutral-600 text-center">
                     {lang === 'sw'
-                      ? 'Ingiza barua pepe yako au tumia kitufe cha Google hapo juu kuingia moja kwa moja.'
-                      : 'Enter your registered email or use Google Sign-In above to access your account.'}
+                      ? 'Weka barua pepe yako na tutakutumia kiungo cha kuweka upya nenosiri.'
+                      : 'Enter your email and we will send you a password-reset link.'}
                   </p>
+                  <div>
+                    <label htmlFor="dist-forgot-email" className="block text-xs font-bold text-neutral-700 mb-1">
+                      {lang === 'sw' ? 'Barua Pepe:' : 'Email:'}
+                    </label>
+                    <input
+                      id="dist-forgot-email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@edretail.tz"
+                      className="w-full px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-xs text-neutral-800 focus:bg-white focus:border-emerald-500"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    disabled={isLoading}
+                    className="w-full py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    {isLoading ? 'Inatuma...' : lang === 'sw' ? 'Tuma Kiungo' : 'Send Reset Link'}
+                  </button>
                   <button
                     type="button"
                     onClick={() => setMode('login')}
-                    className="text-xs font-bold text-emerald-700 hover:underline"
+                    className="w-full text-center text-xs font-bold text-emerald-700 hover:underline"
                   >
                     {lang === 'sw' ? '← Rudi kwenye Kuingia' : '← Back to Sign In'}
                   </button>
                 </div>
               )}
 
-              {/* ── QUICK TEST DISTRIBUTOR SWITCHER ── */}
-              <div className="pt-3 border-t border-neutral-200/80">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block mb-2">
-                  {lang === 'sw' ? 'Chagua Wasambazaji Waliopo (Demo Quick-Switch):' : 'Saved Accounts (Quick Switch):'}
-                </span>
-                <div className="grid grid-cols-2 gap-2">
-                  {savedDistributors.slice(0, 2).map((d) => (
-                    <button
-                      key={d.id}
-                      type="button"
-                      onClick={() => handleQuickSwitch(d)}
-                      className="p-2 text-left rounded-xl bg-neutral-50 hover:bg-neutral-100 border border-neutral-200/80 text-xs transition-all"
-                    >
-                      <div className="font-bold text-neutral-900 truncate">{d.name}</div>
-                      <div className="text-[10px] text-neutral-500 truncate">@{d.slug} • {d.city}</div>
-                    </button>
-                  ))}
+              {/* ── QUICK DISTRIBUTOR SWITCHER (development only) ── */}
+              {DEMO_UNLOCK_ENABLED && (
+                <div className="pt-3 border-t border-neutral-200/80">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block mb-2">
+                    {lang === 'sw' ? 'Chagua Wasambazaji Waliopo (Demo Quick-Switch):' : 'Saved Accounts (Quick Switch):'}
+                  </span>
+                  <div className="grid grid-cols-2 gap-2">
+                    {savedDistributors.slice(0, 2).map((d) => (
+                      <button
+                        key={d.id}
+                        type="button"
+                        onClick={() => handleQuickSwitch(d)}
+                        className="p-2 text-left rounded-xl bg-neutral-50 hover:bg-neutral-100 border border-neutral-200/80 text-xs transition-all"
+                      >
+                        <div className="font-bold text-neutral-900 truncate">{d.name}</div>
+                        <div className="text-[10px] text-neutral-500 truncate">@{d.slug} • {d.city}</div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </>
           )}
         </div>

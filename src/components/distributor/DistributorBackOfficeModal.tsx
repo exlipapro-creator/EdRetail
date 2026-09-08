@@ -10,7 +10,7 @@ import {
   BookOpen,
   CreditCard,
   Bot,
-  Sparkles,
+  // Sparkles removed — replaced by EdIcon (brand layer)
   Plus,
   Send,
   ArrowLeft,
@@ -27,6 +27,7 @@ import { PaymentAccountsManager } from './PaymentAccountsManager';
 import { LogOfflineSaleModal } from './LogOfflineSaleModal';
 import { parseCustomerOrDistributorIntent, ChatMessage } from '../../utils/chatbotEngine';
 import { WHATSAPP_LINK } from '../../utils/whatsappCompiler';
+import { EdIcon } from '../brand/EdIcon';
 
 interface DistributorBackOfficeModalProps {
   isOpen: boolean;
@@ -158,7 +159,7 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
               onClick={onOpenFlyerStudio}
               className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 border border-amber-400/40 rounded-xl text-xs font-bold transition-colors"
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              <EdIcon name="flyer" className="w-3.5 h-3.5" />
               <span>Flyer Studio</span>
             </button>
           )}

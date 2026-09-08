@@ -175,7 +175,7 @@ export function SmartAssistantModal({
         options: [
           { label: lang === 'sw' ? '🛒 Angalia Mkoba & Agiza WhatsApp' : '🛒 View Cart & Order on WhatsApp', action: 'checkout_now' },
           { label: lang === 'sw' ? '🔍 Tazama Maelezo ya Bidhaa Hii' : '🔍 View Product Details', action: 'inspect_product', payload: liveProduct },
-          { label: lang === 'sw' ? '🌿 Angalia Bidhaa Nyingine' : '🌿 Explore More Solutions', action: 'Kupunguza Kitambi & Uzito' },
+          { label: lang === 'sw' ? 'Angalia Bidhaa Nyingine' : 'Explore More Solutions', action: 'Kupunguza Kitambi & Uzito' },
         ],
       };
       setMessages((prev) => [...prev, confirmationMsg]);
@@ -292,7 +292,7 @@ export function SmartAssistantModal({
           </span>
 
           {[
-            { label: lang === 'sw' ? '🌿 Kupunguza Kitambi' : '🌿 Weight Loss', query: 'Kupunguza Kitambi & Uzito' },
+            { label: lang === 'sw' ? 'Kupunguza Kitambi' : 'Weight Loss', query: 'Kupunguza Kitambi & Uzito' },
             { label: lang === 'sw' ? '🩺 Vidonda vya Tumbo' : '🩺 Ulcers Relief', query: 'Vidonda vya Tumbo' },
             { label: lang === 'sw' ? '🍃 Kusafisha Utumbo' : '🍃 Detox / Shake Off', query: 'Kusafisha Utumbo & Gesi' },
             { label: lang === 'sw' ? '⚡ Nguvu & Stamina' : '⚡ Energy / Stamina', query: 'Kuongeza Nguvu & Stamina' },

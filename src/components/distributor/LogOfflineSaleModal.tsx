@@ -9,12 +9,13 @@ import {
   Calendar,
   CreditCard,
   Send,
-  Sparkles,
+  // Sparkles removed — replaced by EdIcon (brand layer)
   AlertCircle,
 } from 'lucide-react';
 import { useLang } from '../../context/LangContext';
 import { useDistributorStore } from '../../store/distributorStore';
 import { WHATSAPP_LINK } from '../../utils/whatsappCompiler';
+import { EdIcon } from '../brand/EdIcon';
 
 interface LogOfflineSaleModalProps {
   isOpen: boolean;
@@ -126,16 +127,16 @@ export const LogOfflineSaleModal: React.FC<LogOfflineSaleModalProps> = ({
         className="bg-white rounded-3xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-stone-200 overflow-hidden relative"
       >
         {/* ── MODAL HEADER ── */}
-        <div className="px-5 py-4 bg-[#0C271E] text-white flex items-center justify-between border-b border-[#1A3D31] flex-shrink-0">
+        <div className="px-5 py-4 bg-white text-gray-900 flex items-center justify-between border-b border-gray-100 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#164132] border border-[#235844] flex items-center justify-center text-[#E5C378]">
+            <div className="w-9 h-9 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center text-primary-700">
               <Plus className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-extrabold text-sm sm:text-base text-white">
+              <h3 className="font-bold text-sm sm:text-base text-gray-900">
                 {lang === 'sw' ? 'Rekodi Mauzo ya Mkononi' : 'Log Field & Offline Sale'}
               </h3>
-              <p className="text-[11px] text-stone-300">
+              <p className="text-[11px] text-gray-400">
                 {lang === 'sw' ? 'Hurekodiwa kwenye Stoo, Daftari, na Pointi za SV' : 'Instantly updates inventory, CRM & SV tracking'}
               </p>
             </div>
@@ -143,7 +144,7 @@ export const LogOfflineSaleModal: React.FC<LogOfflineSaleModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-stone-200 transition-colors cursor-pointer"
+            className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -163,8 +164,8 @@ export const LogOfflineSaleModal: React.FC<LogOfflineSaleModalProps> = ({
           {/* Customer Name & Phone */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-black text-stone-800 mb-1.5 flex items-center gap-1.5">
-                <User className="w-3.5 h-3.5 text-emerald-700" />
+              <label className="block font-semibold text-gray-700 mb-1.5 flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-primary-600" />
                 <span>{lang === 'sw' ? 'Jina la Mteja:' : 'Customer Name:'} <strong className="text-red-500">*</strong></span>
               </label>
               <input
@@ -178,8 +179,8 @@ export const LogOfflineSaleModal: React.FC<LogOfflineSaleModalProps> = ({
             </div>
 
             <div>
-              <label className="block font-black text-stone-800 mb-1.5 flex items-center gap-1.5">
-                <Phone className="w-3.5 h-3.5 text-emerald-700" />
+              <label className="block font-semibold text-gray-700 mb-1.5 flex items-center gap-1.5">
+                <Phone className="w-3.5 h-3.5 text-primary-600" />
                 <span>{lang === 'sw' ? 'Simu (WhatsApp):' : 'Phone (WhatsApp):'}</span>
               </label>
               <input
@@ -194,8 +195,8 @@ export const LogOfflineSaleModal: React.FC<LogOfflineSaleModalProps> = ({
 
           {/* Product Picker & Quantity */}
           <div className="space-y-1.5">
-            <label className="block font-black text-stone-800 flex items-center gap-1.5">
-              <ShoppingBag className="w-3.5 h-3.5 text-emerald-700" />
+            <label className="block font-semibold text-gray-700 flex items-center gap-1.5">
+              <ShoppingBag className="w-3.5 h-3.5 text-primary-600" />
               <span>{lang === 'sw' ? 'Bidhaa Iliyouzwa:' : 'Product Sold:'}</span>
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
@@ -244,7 +245,7 @@ export const LogOfflineSaleModal: React.FC<LogOfflineSaleModalProps> = ({
 
             <div className="text-right">
               <span className="text-[10px] uppercase font-black tracking-wider text-amber-800 block flex items-center justify-end gap-1">
-                <Sparkles className="w-3 h-3 text-amber-600" />
+                <EdIcon name="sv" className="w-3 h-3 text-amber-600" />
                 <span>{lang === 'sw' ? 'Pointi za SV' : 'Earned SV Points'}</span>
               </span>
               <span className="text-sm font-black text-amber-900 font-mono bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-lg">
@@ -255,8 +256,8 @@ export const LogOfflineSaleModal: React.FC<LogOfflineSaleModalProps> = ({
 
           {/* Payment Method Selector */}
           <div className="space-y-1.5">
-            <label className="block font-black text-stone-800 flex items-center gap-1.5">
-              <CreditCard className="w-3.5 h-3.5 text-emerald-700" />
+            <label className="block font-semibold text-gray-700 flex items-center gap-1.5">
+              <CreditCard className="w-3.5 h-3.5 text-primary-600" />
               <span>{lang === 'sw' ? 'Njia ya Malipo:' : 'Payment Method:'}</span>
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -269,10 +270,10 @@ export const LogOfflineSaleModal: React.FC<LogOfflineSaleModalProps> = ({
                   key={pm.id}
                   type="button"
                   onClick={() => setPaymentType(pm.id as any)}
-                  className={`py-2.5 px-2 rounded-xl font-extrabold text-xs transition-all border text-center cursor-pointer ${
+                  className={`py-2.5 px-2 rounded-md font-semibold text-xs transition-all border text-center cursor-pointer ${
                     paymentType === pm.id
-                      ? 'bg-stone-900 text-white border-stone-900 shadow-xs'
-                      : 'bg-stone-50 hover:bg-stone-100 text-stone-700 border-stone-200'
+                      ? 'bg-primary-600 text-white border-primary-600 shadow-xs'
+                      : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200'
                   }`}
                 >
                   {lang === 'sw' ? pm.labelSw : pm.labelEn}
@@ -355,9 +356,9 @@ export const LogOfflineSaleModal: React.FC<LogOfflineSaleModalProps> = ({
 
             <button
               type="submit"
-              className="flex-[2] py-3 rounded-xl bg-[#0C271E] hover:bg-[#164132] font-black text-white shadow-md flex items-center justify-center gap-2 transition-transform active:scale-98 cursor-pointer"
+              className="flex-[2] py-3 rounded-lg bg-primary-600 hover:bg-primary-700 font-semibold text-white shadow-md flex items-center justify-center gap-2 transition-colors cursor-pointer"
             >
-              <Send className="w-4 h-4 text-[#E5C378]" />
+              <Send className="w-4 h-4" />
               <span>{lang === 'sw' ? 'Hifadhi & Tuma Risiti' : 'Save & Send Receipt'}</span>
             </button>
           </div>

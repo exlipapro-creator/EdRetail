@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { DEMO_UNLOCK_ENABLED, DEMO_PIN } from '../lib/devFlags';
+import { DEMO_UNLOCK_ENABLED, DEMO_PIN, DEMO_CREDENTIALS } from '../lib/devFlags';
 import {
   Product,
   Bundle,
@@ -19,6 +19,7 @@ import { DownlineLeg } from '../data/edmarkMaintenancePlaybook';
 export interface DistributorProfile {
   id: string;
   name: string;
+  storeName?: string; // public storefront display name (distributor_profiles.store_name)
   phone: string;
   whatsappDigits: string;
   lipaNumber?: string;
@@ -517,17 +518,19 @@ export const useDistributorStore = create<DistributorStoreState>()(
       loginSuperAdmin: (emailOrKey: string, passOrPin: string) => {
         const cleanEmail = emailOrKey.trim().toLowerCase();
         const cleanPass = passOrPin.trim();
-        // Demo super-admin shortcut is dev-only (devFlags); production auth goes through Supabase
+        // Demo super-admin shortcut is dev-only (DEMO_CREDENTIALS is null in
+        // production builds); production auth goes through Supabase.
         const isDemoAdmin =
           DEMO_UNLOCK_ENABLED &&
-          cleanEmail === 'admin@edretail.tz' &&
-          cleanPass === 'admin123';
+          !!DEMO_CREDENTIALS &&
+          cleanEmail === DEMO_CREDENTIALS.superAdminEmail &&
+          cleanPass === DEMO_CREDENTIALS.superAdminPassword;
         if (isDemoAdmin) {
           set({
             isSuperAdminAuthenticated: true,
             superAdminUser: {
               id: 'super-admin-01',
-              email: cleanEmail.includes('@') ? cleanEmail : 'admin@edretail.tz',
+              email: cleanEmail.includes('@') ? cleanEmail : DEMO_CREDENTIALS!.superAdminEmail,
               name: 'Super Administrator',
             },
           });
@@ -559,6 +562,10 @@ export const useDistributorStore = create<DistributorStoreState>()(
       changePin: (newPin) => set({ adminPin: newPin.trim() }),
 
       loginWithEmail: (email, pass) => {
+        // Local email lookup/auto-provision is a development-only convenience.
+        // Production distributor auth goes through Supabase (see
+        // DistributorLoginPage) — never auto-authenticate arbitrary emails.
+        if (!DEMO_UNLOCK_ENABLED) return false;
         const state = get();
         const cleanEmail = email.trim().toLowerCase();
         const found = state.savedDistributors.find((d) => d.email.toLowerCase() === cleanEmail);
@@ -601,6 +608,8 @@ export const useDistributorStore = create<DistributorStoreState>()(
       },
 
       loginWithGoogle: (email = 'distributor.edmark@gmail.com', name = 'Authorized Distributor') => {
+        // Dev-only convenience fallback; production uses real Supabase OAuth.
+        if (!DEMO_UNLOCK_ENABLED) return DEFAULT_DISTRIBUTOR;
         const state = get();
         const cleanEmail = email.trim().toLowerCase();
         const found = state.savedDistributors.find((d) => d.email.toLowerCase() === cleanEmail);
@@ -640,6 +649,8 @@ export const useDistributorStore = create<DistributorStoreState>()(
       },
 
       loginWithApple: (email = 'distributor.apple@edretail.tz', name = 'Apple Authorized Distributor') => {
+        // Dev-only convenience fallback; production uses real Supabase OAuth.
+        if (!DEMO_UNLOCK_ENABLED) return DEFAULT_DISTRIBUTOR;
         const state = get();
         const cleanEmail = email.trim().toLowerCase();
         const found = state.savedDistributors.find((d) => d.email.toLowerCase() === cleanEmail);
@@ -679,6 +690,9 @@ export const useDistributorStore = create<DistributorStoreState>()(
       },
 
       registerNewDistributor: (profileData, _pass) => {
+        // Self-registration is a development-only convenience; production
+        // distributor accounts are provisioned through the auth provider.
+        if (!DEMO_UNLOCK_ENABLED) return DEFAULT_DISTRIBUTOR;
         const state = get();
         const cleanSlug = (profileData.slug || profileData.name)
           .toLowerCase()
@@ -1932,6 +1946,34 @@ export const useDistributorStore = create<DistributorStoreState>()(
     }),
     {
       name: 'edretail_distributor_storage_v3',
+      // Persist ONLY business data (offline ledger, catalog overrides,
+      // profiles, settings). Authentication state is deliberately excluded —
+      // isAdminAuthenticated, adminPin, isSuperAdminAuthenticated and
+      // superAdminUser must never live in localStorage: Supabase Auth is the
+      // sole session authority and a stale persisted flag can never grant
+      // portal access. See supabase/migrations/ + docs/SECURITY_TEST_MATRIX.md.
+      partialize: (state) => ({
+        currentProfile: state.currentProfile,
+        activeRefSlug: state.activeRefSlug,
+        attribution: state.attribution,
+        savedDistributors: state.savedDistributors,
+        masterProducts: state.masterProducts,
+        customProductsByDistributor: state.customProductsByDistributor,
+        platformSettings: state.platformSettings,
+        productOverrides: state.productOverrides,
+        distributorOverrides: state.distributorOverrides,
+        sales: state.sales,
+        tasks: state.tasks,
+        targetFund: state.targetFund,
+        consecutiveMonthsRecord: state.consecutiveMonthsRecord,
+        currentMonthBaseGroupSv: state.currentMonthBaseGroupSv,
+        currentMonthPersonalSv: state.currentMonthPersonalSv,
+        downlineLegs: state.downlineLegs,
+        auditLogs: state.auditLogs,
+        nativeAdsEnabled: state.nativeAdsEnabled,
+        monetizationConfig: state.monetizationConfig,
+        sponsorAds: state.sponsorAds,
+      }),
     }
   )
 );

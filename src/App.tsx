@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { AppHeader, ScreenId } from './components/navigation/AppHeader';
 import { BottomNavigation } from './components/navigation/BottomNavigation';
+import { StorefrontFooter } from './components/navigation/StorefrontFooter';
 import { OfflineBanner } from './components/feedback/OfflineBanner';
 import { PwaInstallBanner } from './components/feedback/PwaInstallBanner';
 import { HomePage } from './components/views/HomePage';
@@ -43,6 +44,9 @@ const DistributorStoreLinkModal = lazy(() =>
 );
 const DistributorBackOfficeModal = lazy(() =>
   import('./components/distributor/DistributorBackOfficeModal').then((m) => ({ default: m.DistributorBackOfficeModal }))
+);
+const ViewFlyers = lazy(() =>
+  import('./components/marketing/ViewFlyers').then((m) => ({ default: m.ViewFlyers }))
 );
 
 function App() {
@@ -122,7 +126,6 @@ function App() {
         currentScreen={currentScreen}
         onNavigate={setCurrentScreen}
         onOpenCart={() => setIsCartOpen(true)}
-        onOpenFlyerStudio={() => setIsFlyerStudioOpen(true)}
         onOpenDistributorAuth={() => setIsDistributorAuthOpen(true)}
         onOpenBackOffice={() => setIsBackOfficeOpen(true)}
         onOpenStoreLinkModal={() => setIsStoreLinkOpen(true)}
@@ -234,8 +237,23 @@ function App() {
               <OrdersHelpView />
             </motion.div>
           )}
+
+          {currentScreen === 'flyers' && (
+            <motion.div
+              key="screen-flyers"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+            >
+              <ViewFlyers />
+            </motion.div>
+          )}
         </AnimatePresence>
       </main>
+
+      {/* ── STOREFRONT FOOTER (secondary navigation) ── */}
+      <StorefrontFooter onNavigate={setCurrentScreen} />
 
       {/* ── MOBILE BOTTOM NAVIGATION ── */}
       <BottomNavigation

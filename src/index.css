@@ -55,6 +55,26 @@
   .card-surface {
     @apply bg-white border border-gray-100 shadow-card;
   }
+
+  /*
+   * Portal surfaces (distributor + admin internal UI). Light, neutral,
+   * restrained — replaces the previous dark green/gold portal treatment.
+   */
+  .panel-surface {
+    @apply bg-white border border-gray-200 shadow-card rounded-lg;
+  }
+
+  .panel-inner {
+    @apply bg-gray-50 border border-gray-200 rounded-lg;
+  }
+
+  .portal-page {
+    @apply w-full max-w-6xl mx-auto px-4 sm:px-6 py-5 sm:py-7;
+  }
+
+  .portal-input {
+    @apply w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all;
+  }
 }
 
 @layer utilities {

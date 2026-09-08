@@ -19,32 +19,25 @@ function useBestSellers() {
     let cancelled = false;
     (async () => {
       try {
+        // Server-side aggregate RPC — sales rows hold customer PII and are
+        // not world-readable under RLS, so the storefront must never SELECT
+        // them directly. The RPC returns only { product_id, total_units }.
         const { data, error } = await supabase
-          .from('sales')
-          .select('items, status')
-          .neq('status', 'cancelled');
+          .rpc('public_best_sellers', { _limit: 8 });
 
         if (error || cancelled) {
           if (!cancelled) setEntries([]);
           return;
         }
 
-        // Aggregate units per productId from JSONB items arrays
-        const totals: Record<string, number> = {};
-        for (const row of data ?? []) {
-          const lineItems: Array<{ productId?: string; id?: string; quantity?: number }> =
-            row.items ?? [];
-          for (const li of lineItems) {
-            const pid = li.productId ?? li.id;
-            if (!pid) continue;
-            totals[pid] = (totals[pid] ?? 0) + (li.quantity ?? 1);
-          }
-        }
-
-        const sorted: BestSellerEntry[] = Object.entries(totals)
-          .map(([productId, totalUnits]) => ({ productId, totalUnits }))
-          .filter((e) => e.totalUnits > 0)
-          .sort((a, b) => b.totalUnits - a.totalUnits)
+        const rpcRows = (data ?? []) as Array<{ product_id: string; total_units: number | string }>;
+        const sorted: BestSellerEntry[] = rpcRows
+          .map((row) => ({
+            productId: row.product_id,
+            totalUnits: Number(row.total_units) || 0,
+          }))
+          .filter((e: BestSellerEntry) => e.totalUnits > 0)
+          .sort((a: BestSellerEntry, b: BestSellerEntry) => b.totalUnits - a.totalUnits)
           .slice(0, 4);
 
         if (!cancelled) setEntries(sorted);

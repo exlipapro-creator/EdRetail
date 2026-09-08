@@ -9,7 +9,7 @@ import {
   Plus,
   Minus,
   CheckCircle2,
-  Sparkles,
+  // Sparkles removed — replaced by EdIcon (brand layer)
   Phone,
   ArrowLeft,
 } from 'lucide-react';
@@ -19,6 +19,7 @@ import { useDistributorStore } from '../../store/distributorStore';
 import { formatPrice, formatUsd, WHATSAPP_LINK, DISTRIBUTOR_NAME } from '../../utils/whatsappCompiler';
 import { useLang } from '../../context/LangContext';
 import { motionTokens } from '../../design/motion';
+import { EdIcon } from '../brand/EdIcon';
 
 export interface ProductDetailModalProps {
   product: Product | null;
@@ -280,7 +281,7 @@ export function ProductDetailModal({
               {/* How to use */}
               <div className="p-4 bg-primary-50/80 rounded-2xl border border-primary-100 text-neutral-800">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-primary-800 mb-1 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-primary-600" />
+                  <EdIcon name="radiance" className="w-3.5 h-3.5 text-primary-600" />
                   {lang === 'sw' ? 'Jinsi ya Kutumia' : 'How to Use & Dosage'}
                 </h4>
                 <p className="text-xs text-primary-950 leading-relaxed font-medium">

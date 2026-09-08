@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   X,
   Upload,
-  Sparkles,
+
   Image as ImageIcon,
   Languages,
   List,
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Product, ProductCategory } from '../../types';
 import { useDistributorStore } from '../../store/distributorStore';
+import { EdIcon } from '../brand/EdIcon';
 
 interface ProductEditorModalProps {
   isOpen: boolean;
@@ -214,16 +215,16 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-md overflow-y-auto animate-fadeIn">
-      <div className="relative w-full max-w-3xl bg-stone-950 border border-stone-800 rounded-3xl shadow-2xl overflow-hidden text-stone-100 my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/50 overflow-y-auto">
+      <div className="relative w-full max-w-3xl bg-white border border-gray-200 rounded-lg shadow-overlay overflow-hidden text-gray-900 my-auto">
         {/* Modal Header */}
-        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-stone-800 bg-stone-900/60">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 bg-gray-50">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-amber-400/10 text-amber-400 border border-amber-400/20">
+            <div className="p-2 rounded-lg bg-primary-50 text-primary-700 border border-primary-200">
               <Package className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-black text-white">
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900">
                 {productToEdit
                   ? lang === 'sw'
                     ? 'Hariri Bidhaa & Bei Dukani'
@@ -232,7 +233,7 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                   ? 'Ongeza Bidhaa Mpya Dukani'
                   : 'Add New Product to Storefront'}
               </h2>
-              <p className="text-xs text-stone-400">
+              <p className="text-xs text-gray-500">
                 {lang === 'sw'
                   ? 'Dhibiti picha, bei, maelezo ya Kiswahili/Kiingereza, na stoo.'
                   : 'Manage images, pricing, bilingual descriptions, and inventory.'}
@@ -242,21 +243,22 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 text-stone-400 hover:text-white rounded-xl bg-stone-900 border border-stone-800 hover:bg-stone-800 transition-colors cursor-pointer"
+            className="p-2 text-gray-400 hover:text-gray-900 rounded-lg bg-white border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer"
+            aria-label="Close"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab Selector: Edit Form vs Live Card Preview */}
-        <div className="flex items-center justify-between px-4 sm:px-6 pt-3 border-b border-stone-800 bg-stone-950">
+        <div className="flex items-center justify-between px-4 sm:px-6 pt-3 border-b border-gray-100 bg-white">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveTab('edit')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-black rounded-t-xl transition-all border-b-2 cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-t-lg transition-all border-b-2 cursor-pointer ${
                 activeTab === 'edit'
-                  ? 'border-amber-400 text-amber-300 bg-stone-900/60'
-                  : 'border-transparent text-stone-400 hover:text-white'
+                  ? 'border-primary-600 text-primary-700 bg-primary-50/50'
+                  : 'border-transparent text-gray-400 hover:text-gray-700'
               }`}
             >
               <Edit3 className="w-3.5 h-3.5" />
@@ -264,10 +266,10 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
             </button>
             <button
               onClick={() => setActiveTab('preview')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-black rounded-t-xl transition-all border-b-2 cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-t-lg transition-all border-b-2 cursor-pointer ${
                 activeTab === 'preview'
-                  ? 'border-amber-400 text-amber-300 bg-stone-900/60'
-                  : 'border-transparent text-stone-400 hover:text-white'
+                  ? 'border-primary-600 text-primary-700 bg-primary-50/50'
+                  : 'border-transparent text-gray-400 hover:text-gray-700'
               }`}
             >
               <Eye className="w-3.5 h-3.5" />
@@ -277,12 +279,12 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
 
           {/* Language Switcher for Fields */}
           {activeTab === 'edit' && (
-            <div className="flex items-center gap-1 bg-stone-900 p-1 rounded-xl border border-stone-800 text-[11px] mb-1">
+            <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-md border border-gray-200 text-[11px] mb-1">
               <button
                 type="button"
                 onClick={() => setTargetLangTab('sw')}
-                className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
-                  targetLangTab === 'sw' ? 'bg-amber-400 text-stone-950 font-black' : 'text-stone-400 hover:text-white'
+                className={`px-2 py-0.5 rounded font-semibold transition-all cursor-pointer ${
+                  targetLangTab === 'sw' ? 'bg-primary-600 text-white font-bold' : 'text-gray-500 hover:text-gray-900'
                 }`}
               >
                 🇹🇿 Kiswahili
@@ -290,8 +292,8 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
               <button
                 type="button"
                 onClick={() => setTargetLangTab('en')}
-                className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
-                  targetLangTab === 'en' ? 'bg-amber-400 text-stone-950 font-black' : 'text-stone-400 hover:text-white'
+                className={`px-2 py-0.5 rounded font-semibold transition-all cursor-pointer ${
+                  targetLangTab === 'en' ? 'bg-primary-600 text-white font-bold' : 'text-gray-500 hover:text-gray-900'
                 }`}
               >
                 🇬🇧 English
@@ -307,7 +309,7 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
               {/* Row 1: Names & Category */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-stone-300 mb-1">
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
                     {lang === 'sw' ? 'Jina la Bidhaa (Kiswahili)' : 'Product Name (Swahili)'} *
                   </label>
                   <input
@@ -316,12 +318,12 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                     value={nameSw}
                     onChange={(e) => setNameSw(e.target.value)}
                     placeholder="Mf: Shake Off Phyto Fiber (Pandan)"
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-400"
+                    className="portal-input"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-300 mb-1">
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
                     {lang === 'sw' ? 'Jina la Bidhaa (Kiingereza)' : 'Product Name (English)'} *
                   </label>
                   <input
@@ -330,7 +332,7 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                     value={nameEn}
                     onChange={(e) => setNameEn(e.target.value)}
                     placeholder="E.g. Shake Off Phyto Fiber"
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-400"
+                    className="portal-input"
                   />
                 </div>
               </div>
@@ -338,13 +340,13 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
               {/* Row 2: Category, Badge, Prices */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-stone-300 mb-1">
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
                     {lang === 'sw' ? 'Kundi / Jamii' : 'Category'}
                   </label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as ProductCategory)}
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-400 cursor-pointer"
+                    className="portal-input cursor-pointer"
                   >
                     <option value="p4-slimming">P4 Slimming</option>
                     <option value="health-wellness">Afya & Kinga (Wellness)</option>
@@ -353,7 +355,7 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-300 mb-1">
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
                     {lang === 'sw' ? 'Lebo / Badge' : 'Badge / Tag'}
                   </label>
                   <input
@@ -361,12 +363,12 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                     value={badge}
                     onChange={(e) => setBadge(e.target.value)}
                     placeholder="Mf: INAYOPENDEZWA, BESTSELLER"
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-400"
+                    className="portal-input"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-300 mb-1">
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
                     {lang === 'sw' ? 'Bei Dukani (TZS)' : 'Retail Price (TZS)'} *
                   </label>
                   <input
@@ -376,12 +378,12 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                     step={500}
                     value={price}
                     onChange={(e) => setPrice(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl text-xs font-bold text-amber-300 focus:outline-none focus:border-amber-400"
+                    className="portal-input font-semibold text-primary-700"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-stone-300 mb-1">
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
                     {lang === 'sw' ? 'Bei ya USD ($)' : 'USD Price ($)'}
                   </label>
                   <input
@@ -389,18 +391,18 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                     min={1}
                     value={priceUsd}
                     onChange={(e) => setPriceUsd(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl text-xs text-stone-300 focus:outline-none focus:border-amber-400"
+                    className="portal-input"
                   />
                 </div>
               </div>
 
               {/* Stock Status Switch */}
-              <div className="flex items-center justify-between p-3.5 bg-stone-900/80 border border-stone-800 rounded-2xl">
+              <div className="flex items-center justify-between p-3.5 panel-inner">
                 <div>
-                  <span className="text-xs font-bold text-white block">
+                  <span className="text-xs font-semibold text-gray-900 block">
                     {lang === 'sw' ? 'Hali ya Mzigo Stoo' : 'Inventory Availability'}
                   </span>
-                  <span className="text-[11px] text-stone-400">
+                  <span className="text-[11px] text-gray-500">
                     {inStock
                       ? lang === 'sw'
                         ? 'Wateja wanaweza kuagiza kwenye duka mtandao.'
@@ -414,39 +416,39 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setInStock(!inStock)}
-                  className={`px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                  className={`px-4 py-2 rounded-md text-xs font-semibold transition-all cursor-pointer ${
                     inStock
-                      ? 'bg-emerald-500 text-stone-950 shadow-xs'
-                      : 'bg-red-900/60 text-red-300 border border-red-700/60'
+                      ? 'bg-green-600 text-white hover:bg-green-700'
+                      : 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100'
                   }`}
                 >
-                  {inStock ? '✅ In Stock (Ipo)' : '❌ Out of Stock (Imeisha)'}
+                  {inStock ? 'In Stock (Ipo)' : 'Out of Stock (Imeisha)'}
                 </button>
               </div>
 
               {/* Section: Image Upload & Preset Selector */}
-              <div className="p-4 bg-stone-900/60 border border-stone-800 rounded-2xl space-y-3">
+              <div className="p-4 panel-inner space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-black text-white flex items-center gap-1.5">
-                    <ImageIcon className="w-4 h-4 text-amber-400" />
+                  <label className="text-xs font-semibold text-gray-900 flex items-center gap-1.5">
+                    <ImageIcon className="w-4 h-4 text-primary-600" />
                     <span>{lang === 'sw' ? 'Picha ya Bidhaa' : 'Product Visual'}</span>
                   </label>
                   {image && (
-                    <span className="text-[10px] text-emerald-400 font-bold">
+                    <span className="text-[10px] text-green-700 font-semibold">
                       {lang === 'sw' ? 'Picha Imechaguliwa' : 'Image Loaded'}
                     </span>
                   )}
                 </div>
 
                 {uploadError && (
-                  <p className="text-xs text-red-400 font-bold bg-red-950/50 p-2 rounded-lg border border-red-800/50">
+                  <p className="text-xs text-red-700 font-semibold bg-red-50 p-2 rounded-md border border-red-200">
                     {uploadError}
                   </p>
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
                   {/* Image Preview Box */}
-                  <div className="h-28 rounded-xl bg-stone-950 border border-stone-800 p-2 flex items-center justify-center relative group">
+                  <div className="h-28 rounded-md bg-white border border-gray-200 p-2 flex items-center justify-center relative group">
                     {image ? (
                       <img
                         src={image}
@@ -457,15 +459,15 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                         }}
                       />
                     ) : (
-                      <span className="text-[11px] text-stone-500">Hakuna Picha</span>
+                      <span className="text-[11px] text-gray-400">Hakuna Picha</span>
                     )}
                   </div>
 
                   {/* Upload Controls */}
                   <div className="sm:col-span-2 space-y-2">
                     <div className="flex items-center gap-2">
-                      <label className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-stone-900 hover:bg-stone-800 text-stone-200 border border-stone-700 text-xs font-bold rounded-xl cursor-pointer transition-colors">
-                        <Upload className="w-3.5 h-3.5 text-amber-400" />
+                      <label className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 text-xs font-semibold rounded-md cursor-pointer transition-colors">
+                        <Upload className="w-3.5 h-3.5 text-primary-600" />
                         <span>{lang === 'sw' ? 'Pakia Kutoka Simu / Kompyuta' : 'Upload Image File'}</span>
                         <input
                           type="file"
@@ -481,12 +483,12 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                       value={image}
                       onChange={(e) => setImage(e.target.value)}
                       placeholder="Au weka link ya picha (URL)..."
-                      className="w-full px-3 py-1.5 bg-stone-950 border border-stone-800 rounded-xl text-[11px] text-stone-300 focus:outline-none"
+                      className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-[11px] text-gray-600 focus:outline-none focus:ring-1 focus:ring-primary-500"
                     />
 
                     {/* Quick Preset Picker */}
                     <div className="pt-1">
-                      <span className="text-[10px] text-stone-400 font-bold block mb-1">
+                      <span className="text-[10px] text-gray-500 font-semibold block mb-1">
                         {lang === 'sw' ? 'Chagua Kutoka Picha Rasmi za Edmark:' : 'Quick Select Preset Image:'}
                       </span>
                       <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
@@ -495,10 +497,10 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                             key={preset.url}
                             type="button"
                             onClick={() => setImage(preset.url)}
-                            className={`px-2 py-1 rounded-lg text-[10px] font-bold shrink-0 border transition-all cursor-pointer ${
+                            className={`px-2 py-1 rounded text-[10px] font-semibold shrink-0 border transition-all cursor-pointer ${
                               image === preset.url
-                                ? 'bg-amber-400 text-stone-950 border-amber-400 font-black'
-                                : 'bg-stone-950 text-stone-400 border-stone-800 hover:text-white'
+                                ? 'bg-primary-600 text-white border-primary-600 font-bold'
+                                : 'bg-white text-gray-500 border-gray-200 hover:text-gray-900'
                             }`}
                           >
                             {preset.name.split(' ')[0]}
@@ -511,11 +513,11 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
               </div>
 
               {/* Section: Bilingual Rich Descriptions & Translation Bar */}
-              <div className="space-y-3 p-4 bg-stone-900/60 border border-stone-800 rounded-2xl">
+              <div className="space-y-3 p-4 panel-inner">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-amber-400" />
-                    <span className="text-xs font-black text-white">
+                    <EdIcon name="leaf" className="w-4 h-4 text-primary-600" />
+                    <span className="text-xs font-semibold text-gray-900">
                       {targetLangTab === 'sw' ? 'Maelezo ya Kiswahili' : 'English Description & Benefits'}
                     </span>
                   </div>
@@ -526,7 +528,7 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                       type="button"
                       disabled={isTranslating}
                       onClick={() => handleAutoTranslate(targetLangTab === 'sw' ? 'to_sw' : 'to_en')}
-                      className="px-2.5 py-1 bg-amber-400/20 hover:bg-amber-400 text-amber-300 hover:text-stone-950 border border-amber-400/40 text-[11px] font-black rounded-lg transition-all flex items-center gap-1 cursor-pointer"
+                      className="px-2.5 py-1 bg-primary-50 hover:bg-primary-100 text-primary-700 border border-primary-200 text-[11px] font-semibold rounded-md transition-all flex items-center gap-1 cursor-pointer"
                     >
                       <Languages className="w-3 h-3" />
                       <span>
@@ -541,11 +543,11 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                 </div>
 
                 {/* Rich Text Toolbar */}
-                <div className="flex items-center gap-1 bg-stone-950 p-1.5 rounded-xl border border-stone-800 flex-wrap text-xs">
+                <div className="flex items-center gap-1 bg-white p-1.5 rounded-md border border-gray-200 flex-wrap text-xs">
                   <button
                     type="button"
                     onClick={() => insertFormatting('desc', '✅ Faida: ')}
-                    className="px-2 py-1 bg-stone-900 hover:bg-stone-800 text-emerald-400 rounded-lg font-bold text-[11px] flex items-center gap-1 cursor-pointer"
+                    className="px-2 py-1 bg-gray-50 hover:bg-gray-100 text-green-700 rounded font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
                   >
                     <CheckCircle2 className="w-3 h-3" />
                     <span>+ Faida</span>
@@ -553,7 +555,7 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                   <button
                     type="button"
                     onClick={() => insertFormatting('desc', '• ')}
-                    className="px-2 py-1 bg-stone-900 hover:bg-stone-800 text-stone-300 rounded-lg font-bold text-[11px] flex items-center gap-1 cursor-pointer"
+                    className="px-2 py-1 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
                   >
                     <List className="w-3 h-3" />
                     <span>+ Orodha</span>
@@ -561,7 +563,7 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                   <button
                     type="button"
                     onClick={() => insertFormatting('desc', '⭐ Muhimu: ')}
-                    className="px-2 py-1 bg-stone-900 hover:bg-stone-800 text-amber-400 rounded-lg font-bold text-[11px] flex items-center gap-1 cursor-pointer"
+                    className="px-2 py-1 bg-gray-50 hover:bg-gray-100 text-amber-700 rounded font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
                   >
                     <Star className="w-3 h-3" />
                     <span>+ Muhimu</span>
@@ -581,13 +583,13 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                         ? 'Andika faida kuu za bidhaa kwa Kiswahili...'
                         : 'Write product benefits in English...'
                     }
-                    className="w-full p-3 bg-stone-950 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-400 leading-relaxed font-sans"
+                    className="w-full p-3 bg-white border border-gray-300 rounded-md text-xs text-gray-900 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 leading-relaxed font-sans"
                   />
                 </div>
 
                 {/* Usage Instructions */}
                 <div>
-                  <label className="block text-xs font-bold text-stone-300 mb-1">
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
                     {targetLangTab === 'sw' ? 'Jinsi ya Kutumia (Usage):' : 'Directions for Use:'}
                   </label>
                   <textarea
@@ -601,7 +603,7 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                         ? 'Mf: Kunywa pakiti 1 kabla ya kulala na maji baridi 250ml...'
                         : 'E.g. Drink 1 sachet before bed with 250ml water...'
                     }
-                    className="w-full p-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:border-amber-400 leading-relaxed"
+                    className="w-full p-2.5 bg-white border border-gray-300 rounded-md text-xs text-gray-900 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 leading-relaxed"
                   />
                 </div>
               </div>
@@ -609,25 +611,25 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
           ) : (
             /* Live Storefront Card Preview Tab */
             <div className="space-y-4">
-              <div className="p-3 bg-amber-400/10 border border-amber-400/30 rounded-2xl text-xs text-amber-200">
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-md text-xs text-amber-800">
                 {lang === 'sw'
                   ? 'Hivi ndivyo wateja wataona bidhaa hii kwenye orodha ya duka na kurasa za oda:'
                   : 'Here is exactly how customers will view this product card on the live storefront:'}
               </div>
 
-              <div className="max-w-sm mx-auto bg-stone-900 border border-stone-800 rounded-3xl p-4 shadow-xl space-y-3">
+              <div className="max-w-sm mx-auto bg-white border border-gray-200 rounded-lg p-4 shadow-card space-y-3">
                 {/* Image + Badge */}
-                <div className="relative aspect-square rounded-2xl bg-stone-950 border border-stone-800 p-4 flex items-center justify-center overflow-hidden">
+                <div className="relative aspect-square rounded-md bg-gray-50 border border-gray-200 p-4 flex items-center justify-center overflow-hidden">
                   {badge && (
-                    <span className="absolute top-3 left-3 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-400 text-stone-950 shadow-xs">
+                    <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-amber-500 text-white shadow-xs">
                       {badge}
                     </span>
                   )}
                   <span
-                    className={`absolute top-3 right-3 px-2 py-0.5 rounded-md text-[10px] font-black uppercase ${
+                    className={`absolute top-3 right-3 px-2 py-0.5 rounded text-[10px] font-semibold uppercase ${
                       inStock
-                        ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/60'
-                        : 'bg-red-950/80 text-red-300 border border-red-700/60'
+                        ? 'bg-green-50 text-green-700 border border-green-200'
+                        : 'bg-red-50 text-red-700 border border-red-200'
                     }`}
                   >
                     {inStock ? 'In Stock' : 'Out of Stock'}
@@ -641,20 +643,20 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
 
                 {/* Content Details */}
                 <div>
-                  <h3 className="text-sm font-extrabold text-white">
+                  <h3 className="text-sm font-semibold text-gray-900">
                     {lang === 'sw' ? nameSw || nameEn : nameEn || nameSw}
                   </h3>
-                  <div className="text-base font-black text-amber-400 mt-1">
+                  <div className="text-base font-bold text-primary-700 mt-1">
                     TZS {Number(price || 0).toLocaleString()}
                   </div>
-                  <p className="text-xs text-stone-400 mt-2 line-clamp-3 leading-relaxed">
+                  <p className="text-xs text-gray-500 mt-2 line-clamp-3 leading-relaxed">
                     {lang === 'sw' ? descSw || descEn : descEn || descSw}
                   </p>
                 </div>
 
                 {/* Usage Snippet */}
-                <div className="p-2.5 rounded-xl bg-stone-950 border border-stone-800 text-[11px] text-stone-300">
-                  <span className="font-bold text-amber-400 block mb-0.5">
+                <div className="p-2.5 rounded-md bg-gray-50 border border-gray-200 text-[11px] text-gray-600">
+                  <span className="font-semibold text-primary-700 block mb-0.5">
                     {lang === 'sw' ? 'Matumizi:' : 'How to use:'}
                   </span>
                   <p>{lang === 'sw' ? usageSw || usageEn : usageEn || usageSw}</p>
@@ -662,7 +664,7 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
 
                 <button
                   type="button"
-                  className="w-full py-2.5 bg-emerald-500 text-stone-950 font-black rounded-xl text-xs shadow-md"
+                  className="w-full py-2.5 bg-primary-600 text-white font-semibold rounded-md text-xs shadow-md"
                 >
                   {lang === 'sw' ? 'Weka Kwenye Kikapu 🛒' : 'Add to Cart 🛒'}
                 </button>
@@ -672,11 +674,11 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
         </div>
 
         {/* Modal Footer Actions */}
-        <div className="p-4 sm:p-5 border-t border-stone-800 bg-stone-900/60 flex items-center justify-end gap-3">
+        <div className="p-4 sm:p-5 border-t border-gray-100 bg-gray-50 flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2.5 text-xs font-bold text-stone-400 hover:text-white rounded-xl bg-stone-900 border border-stone-800 transition-colors cursor-pointer"
+            className="px-4 py-2.5 text-xs font-semibold text-gray-600 hover:text-gray-900 rounded-md bg-white border border-gray-300 transition-colors cursor-pointer"
           >
             {lang === 'sw' ? 'Ghairi' : 'Cancel'}
           </button>
@@ -684,7 +686,7 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
           <button
             type="submit"
             form="product-editor-form"
-            className="px-5 py-2.5 bg-amber-400 hover:bg-amber-300 text-stone-950 text-xs font-black rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer active:scale-95"
+            className="px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold rounded-md transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
           >
             <Save className="w-4 h-4" />
             <span>

@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import {
   Calculator,
   Scale,
-  Sparkles,
   ShoppingBag,
   MessageCircle,
   Flame,
@@ -18,6 +17,7 @@ import { useLang } from '../../context/LangContext';
 import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
 import { Product } from '../../types';
+import { EdIcon } from '../brand/EdIcon';
 import { formatPrice, getActiveWhatsAppLink } from '../../utils/whatsappCompiler';
 
 interface BmiHealthCalculatorProps {
@@ -391,7 +391,7 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
           {/* Goal Selector */}
           <div className="space-y-2 pt-1">
             <h3 className="text-xs font-bold text-stone-900 flex items-center gap-1.5 uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
+              <EdIcon name="growth" className="w-3.5 h-3.5 text-[#C5A059]" />
               <span>{lang === 'sw' ? '2. Chagua Lengo Lako Kuu' : '2. Primary Objective'}</span>
             </h3>
 
@@ -466,7 +466,7 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
                 }`}
               >
                 <div className="w-6 h-6 rounded-md bg-emerald-100 text-emerald-800 flex items-center justify-center mb-1.5">
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <EdIcon name="leaf" className="w-3.5 h-3.5" />
                 </div>
                 <div className="text-xs font-bold text-stone-900 leading-tight">
                   {lang === 'sw' ? 'Kusafisha Utumbo & Sumu' : 'Colon Cleanse & Detox'}

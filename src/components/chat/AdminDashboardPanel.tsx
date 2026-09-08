@@ -481,7 +481,7 @@ export const AdminDashboardPanel: React.FC<AdminDashboardPanelProps> = ({
                                 : 'bg-red-100 text-red-900'
                             }`}
                           >
-                            {isInStock ? 'In Stock ✅' : 'Out of Stock ❌'}
+                            {isInStock ? 'In Stock' : 'Out of Stock'}
                           </span>
                           {isHidden && (
                             <span className="px-1.5 py-0.5 bg-stone-200 text-stone-600 text-[10px] rounded font-bold">
@@ -625,7 +625,7 @@ export const AdminDashboardPanel: React.FC<AdminDashboardPanelProps> = ({
                               hasDebt ? 'bg-amber-100 text-amber-900' : 'bg-emerald-100 text-emerald-900'
                             }`}
                           >
-                            {hasDebt ? `Anadaiwa TZS ${sale.balanceDue.toLocaleString()}` : 'Imelipwa Yote ✅'}
+                            {hasDebt ? `Anadaiwa TZS ${sale.balanceDue.toLocaleString()}` : 'Imelipwa Yote'}
                           </span>
                         </div>
 
@@ -784,7 +784,7 @@ export const AdminDashboardPanel: React.FC<AdminDashboardPanelProps> = ({
                     : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100'
                 }`}
               >
-                <div className="font-bold">✨ {lang === 'sw' ? 'Hatua ya Pili: P4 Slimming' : 'Phase 2: Slimming Next Step'}</div>
+                <div className="font-bold">{lang === 'sw' ? 'Hatua ya Pili: P4 Slimming' : 'Phase 2: Slimming Next Step'}</div>
                 <div className="text-[10px] text-stone-500 mt-0.5">Kutoka Shake Off kwenda MRT</div>
               </button>
             </div>
@@ -846,7 +846,7 @@ export const AdminDashboardPanel: React.FC<AdminDashboardPanelProps> = ({
                           }`}
                         >
                           {sale.refillStatus === 'reordered'
-                            ? '✅ Ameongeza Oda'
+                            ? 'Ameongeza Oda'
                             : sale.refillStatus === 'followed_up'
                             ? '💬 Nimeshamjulia Hali'
                             : '⏰ Inasubiri Ufuatiliaji'}

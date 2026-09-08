@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { ExternalLink, Sparkles, Globe, ShieldCheck } from 'lucide-react';
+import { ExternalLink, Globe, ShieldCheck } from 'lucide-react';
 import { useDistributorStore } from '../../store/distributorStore';
 import { useLang } from '../../context/LangContext';
 import { AdPlacement } from '../../types';
+import { EdIcon } from '../brand/EdIcon';
 
 interface NativeAdBannerProps {
   placement: AdPlacement;
@@ -101,7 +102,7 @@ export const NativeAdBanner: React.FC<NativeAdBannerProps> = ({ placement, class
             <div className="min-w-0 flex-1 space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-400/15 text-amber-300 border border-amber-500/30">
-                  <Sparkles className="w-2.5 h-2.5" />
+                  <EdIcon name="shield" className="w-2.5 h-2.5" />
                   {sponsorAd.badgeText || (lang === 'sw' ? 'MFADHILI WA AFYA' : 'SPONSORED')}
                 </span>
                 <span className="text-[11px] text-stone-400 font-semibold truncate">

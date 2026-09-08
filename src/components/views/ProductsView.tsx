@@ -12,13 +12,13 @@ import {
   Coffee,
   Activity,
   Leaf,
-  Sparkles,
 } from 'lucide-react';
 import { PRODUCTS, CATEGORIES, Product } from '../../types';
 import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
 import { formatPrice, formatUsd } from '../../utils/whatsappCompiler';
 import { useLang } from '../../context/LangContext';
+import { EdIcon } from '../brand/EdIcon';
 
 interface ProductsViewProps {
   onSelectProduct: (product: Product) => void;
@@ -148,7 +148,7 @@ export function ProductsView({ onSelectProduct, initialSearch = '' }: ProductsVi
                 : 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <EdIcon name="leaf" className="w-3.5 h-3.5" />
             <span>{lang === 'sw' ? 'Zote' : 'All Products'}</span>
             <span className="text-[10px] opacity-75">({PRODUCTS.length})</span>
           </button>

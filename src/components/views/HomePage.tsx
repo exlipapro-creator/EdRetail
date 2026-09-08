@@ -16,7 +16,6 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { HeroCarousel } from '../HeroCarousel';
-import { ReferralShareButton } from '../ReferralShare';
 import { NativeAdBanner } from '../ads/NativeAdBanner';
 import { CATEGORIES, Product } from '../../types';
 import { useCartStore } from '../../store/cartStore';
@@ -359,30 +358,9 @@ export function HomePage({
         <HeroCarousel onNavigate={onNavigate} />
       </section>
 
-      {/* ── 8. STREAMLINED FOOTER ── */}
-      <footer className="pt-4 pb-20 lg:pb-8 border-t border-neutral-200/90 space-y-3">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <img
-              src="/logo/wordmark.png"
-              alt="ED Retail Tanzania"
-              className="h-8 sm:h-9 w-auto object-contain"
-            />
-            <span className="text-xs text-neutral-300">|</span>
-            <span className="text-xs font-extrabold text-neutral-600">
-              {lang === 'sw' ? `Msambazaji Rasmi: ${distributor.name}` : `Authorized Leader: ${distributor.name}`}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <ReferralShareButton />
-          </div>
-        </div>
-
-        <p className="text-[11px] text-neutral-400 text-center sm:text-left">
-          © {new Date().getFullYear()} ED Retail Tanzania · {distributor.name}. Genuine Edmark product trademarks belong to Edmark International.
-        </p>
-      </footer>
+      {/* ── 8. FOOTER ── (site-wide footer lives in App.tsx; HomePage keeps
+          only bottom spacing so the two never stack) */}
+      <div className="pb-2" />
     </div>
   );
 }

@@ -11,7 +11,7 @@ import {
   Search,
   CheckCircle2,
   AlertTriangle,
-  Sparkles,
+
   ToggleLeft,
   ToggleRight,
   Plus,
@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useDistributorStore } from '../../store/distributorStore';
 import { SponsorAd, DatabaseBackupPayload, AdNetworkMode, AdPlacement } from '../../types';
+import { EdIcon } from '../../components/brand/EdIcon';
 
 export function SettingsPage() {
   const [activeTab, setActiveTab] = useState<'backups' | 'logs' | 'ads' | 'logistics'>('backups');
@@ -390,7 +391,7 @@ export function SettingsPage() {
               : 'text-stone-400 hover:text-white'
           }`}
         >
-          <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+          <EdIcon name="commerce" className="w-4 h-4 text-amber-400 shrink-0" />
           <span>Native Ads (Passive Income)</span>
         </button>
 
@@ -624,7 +625,7 @@ export function SettingsPage() {
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <span className="p-1.5 rounded-lg bg-amber-400/20 text-amber-300 border border-amber-400/30">
-                  <Sparkles className="w-4 h-4" />
+                  <EdIcon name="shield" className="w-4 h-4" />
                 </span>
                 <h3 className="text-base font-black text-white">Native Ad Spaces & Multi-Channel Monetization</h3>
               </div>
@@ -683,7 +684,6 @@ export function SettingsPage() {
             <div className="bg-stone-900/90 border border-stone-800 rounded-2xl p-4 space-y-1">
               <div className="flex items-center justify-between text-stone-400">
                 <span className="text-[11px] font-bold uppercase tracking-wider">Active Ad Slots</span>
-                <Sparkles className="w-4 h-4 text-amber-400" />
               </div>
               <p className="text-xl font-black text-white">
                 {activePartnerSlotsCount} <span className="text-xs text-stone-400 font-normal">/ {totalPartnerSlotsCount} total</span>
@@ -740,7 +740,7 @@ export function SettingsPage() {
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-indigo-300">⭐ Hybrid Waterfall</span>
+                    <span className="text-xs font-black text-indigo-300">Hybrid Waterfall</span>
                     {currentMode === 'hybrid' && (
                       <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-indigo-500 text-white">Active</span>
                     )}
@@ -800,7 +800,7 @@ export function SettingsPage() {
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-blue-300">🌐 Google AdSense Only</span>
+                    <span className="text-xs font-black text-blue-300">Google AdSense Only</span>
                     {currentMode === 'adsense_only' && (
                       <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-blue-500 text-white">Active</span>
                     )}

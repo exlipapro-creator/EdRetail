@@ -8,12 +8,13 @@ import {
   Package,
   Users,
   MessageSquare,
-  Sparkles,
+  // Sparkles removed — replaced by EdIcon (brand layer)
   ShieldCheck,
 } from 'lucide-react';
 import { useDistributorStore } from '../../store/distributorStore';
 import { EDMARK_FUNDS } from '../../data/edmarkMaintenancePlaybook';
 import { DISTRIBUTOR_NAME } from '../../utils/whatsappCompiler';
+import { EdIcon } from '../brand/EdIcon';
 
 interface MaintenanceTrackerPanelProps {
   onSendChatMessage: (text: string) => void;
@@ -68,7 +69,7 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
   };
 
   return (
-    <div className="flex-1 overflow-y-auto space-y-4 bg-transparent text-stone-100">
+    <div className="flex-1 overflow-y-auto space-y-4 text-gray-900">
       {/* ── CELEBRATION NOTIFICATION ── */}
       <AnimatePresence>
         {showCelebration && (
@@ -76,17 +77,17 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="p-3 bg-emerald-800 text-emerald-50 rounded-2xl flex items-center justify-between text-xs font-semibold shadow-md"
+            className="p-3 bg-green-600 text-white rounded-lg flex items-center justify-between text-xs font-semibold shadow-md"
           >
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-amber-300" />
+              <EdIcon name="growth" className="w-5 h-5 text-amber-200" />
               <span>
                 {lang === 'sw'
                   ? 'Hongera sana! Mwezi umethibitishwa kikamilifu kuelekea Edmark Fund!'
                   : 'Congratulations! Month qualification confirmed towards Edmark Fund!'}
               </span>
             </div>
-            <button onClick={() => setShowCelebration(false)} className="text-emerald-200 text-xs hover:text-white">
+            <button onClick={() => setShowCelebration(false)} className="text-white/80 text-xs hover:text-white">
               ✕
             </button>
           </motion.div>
@@ -94,18 +95,18 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
       </AnimatePresence>
 
       {/* ── HEADER & FUND SELECTOR ── */}
-      <div className="bg-stone-950/80 rounded-2xl p-4 sm:p-5 border border-stone-800 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-800 pb-3.5">
+      <div className="panel-surface p-4 sm:p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-3.5">
           <div>
             <div className="flex items-center gap-2">
-              <span className="p-2 rounded-xl bg-emerald-950/80 border border-emerald-700/60 text-emerald-400">
+              <span className="p-2 rounded-lg bg-primary-50 border border-primary-200 text-primary-700">
                 <Award className="w-5 h-5" />
               </span>
-              <h4 className="font-extrabold text-sm sm:text-base text-white">
+              <h4 className="font-semibold text-sm sm:text-base text-gray-900">
                 {lang === 'sw' ? `${selectedFund.swahiliName} (${selectedFund.bonusPercent})` : `${selectedFund.name} (${selectedFund.bonusPercent})`}
               </h4>
             </div>
-            <p className="text-xs text-stone-400 mt-1">
+            <p className="text-xs text-gray-500 mt-1">
               {lang === 'sw' ? selectedFund.descriptionSw : selectedFund.descriptionEn}
             </p>
           </div>
@@ -114,7 +115,7 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
             <select
               value={targetFund}
               onChange={(e) => setTargetFund(e.target.value as any)}
-              className="px-3 py-2 bg-stone-900 border border-stone-700 rounded-xl text-xs font-bold text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer"
+              className="portal-input !w-auto text-xs font-semibold cursor-pointer"
             >
               <option value="car">🚗 Car Fund (3%)</option>
               <option value="house">🏡 House Fund (2%)</option>
@@ -133,39 +134,39 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
             return (
               <div
                 key={rec.monthIndex}
-                className={`p-3 rounded-xl border text-center transition-all ${
+                className={`p-3 rounded-md border text-center transition-all ${
                   isDone
-                    ? 'bg-emerald-950/40 border-emerald-600/60 text-emerald-200'
+                    ? 'bg-green-50 border-green-300 text-green-800'
                     : isCurrent
-                    ? 'bg-amber-950/40 border-amber-500/60 text-amber-200 ring-1 ring-amber-400'
-                    : 'bg-stone-900/40 border-stone-800 text-stone-500'
+                    ? 'bg-amber-50 border-amber-300 text-amber-900 ring-1 ring-amber-300'
+                    : 'bg-gray-50 border-gray-200 text-gray-500'
                 }`}
               >
                 <div className="flex items-center justify-center gap-1 mb-1">
                   {isDone ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <CheckCircle2 className="w-4 h-4 text-green-600" />
                   ) : isCurrent ? (
-                    <Clock className="w-4 h-4 text-amber-400 animate-pulse" />
+                    <Clock className="w-4 h-4 text-amber-600 animate-pulse" />
                   ) : (
-                    <div className="w-4 h-4 rounded-full border border-stone-600" />
+                    <div className="w-4 h-4 rounded-full border border-gray-300" />
                   )}
-                  <span className="text-[11px] font-black uppercase tracking-wide">Mwezi {rec.monthIndex}</span>
+                  <span className="text-[11px] font-semibold uppercase tracking-wide">Mwezi {rec.monthIndex}</span>
                 </div>
 
-                <div className="text-xs sm:text-sm font-black text-white">
+                <div className="text-xs sm:text-sm font-bold text-gray-900">
                   {isDone ? `${rec.achievedSv} SV` : isCurrent ? `${analysis.totalSv} / 2,000` : 'Inasubiri'}
                 </div>
 
-                <div className="text-[10px] mt-0.5 opacity-90">
-                  {isDone ? 'Imekamilika ✅' : isCurrent ? `${analysis.percentComplete}% Imefikiwa` : 'Mwezi Ujao'}
+                <div className="text-[10px] mt-0.5">
+                  {isDone ? 'Imekamilika' : isCurrent ? `${analysis.percentComplete}% Imefikiwa` : 'Mwezi Ujao'}
                 </div>
 
                 {isCurrent && analysis.gapSv === 0 && (
                   <button
                     onClick={() => handleMarkMonthCompleted(rec.monthIndex)}
-                    className="mt-2 w-full py-1.5 bg-emerald-500 hover:bg-emerald-400 text-stone-950 rounded-lg text-[10px] font-black cursor-pointer"
+                    className="mt-2 w-full py-1.5 bg-green-600 hover:bg-green-700 text-white rounded text-[10px] font-semibold cursor-pointer"
                   >
-                    Kamilisha ✅
+                    Kamilisha
                   </button>
                 )}
               </div>
@@ -175,24 +176,24 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
       </div>
 
       {/* ── CURRENT MONTH LIVE GAUGE ── */}
-      <div className="bg-stone-950/80 rounded-2xl p-4 sm:p-5 border border-stone-800 shadow-xs space-y-4">
+      <div className="panel-surface p-4 sm:p-5 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-stone-900 border border-stone-800 text-stone-300">
+            <span className="p-2 rounded-lg bg-gray-100 text-gray-600">
               <TrendingUp className="w-4.5 h-4.5" />
             </span>
-            <span className="font-extrabold text-xs sm:text-sm text-white">
+            <span className="font-semibold text-xs sm:text-sm text-gray-900">
               {lang === 'sw' ? 'Hali ya Mwezi Huu (Live Group CPGS)' : 'Current Month Live Group CPGS'}
             </span>
           </div>
 
           <span
-            className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${
+            className={`px-2.5 py-1 rounded text-[10px] font-semibold uppercase tracking-wider ${
               analysis.paceStatus === 'ahead' || analysis.gapSv === 0
-                ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/60'
+                ? 'bg-green-50 text-green-700 border border-green-200'
                 : analysis.paceStatus === 'on_track'
-                ? 'bg-blue-950/80 text-blue-300 border border-blue-700/60'
-                : 'bg-amber-950/80 text-amber-300 border border-amber-700/60'
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                : 'bg-amber-50 text-amber-700 border border-amber-200'
             }`}
           >
             {analysis.gapSv === 0
@@ -205,21 +206,21 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
 
         {/* Progress Bar */}
         <div className="space-y-2">
-          <div className="flex justify-between text-xs font-bold text-stone-300">
+          <div className="flex justify-between text-xs font-semibold text-gray-600">
             <span>{analysis.totalSv.toLocaleString()} SV Zilizofikiwa</span>
             <span>Lengo: {analysis.targetSv.toLocaleString()} SV</span>
           </div>
-          <div className="w-full h-3 bg-stone-900 rounded-full overflow-hidden border border-stone-800">
+          <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${analysis.percentComplete}%` }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
               className={`h-full rounded-full transition-all ${
                 analysis.percentComplete >= 100
-                  ? 'bg-emerald-500'
+                  ? 'bg-green-600'
                   : analysis.percentComplete >= 70
-                  ? 'bg-amber-400'
-                  : 'bg-stone-500'
+                  ? 'bg-amber-500'
+                  : 'bg-gray-400'
               }`}
             />
           </div>
@@ -227,37 +228,37 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
-          <div className="p-3.5 bg-stone-900/60 rounded-xl border border-stone-800/80 space-y-1">
-            <div className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Pengo Lililobaki</div>
-            <div className="text-sm sm:text-base font-black text-amber-300">{analysis.gapSv.toLocaleString()} SV</div>
+          <div className="panel-inner p-3.5 space-y-1">
+            <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Pengo Lililobaki</div>
+            <div className="text-sm sm:text-base font-bold text-amber-700">{analysis.gapSv.toLocaleString()} SV</div>
           </div>
-          <div className="p-3.5 bg-stone-900/60 rounded-xl border border-stone-800/80 space-y-1">
-            <div className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Siku Zilizobaki</div>
-            <div className="text-sm sm:text-base font-black text-white">{analysis.daysRemaining} Siku</div>
+          <div className="panel-inner p-3.5 space-y-1">
+            <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Siku Zilizobaki</div>
+            <div className="text-sm sm:text-base font-bold text-gray-900">{analysis.daysRemaining} Siku</div>
           </div>
-          <div className="p-3.5 bg-stone-900/60 rounded-xl border border-stone-800/80 space-y-1">
-            <div className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Mwendokasi kwa Siku</div>
-            <div className="text-sm sm:text-base font-black text-emerald-400">{analysis.dailyPacingSv} SV/siku</div>
+          <div className="panel-inner p-3.5 space-y-1">
+            <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Mwendokasi kwa Siku</div>
+            <div className="text-sm sm:text-base font-bold text-emerald-700">{analysis.dailyPacingSv} SV/siku</div>
           </div>
-          <div className="p-3.5 bg-stone-900/60 rounded-xl border border-stone-800/80 space-y-1">
-            <div className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Alama Binafsi (CPS)</div>
-            <div className="text-sm sm:text-base font-black text-white">{analysis.personalCurrentSv}/100 SV</div>
+          <div className="panel-inner p-3.5 space-y-1">
+            <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Alama Binafsi (CPS)</div>
+            <div className="text-sm sm:text-base font-bold text-gray-900">{analysis.personalCurrentSv}/100 SV</div>
           </div>
         </div>
       </div>
 
       {/* ── GAP CLOSING PRODUCT COMBINATIONS ── */}
       {analysis.gapSv > 0 && (
-        <div className="bg-stone-950/80 rounded-2xl p-4 sm:p-5 border border-stone-800 shadow-xs space-y-3.5">
+        <div className="panel-surface p-4 sm:p-5 space-y-3.5">
           <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-amber-950/80 border border-amber-700/60 text-amber-400">
+            <span className="p-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-700">
               <Package className="w-4.5 h-4.5" />
             </span>
             <div>
-              <h4 className="font-extrabold text-xs sm:text-sm text-white">
+              <h4 className="font-semibold text-xs sm:text-sm text-gray-900">
                 {lang === 'sw' ? 'Mbinu za Kuziba Pengo kwa Mauzo ya Bidhaa' : 'Product Sales Strategies to Close Gap'}
               </h4>
-              <p className="text-[11px] text-stone-400">
+              <p className="text-[11px] text-gray-500">
                 {lang === 'sw'
                   ? `Ili kufikisha ${analysis.gapSv} SV kabla ya tarehe 30, tekeleza moja ya haya:`
                   : `To reach ${analysis.gapSv} SV before month end, execute one of these:`}
@@ -266,26 +267,26 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            <div className="p-3.5 bg-stone-900/60 border border-stone-800 rounded-xl space-y-1.5 hover:border-emerald-500 transition-colors">
-              <div className="text-xs font-extrabold text-white">🎁 Pakiti za P4 Slimming</div>
-              <div className="text-base font-black text-emerald-400">{analysis.p4KitsNeeded} Pakiti</div>
-              <div className="text-[11px] text-stone-400 leading-tight">
+            <div className="panel-inner p-3.5 space-y-1.5 hover:border-gray-300 transition-colors">
+              <div className="text-xs font-semibold text-gray-900">🎁 Pakiti za P4 Slimming</div>
+              <div className="text-base font-bold text-emerald-700">{analysis.p4KitsNeeded} Pakiti</div>
+              <div className="text-[11px] text-gray-500 leading-tight">
                 Kila pakiti (Shake Off + MRT) inatoa ~50 SV + faida TZS 21,000
               </div>
             </div>
 
-            <div className="p-3.5 bg-stone-900/60 border border-stone-800 rounded-xl space-y-1.5 hover:border-emerald-500 transition-colors">
-              <div className="text-xs font-extrabold text-white">🌿 Mabox ya Shake Off</div>
-              <div className="text-base font-black text-emerald-400">{analysis.shakeOffBoxesNeeded} Boxes</div>
-              <div className="text-[11px] text-stone-400 leading-tight">
+            <div className="panel-inner p-3.5 space-y-1.5 hover:border-gray-300 transition-colors">
+              <div className="text-xs font-semibold text-gray-900">Mabox ya Shake Off</div>
+              <div className="text-base font-bold text-emerald-700">{analysis.shakeOffBoxesNeeded} Boxes</div>
+              <div className="text-[11px] text-gray-500 leading-tight">
                 Mabox 10 kwa kila wateja 6 wanaorudia dozi siku ya 12
               </div>
             </div>
 
-            <div className="p-3.5 bg-stone-900/60 border border-stone-800 rounded-xl space-y-1.5 hover:border-emerald-500 transition-colors">
-              <div className="text-xs font-extrabold text-white">🍵 Chupa za Splina Chlorophyll</div>
-              <div className="text-base font-black text-emerald-400">{analysis.splinaBottlesNeeded} Chupa</div>
-              <div className="text-[11px] text-stone-400 leading-tight">
+            <div className="panel-inner p-3.5 space-y-1.5 hover:border-gray-300 transition-colors">
+              <div className="text-xs font-semibold text-gray-900">🍵 Chupa za Splina Chlorophyll</div>
+              <div className="text-base font-bold text-emerald-700">{analysis.splinaBottlesNeeded} Chupa</div>
+              <div className="text-[11px] text-gray-500 leading-tight">
                 Kwa wateja wenye vidonda vya tumbo & asidi
               </div>
             </div>
@@ -294,17 +295,17 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
       )}
 
       {/* ── DOWNLINE LEGS PERFORMANCE ── */}
-      <div className="bg-stone-950/80 rounded-2xl p-4 sm:p-5 border border-stone-800 shadow-xs space-y-3.5">
-        <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+      <div className="panel-surface p-4 sm:p-5 space-y-3.5">
+        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
           <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-stone-900 border border-stone-800 text-stone-300">
+            <span className="p-2 rounded-lg bg-gray-100 text-gray-600">
               <Users className="w-4.5 h-4.5" />
             </span>
             <div>
-              <h4 className="font-extrabold text-xs sm:text-sm text-white">
+              <h4 className="font-semibold text-xs sm:text-sm text-gray-900">
                 {lang === 'sw' ? 'Laini za Downlines Wako (Team Volume)' : 'Downline Legs Performance'}
               </h4>
-              <p className="text-[11px] text-stone-400">
+              <p className="text-[11px] text-gray-500">
                 {lang === 'sw' ? 'Kujenga laini 3 imara huleta 2,000 SV bila kutegemea mtu mmoja' : '3 active legs ensure 2,000 SV stability'}
               </p>
             </div>
@@ -312,7 +313,7 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
 
           <button
             onClick={() => onSendChatMessage('downlines')}
-            className="text-xs font-black text-emerald-400 hover:text-emerald-300 cursor-pointer"
+            className="text-xs font-semibold text-primary-700 hover:text-primary-800 cursor-pointer"
           >
             {lang === 'sw' ? 'Ushauri wa Timu 💬' : 'Team Advice 💬'}
           </button>
@@ -324,14 +325,14 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
             const legPercent = Math.min(100, Math.round((leg.currentSv / leg.targetSv) * 100));
 
             return (
-              <div key={leg.id} className="p-3.5 bg-stone-900/60 rounded-xl border border-stone-800 space-y-2.5">
+              <div key={leg.id} className="panel-inner p-3.5 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <span className="font-extrabold text-xs text-white">{leg.name}</span>
-                      <span className="text-[11px] text-stone-400">({leg.location})</span>
+                      <span className="font-semibold text-xs text-gray-900">{leg.name}</span>
+                      <span className="text-[11px] text-gray-400">({leg.location})</span>
                     </div>
-                    <div className="text-[11px] text-stone-400">
+                    <div className="text-[11px] text-gray-500">
                       {leg.activeMembers} wanachama hai • Ilifanya kazi: {leg.lastActive}
                     </div>
                   </div>
@@ -340,7 +341,7 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
                     <button
                       onClick={() => handleSendDownlineWhatsApp(leg.name, leg.phone, leg.currentSv, leg.targetSv)}
                       title="Tuma Ujumbe wa WhatsApp"
-                      className="p-2 bg-emerald-950/80 text-emerald-300 hover:bg-emerald-900 rounded-xl border border-emerald-700/60 transition-colors cursor-pointer"
+                      className="p-2 bg-green-50 text-green-700 hover:bg-green-100 rounded-md border border-green-200 transition-colors cursor-pointer"
                     >
                       <MessageSquare className="w-4 h-4" />
                     </button>
@@ -354,7 +355,7 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
                           setLegSvInput(String(leg.currentSv));
                         }
                       }}
-                      className="px-2.5 py-1.5 bg-stone-900 hover:bg-stone-800 border border-stone-700 rounded-xl text-xs font-bold text-stone-300 cursor-pointer"
+                      className="px-2.5 py-1.5 bg-white hover:bg-gray-50 border border-gray-300 rounded-md text-xs font-semibold text-gray-600 cursor-pointer"
                     >
                       {isEditing ? 'Ghairi' : 'Badili SV'}
                     </button>
@@ -368,26 +369,26 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
                       value={legSvInput}
                       onChange={(e) => setLegSvInput(e.target.value)}
                       placeholder="Weka SV mpya..."
-                      className="flex-1 px-3 py-1.5 bg-stone-950 border border-stone-700 rounded-lg text-xs font-bold text-white"
+                      className="flex-1 portal-input"
                     />
                     <button
                       onClick={() => handleUpdateLeg(leg.id)}
-                      className="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-stone-950 rounded-lg text-xs font-black cursor-pointer"
+                      className="px-3.5 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded text-xs font-semibold cursor-pointer"
                     >
                       Hifadhi
                     </button>
                   </div>
                 ) : (
                   <div className="space-y-1.5">
-                    <div className="flex justify-between text-[11px] font-bold text-stone-300">
+                    <div className="flex justify-between text-[11px] font-semibold text-gray-600">
                       <span>{leg.currentSv} SV</span>
                       <span>Lengo: {leg.targetSv} SV ({legPercent}%)</span>
                     </div>
-                    <div className="w-full h-2 bg-stone-950 rounded-full overflow-hidden border border-stone-800">
+                    <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden border border-gray-200">
                       <div
                         style={{ width: `${legPercent}%` }}
                         className={`h-full rounded-full ${
-                          legPercent >= 100 ? 'bg-emerald-500' : legPercent >= 60 ? 'bg-amber-400' : 'bg-red-500'
+                          legPercent >= 100 ? 'bg-green-600' : legPercent >= 60 ? 'bg-amber-500' : 'bg-red-500'
                         }`}
                       />
                     </div>
@@ -400,27 +401,27 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
       </div>
 
       {/* ── STRATEGIC PLAYBOOK TIPS (DOS & DONTS) ── */}
-      <div className="bg-stone-950/80 rounded-2xl p-4 sm:p-5 border border-stone-800 shadow-xs space-y-3.5">
-        <div className="flex items-center gap-2 border-b border-stone-800 pb-2.5">
-          <span className="p-2 rounded-xl bg-stone-900 border border-stone-800 text-stone-300">
+      <div className="panel-surface p-4 sm:p-5 space-y-3.5">
+        <div className="flex items-center gap-2 border-b border-gray-100 pb-2.5">
+          <span className="p-2 rounded-lg bg-gray-100 text-gray-600">
             <ShieldCheck className="w-4.5 h-4.5" />
           </span>
-          <h4 className="font-extrabold text-xs sm:text-sm text-white">
+          <h4 className="font-semibold text-xs sm:text-sm text-gray-900">
             {lang === 'sw' ? 'Kanuni Muhimu za Kufuzu Edmark Funds' : 'Qualification Strategy & Golden Rules'}
           </h4>
         </div>
 
         <div className="space-y-2.5 text-xs">
-          <div className="p-3.5 bg-emerald-950/40 border border-emerald-700/60 rounded-xl space-y-1">
-            <span className="font-black text-emerald-300 text-xs">✅ Mbinu ya Siku ya 12 (Shake Off Refill Formula):</span>
-            <p className="text-xs text-emerald-200/90 leading-relaxed">
+          <div className="p-3.5 bg-green-50 border border-green-200 rounded-md space-y-1">
+            <span className="font-semibold text-green-800 text-xs">✅ Mbinu ya Siku ya 12 (Shake Off Refill Formula):</span>
+            <p className="text-xs text-gray-700 leading-relaxed">
               Box la Shake Off lina sachets 12. Piga simu siku ya 10 kuuliza: "Umeona wepesi kiasi gani?". 70% ya wateja huagiza box la 2 papo hapo, ikikupa 10 SV bila kutafuta mteja mpya.
             </p>
           </div>
 
-          <div className="p-3.5 bg-red-950/40 border border-red-700/60 rounded-xl space-y-1">
-            <span className="font-black text-red-300 text-xs">🚫 Jambo la Kuepuka Kabisa (Don’t):</span>
-            <p className="text-xs text-red-200/90 leading-relaxed">
+          <div className="p-3.5 bg-red-50 border border-red-200 rounded-md space-y-1">
+            <span className="font-semibold text-red-800 text-xs">🚫 Jambo la Kuepuka Kabisa (Don’t):</span>
+            <p className="text-xs text-gray-700 leading-relaxed">
               Usisubiri tarehe 25 kuanza kutafuta 2,000 SV. Lenga 500 SV kila wiki (Day 7, Day 14, Day 21, Day 28) kupitia laini 3 za downlines.
             </p>
           </div>

@@ -15,7 +15,10 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>,
 );
 
-if ('serviceWorker' in navigator) {
+// PWA service worker is production-only: registering it in dev would let it
+// cache Vite's un-hashed /src/** modules and serve stale code after edits.
+// Production caching behavior is unchanged.
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch((err) => {
       console.warn('Service worker registration failed:', err);

@@ -15,7 +15,7 @@ import {
   Plus,
   ArrowLeft,
   Share2,
-  Sparkles,
+  // Sparkles removed — replaced by EdIcon (brand layer)
   Package,
   CheckCircle2,
   Phone,
@@ -44,6 +44,7 @@ import { ClientCareCrmPanel } from '../distributor/ClientCareCrmPanel';
 import { LogOfflineSaleModal } from '../distributor/LogOfflineSaleModal';
 import { TESTIMONIALS } from '../../types';
 import { WHATSAPP_LINK } from '../../utils/whatsappCompiler';
+import { EdIcon } from '../brand/EdIcon';
 
 interface DistributorViewProps {
   onNavigateHome?: () => void;
@@ -128,16 +129,20 @@ export function DistributorView({
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin + '/landing',
+          redirectTo: window.location.origin + '/portal/dashboard',
         },
       });
       if (error) {
         throw error;
       }
     } catch {
-      // 2. Seamless local/demo store fallback if Supabase keys aren't set in environment
-      loginWithGoogle('distributor@edretail.tz', distributor.name || 'Authorized Leader');
-      setAdminAuthenticated(true);
+      // 2. Development-only fallback; never auto-authenticates in production
+      if (!DEMO_UNLOCK_ENABLED) {
+        setPinError(true);
+      } else {
+        loginWithGoogle('distributor@edretail.tz', distributor.name || 'Authorized Leader');
+        setAdminAuthenticated(true);
+      }
     } finally {
       setIsGoogleLoading(false);
     }
@@ -147,6 +152,17 @@ export function DistributorView({
     e.preventDefault();
     setRegError('');
     setRegSuccess('');
+
+    // Self-registration is development-only; production accounts are
+    // provisioned by ED Retail through the auth provider.
+    if (!DEMO_UNLOCK_ENABLED) {
+      setRegError(
+        lang === 'sw'
+          ? 'Usajili wa wasambazaji unafanywa na ED Retail. Wasiliana nasi kupitia support@edretail.tz.'
+          : 'Distributor accounts are provisioned by ED Retail. Contact us at support@edretail.tz.'
+      );
+      return;
+    }
 
     if (!regName.trim() || !regEmail.trim() || !regPhone.trim()) {
       setRegError(lang === 'sw' ? 'Tafadhali jaza taarifa zote muhimu.' : 'Please fill in all required fields.');
@@ -193,7 +209,14 @@ export function DistributorView({
     setGatewayTab('login');
   };
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    // Terminate the real Supabase session first — local state alone would
+    // leave the session alive and the next getSession() would restore it.
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // session may already be gone
+    }
     logoutDistributor();
     setAdminAuthenticated(false);
     setPinInput('');
@@ -275,7 +298,7 @@ export function DistributorView({
                 className="hidden sm:flex items-center gap-1 px-3 py-2 bg-amber-400/15 hover:bg-amber-400/25 text-amber-300 border border-amber-400/30 rounded-xl text-xs font-bold transition-all cursor-pointer"
                 title="Flyer Studio"
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <EdIcon name="flyer" className="w-3.5 h-3.5 text-amber-400" />
                 <span>Flyers</span>
               </button>
             )}
@@ -380,22 +403,24 @@ export function DistributorView({
                   <span>{lang === 'sw' ? 'Fungua Ukurasa Kamili wa Kuingia' : 'Open Full Login Page'}</span>
                 </Link>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setGatewayTab('register');
-                    setRegError('');
-                    setRegSuccess('');
-                  }}
-                  className={`px-3 py-2 text-xs font-extrabold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                    gatewayTab === 'register'
-                      ? 'bg-amber-400 text-stone-950 shadow-md'
-                      : 'text-stone-400 hover:text-white'
-                  }`}
-                >
-                  <UserPlus className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">{lang === 'sw' ? 'Jisajili' : 'Register'}</span>
-                </button>
+                {DEMO_UNLOCK_ENABLED && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGatewayTab('register');
+                      setRegError('');
+                      setRegSuccess('');
+                    }}
+                    className={`px-3 py-2 text-xs font-extrabold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      gatewayTab === 'register'
+                        ? 'bg-amber-400 text-stone-950 shadow-md'
+                        : 'text-stone-400 hover:text-white'
+                    }`}
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">{lang === 'sw' ? 'Jisajili' : 'Register'}</span>
+                  </button>
+                )}
               </div>
 
               {/* ── TAB 1: LOGIN (Google & PIN/Password) ── */}

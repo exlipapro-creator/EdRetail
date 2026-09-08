@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import {
-  Sparkles,
   CheckCircle2,
   Plus,
   ShoppingBag,
@@ -14,6 +13,7 @@ import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
 import { formatPrice, formatUsd, WHATSAPP_LINK } from '../../utils/whatsappCompiler';
 import { useLang } from '../../context/LangContext';
+import { EdIcon } from '../brand/EdIcon';
 import { BmiHealthCalculator } from '../calculator/BmiHealthCalculator';
 
 interface GoalsBundlesViewProps {
@@ -46,7 +46,7 @@ const GOALS: GoalOption[] = [
     titleSw: 'Kusafisha Tumbo & Sumu',
     descEn: 'Flush toxins, relieve chronic constipation, and alkalise digestive tract.',
     descSw: 'Kuondoa sumu mwilini, kumaliza tatizo la kukosa choo na kusafisha utumbo.',
-    iconName: 'Sparkles',
+    iconName: 'growth' as const,
     recommendedBundleId: 'detox-duo',
   },
   {
@@ -120,7 +120,7 @@ export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-white/10 rounded-full text-[11px] font-semibold uppercase tracking-wider text-[#E5C378]">
-              <Sparkles className="w-3 h-3" />
+              <EdIcon name="growth" className="w-3 h-3" />
               <span>{lang === 'sw' ? 'Mwelekeo wa Afya & Pakiti' : 'Goal Matcher & Bundles'}</span>
             </div>
             <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white">

@@ -1,609 +1,760 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   X,
-  Sparkles,
   Download,
   Share2,
+  Loader2,
   CheckCircle2,
-  Layers,
-} from 'lucide-react';
+  AlertTriangle,
+  Save,
+  Send,
+  Trash2,
+}  from 'lucide-react';
 import { useLang } from '../../context/LangContext';
 import { useDistributorStore } from '../../store/distributorStore';
-import { formatPrice, getActiveWhatsAppLink } from '../../utils/whatsappCompiler';
+import { supabase } from '../../lib/supabase';
+import { publicSiteOrigin } from '../../lib/site';
+import {
+  DESIGN_FAMILIES,
+  FLYER_FORMATS,
+  runQualityGate,
+  saveCampaignDraft,
+  uploadRender,
+  publishCampaign,
+  deleteCampaign,
+  fetchMyCampaigns,
+  renderUrl,
+  type DesignFamily,
+  type FlyerFormat,
+  type FlyerCampaign,
+} from '../../lib/flyers';
+import {
+  renderFlyer,
+  renderFlyerPreview,
+  canvasToBlob,
+  type FlyerRenderInput,
+} from './flyerEngine';
+import { EdIcon } from '../brand/EdIcon';
 
 interface FlyerStudioModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-interface FlyerTemplate {
-  id: string;
-  categoryNameSw: string;
-  categoryNameEn: string;
-  headlineSw: string;
-  headlineEn: string;
-  subheadlineSw: string;
-  subheadlineEn: string;
-  productId: string;
-  badgeSw: string;
-  badgeEn: string;
-  bulletsSw: string[];
-  bulletsEn: string[];
-  primaryColor: string;
-  accentColor: string;
-  gradientBg: [string, string];
-}
+type Stage = 'gallery' | 'editor';
 
-const FLYER_TEMPLATES: FlyerTemplate[] = [
-  {
-    id: 'flat-tummy',
-    categoryNameSw: 'Kitambi & Flat Tummy',
-    categoryNameEn: 'Flat Tummy & P4 Slimming',
-    headlineSw: 'ONDOA KITAMBI & SUMU TUMBONI NDANI YA SIKU 24!',
-    headlineEn: 'FLATTEN YOUR TUMMY & DETOX IN 24 DAYS!',
-    subheadlineSw: 'Mfumo Rasmi wa Edmark P4 Slimming — 100% Asilia Bila Mazoezi Magumu',
-    subheadlineEn: 'Official Edmark P4 Slimming System — 100% Natural & Safe',
-    productId: 'shake-off-phyto',
-    badgeSw: 'OFISI RASMI YA EDMARK',
-    badgeEn: 'AUTHORIZED DISTRIBUTOR',
-    bulletsSw: [
-      '✅ Shake Off: Inasafisha utumbo ndani ya masaa 8',
-      '✅ MRT Complex: Inachoma mafuta bila njaa wala uchovu',
-      '✅ Splina: Inasafisha damu na kuondoa asidi',
-      '🚚 Uwasilishaji BURE nchi nzima',
-    ],
-    bulletsEn: [
-      '✅ Shake Off: Cleanses colon in 6-8 hours',
-      '✅ MRT Complex: Burns stubborn visceral fat',
-      '✅ Splina: Rebalances cellular pH',
-      '🚚 Free doorstep delivery nationwide',
-    ],
-    primaryColor: '#047857', // Emerald
-    accentColor: '#F59E0B', // Amber
-    gradientBg: ['#064e3b', '#022c22'],
-  },
-  {
-    id: 'ulcers-splina',
-    categoryNameSw: 'Vidonda vya Tumbo & Gesi',
-    categoryNameEn: 'Ulcers & Acid Reflux',
-    headlineSw: 'TIBA ASILIA YA VIDONDA VYA TUMBO & ASIDI!',
-    headlineEn: 'NATURAL RELIEF FOR ULCERS & ACID REFLUX!',
-    subheadlineSw: 'Splina Liquid Chlorophyll — Hutuliza Maumivu Ndani ya Dakika 15',
-    subheadlineEn: 'Splina Liquid Chlorophyll — Fast Mucosal Healing',
-    productId: 'splina-chlorophyll',
-    badgeSw: '100% ASILIA & SALAMA',
-    badgeEn: '100% NATURAL & SAFE',
-    bulletsSw: [
-      '✅ Huponya kuta za tumbo zilizoliwa na asidi',
-      '✅ Huondoa kiungulia na kuvimbiwa papo hapo',
-      '✅ Huongeza oksijeni safi kwenye seli za mwili',
-      '✅ Salama kwa watoto, wajawazito na wazee',
-    ],
-    bulletsEn: [
-      '✅ Heals gastric ulcerations and inflammation',
-      '✅ Eliminates heartburn & hyperacidity quickly',
-      '✅ Boosts cellular oxygenation',
-      '✅ Safe for the whole family',
-    ],
-    primaryColor: '#059669',
-    accentColor: '#10B981',
-    gradientBg: ['#065f46', '#022c22'],
-  },
-  {
-    id: 'male-stamina',
-    categoryNameSw: 'Nguvu & Stamina',
-    categoryNameEn: 'Male Stamina & Energy',
-    headlineSw: 'ONGEZA NGUVU, STAMINA & UCHANGAMFU WA MWILI!',
-    headlineEn: 'MAXIMIZE MALE STAMINA & CELLULAR ENERGY!',
-    subheadlineSw: 'Cafe Troika — Tongkat Ali, Ginseng na Ganoderma ya Asili',
-    subheadlineEn: 'Cafe Troika — Premium Herbal Synergy for Peak Performance',
-    productId: 'cafe-troika',
-    badgeSw: 'NGUVU YA ASILI BILA MADHARA',
-    badgeEn: 'ALL-NATURAL VITALITY',
-    bulletsSw: [
-      '✅ Hufungua na kuimarisha mzunguko wa damu',
-      '✅ Huondoa uchovu sugu na kuboresha usingizi',
-      '✅ Huongeza hamu na uwezo wa mwili kiasili',
-      '✅ Haina kemikali wala kuongeza mapigo ya moyo',
-    ],
-    bulletsEn: [
-      '✅ Enhances peripheral micro-circulation',
-      '✅ Eradicates chronic fatigue and brain fog',
-      '✅ Elevates stamina and hormonal balance naturally',
-      '✅ 100% natural herbs with zero palpitations',
-    ],
-    primaryColor: '#B45309', // Amber/Coffee
-    accentColor: '#F59E0B',
-    gradientBg: ['#451a03', '#1c1917'],
-  },
-  {
-    id: 'glowing-skin',
-    categoryNameSw: 'Ngozi Nzuri & Kolajeni',
-    categoryNameEn: 'Youthful Skin & Collagen',
-    headlineSw: 'NGÔZI LAINI, INAYONG\'AA NA AFYA YA VIUNGO!',
-    headlineEn: 'GLOWING RADIANT SKIN & JOINT NOURISHMENT!',
-    subheadlineSw: 'CoCollagen — Kolajeni Safi ya Asili kutoka Baharini',
-    subheadlineEn: 'CoCollagen — Pure Deep-Sea Bio-Active Collagen',
-    productId: 'cocollagen',
-    badgeSw: 'UREMBO WA ASILI WA NDANI',
-    badgeEn: 'INNER CELLULAR BEAUTY',
-    bulletsSw: [
-      '✅ Huondoa makunyanzi na kuimarisha unyevu wa ngozi',
-      '✅ Huponya maumivu ya magoti na viungo vya mwili',
-      '✅ Husaidia ukuaji wa nywele na kucha imara',
-      '✅ Ladha tamu ya chokoleti yenye virutubisho',
-    ],
-    bulletsEn: [
-      '✅ Restores dermal elasticity and fine-line reduction',
-      '✅ Lubricates joints and cartilage',
-      '✅ Strengthens hair folicles and nails',
-      '✅ Delicious chocolate amino-acid drink',
-    ],
-    primaryColor: '#BE185D', // Pink/Rose
-    accentColor: '#F472B6',
-    gradientBg: ['#831843', '#4c0519'],
-  },
-];
+const emptyForm = {
+  title: '',
+  headline: '',
+  description: '',
+  offer: '',
+  cta: 'Order Now',
+  phone: '',
+  qr: true,
+};
 
 export const FlyerStudioModal: React.FC<FlyerStudioModalProps> = ({ isOpen, onClose }) => {
   const { lang } = useLang();
+  const sw = lang === 'sw';
   const distributor = useDistributorStore((s) => s.getActiveDistributor());
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('flat-tummy');
-  const [customPrice, setCustomPrice] = useState<string>('75,000');
-  const [showLipaNumber] = useState<boolean>(true);
-  const [showDistributorBadge] = useState<boolean>(true);
-  const [isRendering, setIsRendering] = useState<boolean>(false);
-  const [downloadSuccess, setDownloadSuccess] = useState<boolean>(false);
-
-  const activeTemplate =
-    FLYER_TEMPLATES.find((t) => t.id === selectedTemplateId) || FLYER_TEMPLATES[0];
   const getEffectiveProduct = useDistributorStore((s) => s.getEffectiveProduct);
   const getEffectiveProducts = useDistributorStore((s) => s.getEffectiveProducts);
-  const activeProduct = getEffectiveProduct(activeTemplate.productId) || getEffectiveProducts()[0];
 
-  // Set default price based on template
+  const [stage, setStage] = useState<Stage>('gallery');
+  const [campaigns, setCampaigns] = useState<FlyerCampaign[]>([]);
+  const [renderUrls, setRenderUrls] = useState<Record<string, string>>({});
+  const [loadingCampaigns, setLoadingCampaigns] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [productId, setProductId] = useState<string>('');
+  const [family, setFamily] = useState<DesignFamily>('editorial');
+  const [format, setFormat] = useState<FlyerFormat>('status');
+  const [form, setForm] = useState(emptyForm);
+  const [priceOverride, setPriceOverride] = useState<string>('');
+  const [qrDataUrl, setQrDataUrl] = useState('');
+  const [rendering, setRendering] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [gate, setGate] = useState<{ ok: boolean; problems: string[]; problemsSw: string[] } | null>(null);
+  const [statusMsg, setStatusMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const previewRef = useRef<HTMLCanvasElement | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const products = getEffectiveProducts();
+  const activeProduct = getEffectiveProduct(productId) || products[0];
+
+  /* QR generation — real destination: /@slug product deep link */
   useEffect(() => {
-    if (activeProduct) {
-      setCustomPrice(formatPrice(activeProduct.price));
+    if (!form.qr || !distributor.slug) {
+      setQrDataUrl('');
+      return;
     }
-  }, [activeTemplate.id, activeProduct]);
+    // Deploy-aware: QRs are baked into shared flyers, so they must point at
+    // the production domain even when generated from localhost.
+    const dest = `${publicSiteOrigin()}/@${distributor.slug}?product=${productId}`;
+    import('qrcode')
+      .then((QR) => QR.toDataURL(dest, { width: 480, margin: 1, color: { dark: '#111827', light: '#FFFFFF' } }))
+      .then(setQrDataUrl)
+      .catch(() => setQrDataUrl(''));
+  }, [form.qr, distributor.slug, productId]);
 
-  // Render high-res 1080x1920 canvas
-  const renderCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+  const buildRenderInput = useCallback((): FlyerRenderInput | null => {
+    if (!activeProduct) return null;
+    return {
+      family,
+      format,
+      productName: sw ? activeProduct.name.sw : activeProduct.name.en,
+      productImage: activeProduct.image,
+      productBadge: activeProduct.badge,
+      headline: form.headline.trim(),
+      description: form.description.trim(),
+      price: priceOverride ? Number(priceOverride.replace(/[^\d]/g, '')) : activeProduct.price,
+      offer: form.offer.trim(),
+      cta: form.cta.trim() || (sw ? 'Agiza Sasa' : 'Order Now'),
+      phone: form.phone.trim() || distributor.phone,
+      distributorName: distributor.name,
+      distributorRank: distributor.rank || 'Crown Manager',
+      distributorCity: distributor.city,
+      distributorAvatar: distributor.avatarUrl || '/logo/distributor-circle.png',
+      qrDataUrl,
+      lang,
+    };
+  }, [activeProduct, family, format, form, priceOverride, qrDataUrl, distributor, sw, lang]);
 
-    setIsRendering(true);
-
-    // Canvas Dimensions: 1080 x 1920 (9:16 vertical ratio)
-    const W = 1080;
-    const H = 1920;
-    canvas.width = W;
-    canvas.height = H;
-
-    // 1. Background Gradient
-    const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
-    bgGrad.addColorStop(0, activeTemplate.gradientBg[0]);
-    bgGrad.addColorStop(1, activeTemplate.gradientBg[1]);
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, W, H);
-
-    // 2. Decorative geometric accents
-    ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
-    ctx.beginPath();
-    ctx.arc(W - 100, 200, 400, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(100, H - 300, 500, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-
-    // 3. Top Header: Brand Bar
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 36px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('🌿 EDMARK TANZANIA • 100% GENUINE SEALED STOCK', W / 2, 90);
-
-    // Top Category Badge
-    const badgeText = lang === 'sw' ? activeTemplate.badgeSw : activeTemplate.badgeEn;
-    ctx.fillStyle = activeTemplate.accentColor;
-    const badgeW = 600;
-    const badgeH = 50;
-    const badgeX = (W - badgeW) / 2;
-    const badgeY = 130;
-    ctx.beginPath();
-    ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 25);
-    ctx.fill();
-
-    ctx.fillStyle = '#064E3B';
-    ctx.font = '900 24px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(badgeText, W / 2, badgeY + 34);
-
-    // 4. Main Headline
-    const headline = lang === 'sw' ? activeTemplate.headlineSw : activeTemplate.headlineEn;
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = '900 52px sans-serif';
-    ctx.textAlign = 'center';
-
-    // Simple word wrapping for headline
-    const words = headline.split(' ');
-    let line1 = '';
-    let line2 = '';
-    words.forEach((w) => {
-      if ((line1 + w).length < 24) {
-        line1 += (line1 ? ' ' : '') + w;
-      } else {
-        line2 += (line2 ? ' ' : '') + w;
+  /* Live preview (debounced) */
+  useEffect(() => {
+    if (stage !== 'editor' || !isOpen) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      const input = buildRenderInput();
+      if (!input || !previewRef.current) return;
+      setRendering(true);
+      try {
+        await renderFlyerPreview(input, previewRef.current, 340);
+      } catch {
+        /* preview failure is non-fatal; publish re-renders at full res */
+      } finally {
+        setRendering(false);
       }
-    });
+    }, 350);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [stage, isOpen, buildRenderInput]);
 
-    ctx.fillText(line1, W / 2, 260);
-    if (line2) {
-      ctx.fillText(line2, W / 2, 330);
+  const loadCampaigns = useCallback(async () => {
+    setLoadingCampaigns(true);
+    try {
+      const rows = await fetchMyCampaigns();
+      setCampaigns(rows);
+      // Signed URLs (bucket is private); owners resolve their own renders.
+      const urls: Record<string, string> = {};
+      await Promise.all(
+        rows
+          .filter((r) => r.render_path)
+          .map(async (r) => {
+            urls[r.id] = await renderUrl(r.render_path);
+          })
+      );
+      setRenderUrls(urls);
+    } catch {
+      setCampaigns([]);
+    } finally {
+      setLoadingCampaigns(false);
     }
+  }, []);
 
-    // Sub-headline
-    const subheadline =
-      lang === 'sw' ? activeTemplate.subheadlineSw : activeTemplate.subheadlineEn;
-    ctx.fillStyle = '#D1FAE5';
-    ctx.font = '500 28px sans-serif';
-    ctx.fillText(subheadline, W / 2, line2 ? 390 : 330);
+  useEffect(() => {
+    if (isOpen && stage === 'gallery') void loadCampaigns();
+  }, [isOpen, stage, loadCampaigns]);
 
-    // 5. Product Image & Center Glow
-    const imgY = 460;
-    const imgSize = 480;
-    const imgX = (W - imgSize) / 2;
+  const resetForm = () => {
+    setEditingId(null);
+    setProductId(products[0]?.id ?? '');
+    setFamily('editorial');
+    setFormat('status');
+    setForm({ ...emptyForm, phone: distributor.phone });
+    setPriceOverride('');
+    setGate(null);
+    setStatusMsg('');
+    setErrorMsg('');
+  };
 
-    // Glowing circle behind product
-    const glowGrad = ctx.createRadialGradient(
-      W / 2,
-      imgY + imgSize / 2,
-      50,
-      W / 2,
-      imgY + imgSize / 2,
-      300
-    );
-    glowGrad.addColorStop(0, 'rgba(255, 255, 255, 0.25)');
-    glowGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-    ctx.fillStyle = glowGrad;
-    ctx.beginPath();
-    ctx.arc(W / 2, imgY + imgSize / 2, 300, 0, Math.PI * 2);
-    ctx.fill();
+  const startNew = () => {
+    resetForm();
+    setStage('editor');
+  };
 
-    // Load and draw product image
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = activeProduct.image;
-    img.onload = () => {
-      ctx.save();
-      // White container pill
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
-      ctx.shadowBlur = 30;
-      ctx.shadowOffsetY = 15;
-      ctx.drawImage(img, imgX, imgY, imgSize, imgSize);
-      ctx.restore();
+  const editCampaign = (c: FlyerCampaign) => {
+    setEditingId(c.id);
+    setProductId(c.product_id);
+    setFamily(c.design_family);
+    setFormat(c.format);
+    setForm({
+      title: c.title,
+      headline: c.headline,
+      description: c.description,
+      offer: c.offer,
+      cta: c.cta || 'Order Now',
+      phone: c.phone || distributor.phone,
+      qr: !!c.qr_destination,
+    });
+    setPriceOverride(c.price != null ? String(c.price) : '');
+    setGate(null);
+    setStatusMsg('');
+    setErrorMsg('');
+    setStage('editor');
+  };
 
-      // 6. Price Badge on Top of Image Corner
-      const priceY = 900;
-      const priceW = 420;
-      const priceH = 90;
-      const priceX = (W - priceW) / 2;
+  const buildCampaignPayload = () => {
+    if (!activeProduct) return null;
+    return {
+      id: editingId ?? undefined,
+      product_id: activeProduct.id,
+      title: form.title.trim(),
+      headline: form.headline.trim(),
+      description: form.description.trim(),
+      price: priceOverride ? Number(priceOverride.replace(/[^\d]/g, '')) : activeProduct.price,
+      offer: form.offer.trim(),
+      cta: form.cta.trim(),
+      phone: form.phone.trim() || distributor.phone,
+      design_family: family,
+      format,
+      qr_destination: qrDataUrl ? `${publicSiteOrigin()}/@${distributor.slug}?product=${productId}` : '',
+    };
+  };
 
-      ctx.fillStyle = '#F59E0B';
-      ctx.beginPath();
-      ctx.roundRect(priceX, priceY, priceW, priceH, 20);
-      ctx.fill();
+  const handleSave = async (thenPublish: boolean) => {
+    setErrorMsg('');
+    setStatusMsg('');
+    const payload = buildCampaignPayload();
+    if (!payload) return;
 
-      ctx.fillStyle = '#064E3B';
-      ctx.font = '900 38px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(`TZS ${customPrice}`, W / 2, priceY + 58);
+    setSaving(true);
+    let uploadedPath = ''; // for orphan cleanup if a later step fails
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const uid = userData.user?.id;
+      if (!uid) throw new Error(sw ? 'Tafadhali ingia kwanza.' : 'Please sign in first.');
 
-      // 7. Bullet Points Container
-      const bulletsY = 1040;
-      const bulletsW = 920;
-      const bulletsH = 360;
-      const bulletsX = (W - bulletsW) / 2;
+      const { data: profile } = await supabase
+        .from('distributor_profiles')
+        .select('id')
+        .eq('user_id', uid)
+        .maybeSingle();
+      if (!profile) throw new Error(sw ? 'Hakuna wasifu wa msambazaji.' : 'No distributor profile found.');
 
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.roundRect(bulletsX, bulletsY, bulletsW, bulletsH, 30);
-      ctx.fill();
-      ctx.stroke();
+      /* ── 1. QUALITY GATE FIRST — no expensive work for invalid content.
+       *      Publish requires a render; drafts may still save without one. */
+      const localGate = runQualityGate(
+        {
+          ...payload,
+          distributor_id: profile.id,
+          render_path: 'pending', // rendered below when gate passes
+        } as FlyerCampaign,
+        !!activeProduct.image
+      );
+      if (thenPublish && !localGate.ok) {
+        setGate(localGate);
+        setErrorMsg(sw ? localGate.problemsSw.join(' · ') : localGate.problems.join(' · '));
+        setSaving(false);
+        return;
+      }
 
-      // Bullets Text
-      const bullets = lang === 'sw' ? activeTemplate.bulletsSw : activeTemplate.bulletsEn;
-      ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 30px sans-serif';
-      ctx.textAlign = 'left';
-      bullets.forEach((bullet, idx) => {
-        ctx.fillText(bullet, bulletsX + 40, bulletsY + 70 + idx * 72);
+      /* ── 2. Persist the draft row FIRST so the render path can be
+       *      campaign-scoped (flyers/{profile}/{campaign}.png). */
+      const existing = campaigns.find((c) => c.id === editingId);
+      const saved = await saveCampaignDraft({
+        ...payload,
+        distributor_id: profile.id,
+        render_path: existing?.render_path ?? '',
       });
 
-      // 8. Distributor Branded Footer Card
-      const footerY = 1450;
-      const footerW = 960;
-      const footerH = 400;
-      const footerX = (W - footerW) / 2;
-
-      const footerGrad = ctx.createLinearGradient(
-        footerX,
-        footerY,
-        footerX + footerW,
-        footerY + footerH
-      );
-      footerGrad.addColorStop(0, '#FFFFFF');
-      footerGrad.addColorStop(1, '#F0FDF4');
-      ctx.fillStyle = footerGrad;
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-      ctx.shadowBlur = 40;
-      ctx.beginPath();
-      ctx.roundRect(footerX, footerY, footerW, footerH, 36);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-
-      // Distributor Name & Rank
-      ctx.fillStyle = '#064E3B';
-      ctx.font = '900 40px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(
-        `MSAMBAZAJI RASMI: ${distributor.name.toUpperCase()}`,
-        W / 2,
-        footerY + 70
-      );
-
-      ctx.fillStyle = '#059669';
-      ctx.font = 'bold 26px sans-serif';
-      ctx.fillText(
-        `${distributor.rank} • ${distributor.city || 'Tanzania'}`,
-        W / 2,
-        footerY + 115
-      );
-
-      // WhatsApp / Call Button Graphic
-      const callW = 760;
-      const callH = 90;
-      const callX = (W - callW) / 2;
-      const callY = footerY + 145;
-
-      ctx.fillStyle = '#25D366';
-      ctx.beginPath();
-      ctx.roundRect(callX, callY, callW, callH, 45);
-      ctx.fill();
-
-      ctx.fillStyle = '#FFFFFF';
-      ctx.font = '900 36px sans-serif';
-      ctx.fillText(`📱 WHATSAPP / PIGA: ${distributor.phone}`, W / 2, callY + 58);
-
-      // Lipa Namba / M-Pesa & Store URL
-      if (showLipaNumber && distributor.lipaNumber) {
-        ctx.fillStyle = '#1F2937';
-        ctx.font = 'bold 26px sans-serif';
-        ctx.fillText(`💳 ${distributor.lipaNumber}`, W / 2, footerY + 285);
+      /* ── 3. Render + upload when needed. */
+      let renderPath = existing?.render_path ?? '';
+      const needsRender = thenPublish || !renderPath;
+      if (needsRender) {
+        const input = buildRenderInput();
+        if (!input) throw new Error(sw ? 'Chagua bidhaa.' : 'Select a product.');
+        setRendering(true);
+        const canvas = await renderFlyer(input);
+        const blob = await canvasToBlob(canvas);
+        renderPath = await uploadRender(profile.id, saved.id, blob);
+        uploadedPath = renderPath;
+        setRendering(false);
       }
 
-      ctx.fillStyle = '#6B7280';
-      ctx.font = 'bold 22px sans-serif';
-      ctx.fillText(
-        `🌐 Agiza mtandaoni: edretail.tz/@${distributor.slug} • Uwasilishaji Haraka!`,
-        W / 2,
-        footerY + 345
-      );
+      /* ── 4. Attach the render path to the row. */
+      await saveCampaignDraft({
+        ...saved,
+        render_path: renderPath,
+      });
 
-      setIsRendering(false);
-    };
+      /* ── 5. Publish only after: gate ✓, row saved ✓, asset uploaded ✓. */
+      if (thenPublish) {
+        await publishCampaign(saved.id);
+        setStatusMsg(sw ? 'Kampeni imechapishwa.' : 'Campaign published.');
+      } else {
+        setStatusMsg(sw ? 'Rasimu imehifadhiwa.' : 'Draft saved.');
+      }
 
-    // If image is already cached
-    if (img.complete) {
-      img.onload?.(new Event('load'));
+      setEditingId(saved.id);
+      await loadCampaigns();
+    } catch (err: unknown) {
+      // Orphan cleanup: if the upload succeeded but a later step failed,
+      // remove the render so storage never holds unowned assets.
+      if (uploadedPath) {
+        try {
+          await supabase.storage.from('flyer-renders').remove([uploadedPath]);
+        } catch {
+          /* best-effort cleanup; the path is owner-scoped so it is
+             removable on the next successful save of this campaign */
+        }
+      }
+      setErrorMsg(err instanceof Error ? err.message : sw ? 'Imeshindikana.' : 'Something went wrong.');
+    } finally {
+      setSaving(false);
+      setRendering(false);
     }
-  }, [
-    activeTemplate,
-    activeProduct,
-    customPrice,
-    distributor,
-    showLipaNumber,
-    showDistributorBadge,
-    lang,
-  ]);
+  };
 
-  useEffect(() => {
-    if (isOpen) {
-      // Short timeout to ensure canvas is in DOM
-      const timer = setTimeout(() => {
-        renderCanvas();
-      }, 100);
-      return () => clearTimeout(timer);
+  const handleDownload = async () => {
+    const input = buildRenderInput();
+    if (!input) return;
+    setRendering(true);
+    try {
+      const canvas = await renderFlyer(input);
+      const blob = await canvasToBlob(canvas);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `EdRetail_${activeProduct?.id ?? 'flyer'}_${format}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setRendering(false);
     }
-  }, [isOpen, renderCanvas]);
+  };
+
+  const handleWhatsAppShare = async () => {
+    const input = buildRenderInput();
+    if (!input) return;
+    setRendering(true);
+    try {
+      const canvas = await renderFlyer(input);
+      const blob = await canvasToBlob(canvas);
+      const file = new File([blob], 'edretail-flyer.png', { type: 'image/png' });
+      const nav = navigator as Navigator & { canShare?: (d: { files: File[] }) => boolean; share?: (d: unknown) => Promise<void> };
+      if (nav.canShare?.({ files: [file] }) && nav.share) {
+        await nav.share({ files: [file], title: form.title || 'EdRetail', text: form.headline });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'edretail-flyer.png';
+        a.click();
+        URL.revokeObjectURL(url);
+        setStatusMsg(
+          sw
+            ? 'Picha imepakuliwa — ambatanisha kwenye WhatsApp.'
+            : 'Image downloaded — attach it in WhatsApp.'
+        );
+      }
+    } finally {
+      setRendering(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteCampaign(id);
+      await loadCampaigns();
+    } catch {
+      setErrorMsg(sw ? 'Imeshindikana kufuta.' : 'Could not delete.');
+    }
+  };
 
   if (!isOpen) return null;
 
-  const handleDownloadFlyer = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const link = document.createElement('a');
-    link.download = `Edmark_${activeTemplate.id}_${distributor.slug}_status.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-    setDownloadSuccess(true);
-    setTimeout(() => setDownloadSuccess(false), 3000);
-  };
-
-  const handleShareToWhatsApp = () => {
-    const caption = [
-      `*${lang === 'sw' ? activeTemplate.headlineSw : activeTemplate.headlineEn}*`,
-      '',
-      `🌿 *${lang === 'sw' ? activeProduct.name.sw : activeProduct.name.en}*`,
-      `💰 Bei: *TZS ${customPrice}*`,
-      '',
-      ...(lang === 'sw' ? activeTemplate.bulletsSw : activeTemplate.bulletsEn),
-      '',
-      `👤 *Mshauri:* ${distributor.name} (${distributor.rank})`,
-      `📱 Piga/WhatsApp: ${distributor.phone}`,
-      `🌐 Tovuti ya duka: edretail.tz/@${distributor.slug}`,
-    ].join('\n');
-
-    const url = getActiveWhatsAppLink(caption);
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
+  const statusLabel = (s: FlyerCampaign['status']) =>
+    s === 'published' ? (sw ? 'Imechapishwa' : 'Published') : s === 'archived' ? (sw ? 'Imehifadhiwa' : 'Archived') : sw ? 'Rasimu' : 'Draft';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-neutral-950/80 backdrop-blur-md animate-fadeIn">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden max-h-[94vh] flex flex-col"
-      >
-        {/* ── TOP BANNER ── */}
-        <div className="bg-gradient-to-r from-emerald-900 to-primary-900 p-4 sm:p-5 text-white flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-amber-400 text-emerald-950 flex items-center justify-center font-bold">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-amber-300">
-                {lang === 'sw' ? 'Studio ya Picha za WhatsApp Status' : 'WhatsApp Status Flyer Studio'}
-              </span>
-              <h3 className="text-base sm:text-lg font-bold text-white leading-tight">
-                {lang === 'sw'
-                  ? 'Tengeneza Picha Yenye Namba Yako Ndani ya Sekunde 5'
-                  : 'Instant Branded 9:16 Marketing Flyer Generator'}
-              </h3>
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-2 sm:p-6 bg-black/50 backdrop-blur-sm" role="dialog" aria-modal="true">
+      <div className="w-full max-w-5xl max-h-[95vh] overflow-hidden bg-white rounded-xl border border-gray-200 shadow-2xl flex flex-col">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-gray-200 shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            {stage === 'editor' && (
+              <button
+                onClick={() => setStage('gallery')}
+                className="p-2 -ml-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors outline-none"
+                aria-label={sw ? 'Rudi kwa kampeni' : 'Back to campaigns'}
+              >
+                <X className="w-4 h-4 rotate-45" />
+              </button>
+            )}
+            <EdIcon name="flyer" className="w-5 h-5 text-primary-600 shrink-0" />
+            <div className="min-w-0">
+              <h2 className="text-sm font-bold text-gray-900 truncate">
+                {stage === 'gallery' ? (sw ? 'Studio ya Kampeni' : 'Flyer Studio') : editingId ? (sw ? 'Hariri Kampeni' : 'Edit Campaign') : sw ? 'Kampeni Mpya' : 'Create Campaign'}
+              </h2>
+              <p className="text-[11px] text-gray-400">
+                {stage === 'gallery'
+                  ? sw
+                    ? 'Tengeneza, chapisha na shiriki kampeni za bidhaa.'
+                    : 'Create, publish and share real product campaigns.'
+                  : activeProduct
+                    ? activeProduct.name.en
+                    : ''}
+              </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-            aria-label="Close"
+            className="p-2 rounded-md text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-colors outline-none"
+            aria-label={sw ? 'Funga' : 'Close'}
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* ── STUDIO WORKSPACE (GRID) ── */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1 grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-          {/* LEFT: CONTROLS & TEMPLATES (5 Cols) */}
-          <div className="md:col-span-5 space-y-4">
-            {/* Template Selector */}
-            <div>
-              <label className="text-xs font-bold text-neutral-700 block mb-1.5 flex items-center gap-1.5">
-                <Layers className="w-4 h-4 text-emerald-600" />
-                <span>{lang === 'sw' ? '1. Chagua Mada / Bidhaa:' : '1. Select Health Preset:'}</span>
-              </label>
-              <div className="space-y-2">
-                {FLYER_TEMPLATES.map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => setSelectedTemplateId(t.id)}
-                    className={`w-full p-2.5 rounded-xl text-left border transition-all flex items-center justify-between ${
-                      selectedTemplateId === t.id
-                        ? 'bg-emerald-50 border-emerald-500 shadow-xs'
-                        : 'bg-white border-neutral-200 hover:bg-neutral-50'
-                    }`}
-                  >
-                    <div>
-                      <div className="text-xs font-bold text-neutral-900">
-                        {lang === 'sw' ? t.categoryNameSw : t.categoryNameEn}
+        {/* GALLERY STAGE */}
+        {stage === 'gallery' && (
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <h3 className="text-sm font-bold text-gray-900">{sw ? 'Kampeni Zangu' : 'My Campaigns'}</h3>
+              <button
+                onClick={startNew}
+                className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-md bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold transition-colors outline-none"
+              >
+                + {sw ? 'Kampeni Mpya' : 'Create Campaign'}
+              </button>
+            </div>
+
+            {loadingCampaigns ? (
+              <div className="py-12 flex justify-center">
+                <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+              </div>
+            ) : campaigns.length === 0 ? (
+              <div className="py-12 text-center">
+                <EdIcon name="flyer" className="w-8 h-8 text-gray-300 mx-auto mb-3" />
+                <p className="text-sm text-gray-500 font-medium">
+                  {sw ? 'Hakuna kampeni bado.' : 'No campaigns yet.'}
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {sw ? 'Tengeneza kampeni yako ya kwanza kutoka kwa bidhaa halisi.' : 'Create your first campaign from a real product.'}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {campaigns.map((c) => (
+                  <div key={c.id} className="group relative rounded-lg border border-gray-200 bg-white overflow-hidden hover:border-gray-300 transition-colors">
+                    <button onClick={() => editCampaign(c)} className="block w-full text-left">
+                      <div className="aspect-[9/14] bg-gray-50 flex items-center justify-center overflow-hidden">
+                        {c.render_path ? (
+                          <img
+                            src={renderUrls[c.id] ?? ''}
+                            alt={c.title}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <EdIcon name="flyer" className="w-6 h-6 text-gray-300" />
+                        )}
                       </div>
-                      <div className="text-[11px] text-neutral-500 truncate max-w-[220px]">
-                        {lang === 'sw' ? t.headlineSw : t.headlineEn}
+                      <div className="p-2.5 border-t border-gray-100">
+                        <p className="text-xs font-semibold text-gray-900 truncate">{c.title || c.headline || 'Untitled'}</p>
+                        <p className="text-[10px] text-gray-400 flex items-center gap-1.5 mt-0.5">
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              c.status === 'published' ? 'bg-success' : c.status === 'archived' ? 'bg-gray-300' : 'bg-amber-400'
+                            }`}
+                          />
+                          {statusLabel(c.status)} · {FLYER_FORMATS[c.format].label}
+                        </p>
                       </div>
-                    </div>
-                    {selectedTemplateId === t.id && (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                    )}
-                  </button>
+                    </button>
+                    <button
+                      onClick={() => handleDelete(c.id)}
+                      className="absolute top-1.5 right-1.5 p-1.5 rounded-md bg-white/90 border border-gray-200 text-gray-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 outline-none"
+                      aria-label={sw ? 'Futa kampeni' : 'Delete campaign'}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 ))}
               </div>
+            )}
+          </div>
+        )}
+
+        {/* EDITOR STAGE — three-pane studio on desktop, single scroll on
+            mobile with a sticky bottom action bar (44px targets) */}
+        {stage === 'editor' && (
+          <div className="flex-1 overflow-hidden flex flex-col lg:flex-row min-h-0">
+            {/* CENTER: dominant preview */}
+            <div className="lg:flex-1 bg-gray-50 border-b lg:border-b-0 lg:border-r border-gray-200 p-4 flex items-start justify-center overflow-y-auto min-h-[320px]">
+              <canvas ref={previewRef} className="max-w-full lg:max-w-[380px] w-auto h-auto rounded-md shadow-md border border-gray-200 bg-white" />
             </div>
 
-            {/* Custom Price & Lipa Number */}
-            <div className="p-3.5 bg-neutral-50 rounded-2xl border border-neutral-200 space-y-3">
+            {/* RIGHT: controls */}
+            <div className="flex-1 lg:max-w-md overflow-y-auto p-4 sm:p-6 space-y-5 min-h-0 pb-24 lg:pb-6">
+              {/* Product */}
               <div>
-                <label className="text-[11px] font-bold text-neutral-700 block mb-1">
-                  {lang === 'sw' ? 'Bei ya Tangazo (TZS):' : 'Flyer Price (TZS):'}
-                </label>
-                <input
-                  type="text"
-                  value={customPrice}
-                  onChange={(e) => setCustomPrice(e.target.value)}
-                  className="w-full px-3 py-1.5 bg-white border border-neutral-200 rounded-xl text-xs font-bold text-emerald-700"
-                />
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5">{sw ? 'Bidhaa (halisi)' : 'Product (real catalog)'}</label>
+                <select
+                  value={activeProduct?.id ?? ''}
+                  onChange={(e) => setProductId(e.target.value)}
+                  className="portal-input"
+                >
+                  {products.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {sw ? p.name.sw : p.name.en} — {p.price.toLocaleString()} TZS
+                    </option>
+                  ))}
+                </select>
+                {activeProduct?.image && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <img src={activeProduct.image} alt="" className="w-8 h-8 object-contain rounded border border-gray-200 bg-white" />
+                    <span className="text-[10px] text-gray-400">{sw ? 'Picha halisi ya bidhaa itatumika.' : 'The real product asset will be used.'}</span>
+                  </div>
+                )}
               </div>
 
-              <div className="space-y-1.5 pt-1">
-                <label className="text-[11px] font-bold text-neutral-700 block">
-                  {lang === 'sw' ? 'Taarifa za Msambazaji kwenye Picha:' : 'Distributor Branding:'}
-                </label>
-                <div className="text-xs text-neutral-600 bg-white p-2 rounded-xl border border-neutral-200/80 space-y-0.5">
-                  <div className="font-bold text-neutral-900">{distributor.name}</div>
-                  <div>📞 {distributor.phone}</div>
-                  {distributor.lipaNumber && <div>💳 {distributor.lipaNumber}</div>}
+              {/* Design family */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5">{sw ? 'Mtindo wa Ubunifu' : 'Design family'}</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {DESIGN_FAMILIES.map((f) => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => setFamily(f.id)}
+                      className={`px-2 py-2.5 min-h-[44px] rounded-md border text-[11px] font-semibold transition-colors outline-none ${
+                        family === f.id
+                          ? 'border-primary-600 bg-primary-50 text-primary-700'
+                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      }`}
+                    >
+                      {sw ? f.labelSw : f.label}
+                    </button>
+                  ))}
                 </div>
               </div>
-            </div>
 
-            {/* Action Buttons on Mobile / Desktop */}
-            <div className="space-y-2 pt-1">
-              <button
-                type="button"
-                id="download-flyer-btn"
-                onClick={handleDownloadFlyer}
-                disabled={isRendering}
-                className="w-full py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
-              >
-                <Download className="w-4 h-4" />
-                <span>
-                  {downloadSuccess
-                    ? lang === 'sw'
-                      ? '✅ Imepakuliwa kwenye Simu!'
-                      : '✅ Downloaded!'
-                    : lang === 'sw'
-                    ? 'Pakua Picha ya WhatsApp (PNG)'
-                    : 'Download Status Flyer (PNG)'}
-                </span>
-              </button>
+              {/* Format */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5">{sw ? 'Ukubwa' : 'Output format'}</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {(Object.keys(FLYER_FORMATS) as FlyerFormat[]).map((f) => (
+                    <button
+                      key={f}
+                      type="button"
+                      onClick={() => setFormat(f)}
+                      className={`px-1 py-2.5 min-h-[44px] rounded-md border text-[11px] font-semibold transition-colors outline-none ${
+                        format === f
+                          ? 'border-primary-600 bg-primary-50 text-primary-700'
+                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      }`}
+                    >
+                      {sw ? FLYER_FORMATS[f].labelSw : FLYER_FORMATS[f].label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-              <button
-                type="button"
-                id="share-whatsapp-flyer-btn"
-                onClick={handleShareToWhatsApp}
-                className="w-full py-2.5 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
-              >
-                <Share2 className="w-4 h-4" />
-                <span>{lang === 'sw' ? 'Tuma WhatsApp Status' : 'Share to WhatsApp Status'}</span>
-              </button>
+              {/* Copy fields */}
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1">{sw ? 'Jina la Kampeni' : 'Campaign title'}</label>
+                  <input
+                    type="text"
+                    value={form.title}
+                    onChange={(e) => setForm({ ...form, title: e.target.value })}
+                    className="portal-input"
+                    placeholder={sw ? 'mf. Ofa ya Mwezi' : 'e.g. Monthly Offer'}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1">{sw ? 'Kichwa cha Habari' : 'Headline'}</label>
+                  <input
+                    type="text"
+                    value={form.headline}
+                    onChange={(e) => setForm({ ...form, headline: e.target.value })}
+                    className="portal-input"
+                    placeholder={sw ? 'Ujumbe mkuu kwenye picha' : 'Main message on the flyer'}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 mb-1">{sw ? 'Maelezo' : 'Description'}</label>
+                  <textarea
+                    rows={2}
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    className="portal-input"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">{sw ? 'Ofa' : 'Offer tag'}</label>
+                    <input
+                      type="text"
+                      value={form.offer}
+                      onChange={(e) => setForm({ ...form, offer: e.target.value })}
+                      className="portal-input"
+                      placeholder={sw ? 'mf. BEI YA POA' : 'e.g. SPECIAL OFFER'}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">{sw ? 'Bei (binafsi)' : 'Price override'}</label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={priceOverride}
+                      onChange={(e) => setPriceOverride(e.target.value)}
+                      className="portal-input"
+                      placeholder={activeProduct ? activeProduct.price.toLocaleString() : ''}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">{sw ? 'Kitendo (CTA)' : 'Call to action'}</label>
+                    <input
+                      type="text"
+                      value={form.cta}
+                      onChange={(e) => setForm({ ...form, cta: e.target.value })}
+                      className="portal-input"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">{sw ? 'Simu / WhatsApp' : 'Phone / WhatsApp'}</label>
+                    <input
+                      type="tel"
+                      value={form.phone}
+                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                      className="portal-input"
+                      placeholder={distributor.phone}
+                    />
+                  </div>
+                </div>
+                <label className="flex items-center gap-2.5 py-1 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.qr}
+                    onChange={(e) => setForm({ ...form, qr: e.target.checked })}
+                    className="w-4 h-4 accent-[#123B6D]"
+                  />
+                  <span className="text-xs text-gray-600">
+                    {sw ? 'Onyesha QR (inasoma kiungo cha duka yako)' : 'Show QR (links to your storefront)'}
+                  </span>
+                </label>
+              </div>
+
+              {/* Status / errors / gate */}
+              {statusMsg && (
+                <div role="status" className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-md text-xs text-success font-semibold">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  {statusMsg}
+                </div>
+              )}
+              {errorMsg && (
+                <div role="alert" className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-md text-xs text-red-700">
+                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold">{sw ? 'Imeshindikana kuchapisha:' : 'Publication blocked:'}</p>
+                    <p className="mt-0.5">{errorMsg}</p>
+                  </div>
+                </div>
+              )}
+              {gate && !gate.ok && (
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-md text-xs text-amber-800">
+                  <p className="font-semibold mb-1">{sw ? 'Kabla ya kuchapisha:' : 'Before publishing:'}</p>
+                  <ul className="list-disc list-inside space-y-0.5">
+                    {(sw ? gate.problemsSw : gate.problems).map((p) => (
+                      <li key={p}>{p}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Desktop actions row */}
+              <div className="hidden lg:flex flex-wrap items-center gap-2 pt-2 border-t border-gray-100">
+                <button
+                  onClick={() => handleSave(false)}
+                  disabled={saving || rendering}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-md bg-white border border-gray-300 text-gray-700 text-xs font-semibold hover:bg-gray-50 transition-colors outline-none disabled:opacity-50"
+                >
+                  {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                  {sw ? 'Hifadhi Rasimu' : 'Save Draft'}
+                </button>
+                <button
+                  onClick={() => handleSave(true)}
+                  disabled={saving || rendering}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 min-h-[44px] rounded-md bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold transition-colors outline-none disabled:opacity-50"
+                >
+                  {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                  {sw ? 'Chapisha' : 'Publish'}
+                </button>
+                <span className="flex-1" />
+                <button
+                  onClick={handleDownload}
+                  disabled={rendering}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-md text-gray-600 hover:bg-gray-100 text-xs font-semibold transition-colors outline-none disabled:opacity-50"
+                >
+                  {rendering ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                  {sw ? 'Pakua' : 'Download'}
+                </button>
+                <button
+                  onClick={handleWhatsAppShare}
+                  disabled={rendering}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-md text-success hover:bg-green-50 text-xs font-semibold transition-colors outline-none disabled:opacity-50"
+                >
+                  {rendering ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Share2 className="w-3.5 h-3.5" />}
+                  WhatsApp
+                </button>
+              </div>
             </div>
           </div>
+        )}
 
-          {/* RIGHT: LIVE CANVAS PREVIEW (7 Cols) */}
-          <div className="md:col-span-7 flex flex-col items-center justify-center bg-neutral-900 p-4 rounded-2xl relative min-h-[420px]">
-            <span className="absolute top-2 left-3 text-[10px] font-mono text-neutral-400">
-              WhatsApp Status Preview (1080 × 1920 HD)
-            </span>
-
-            <div className="relative max-w-[260px] sm:max-w-[300px] w-full rounded-2xl overflow-hidden shadow-2xl border-4 border-neutral-800">
-              <canvas
-                ref={canvasRef}
-                className="w-full h-auto object-contain block rounded-xl"
-              />
-            </div>
+        {/* MOBILE sticky action bar — always reachable, 44px targets */}
+        {stage === 'editor' && (
+          <div className="lg:hidden shrink-0 border-t border-gray-200 bg-white px-3 py-2.5 pb-[max(env(safe-area-inset-bottom),10px)] flex items-center gap-2">
+            <button
+              onClick={handleDownload}
+              disabled={rendering}
+              className="p-2.5 min-h-[44px] min-w-[44px] rounded-md text-gray-600 hover:bg-gray-100 transition-colors outline-none disabled:opacity-50"
+              aria-label={sw ? 'Pakua' : 'Download'}
+            >
+              {rendering ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : <Download className="w-4 h-4 mx-auto" />}
+            </button>
+            <button
+              onClick={handleWhatsAppShare}
+              disabled={rendering}
+              className="p-2.5 min-h-[44px] min-w-[44px] rounded-md text-success hover:bg-green-50 transition-colors outline-none disabled:opacity-50"
+              aria-label="WhatsApp"
+            >
+              {rendering ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : <Share2 className="w-4 h-4 mx-auto" />}
+            </button>
+            <span className="flex-1" />
+            <button
+              onClick={() => handleSave(false)}
+              disabled={saving || rendering}
+              className="px-3.5 py-2 min-h-[44px] rounded-md bg-white border border-gray-300 text-gray-700 text-xs font-semibold transition-colors outline-none disabled:opacity-50"
+            >
+              {sw ? 'Rasimu' : 'Draft'}
+            </button>
+            <button
+              onClick={() => handleSave(true)}
+              disabled={saving || rendering}
+              className="px-4 py-2 min-h-[44px] rounded-md bg-primary-600 text-white text-xs font-semibold transition-colors outline-none disabled:opacity-50"
+            >
+              {sw ? 'Chapisha' : 'Publish'}
+            </button>
           </div>
-        </div>
-      </motion.div>
+        )}
+      </div>
     </div>
   );
 };

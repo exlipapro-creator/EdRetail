@@ -1,12 +1,14 @@
 import { motion } from 'framer-motion';
-import { ShoppingCart, ShieldCheck, ArrowLeft, Sparkles } from 'lucide-react';
+import { useEffect } from 'react';
+import { ShoppingCart, ShieldCheck, ArrowLeft, LogOut } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
 import { CartBadge } from '../CartBadge';
 import { useLang } from '../../context/LangContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '../../lib/supabase';
 
-export type ScreenId = 'home' | 'products' | 'goals' | 'delivery' | 'distributor' | 'favourites' | 'help';
+export type ScreenId = 'home' | 'products' | 'goals' | 'delivery' | 'distributor' | 'favourites' | 'help' | 'flyers';
 
 interface AppHeaderProps {
   currentScreen: ScreenId;
@@ -15,7 +17,6 @@ interface AppHeaderProps {
   onOpenSearch?: () => void;
   searchValue?: string;
   onSearchChange?: (v: string) => void;
-  onOpenFlyerStudio?: () => void;
   onOpenDistributorAuth?: () => void;
   onOpenBackOffice?: () => void;
   onOpenStoreLinkModal?: () => void;
@@ -25,21 +26,39 @@ export function AppHeader({
   currentScreen,
   onNavigate,
   onOpenCart,
-  onOpenFlyerStudio,
 }: AppHeaderProps) {
   const { lang, setLang } = useLang();
   const navigate = useNavigate();
   const totalItems = useCartStore((s) => s.getTotalItems());
   const distributor = useDistributorStore((s) => s.getActiveDistributor());
   const isAdminAuthenticated = useDistributorStore((s) => s.isAdminAuthenticated);
+  const setAdminAuthenticated = useDistributorStore((s) => s.setAdminAuthenticated);
 
-  const navLinks: { id: ScreenId; labelEn: string; labelSw: string; isPortal?: boolean }[] = [
+  // The store flag is UI-only and never persisted; re-derive it from the real
+  // Supabase session on every header mount so a page refresh on the storefront
+  // still shows the account controls for a signed-in distributor.
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (!cancelled) setAdminAuthenticated(!!data.session);
+      })
+      .catch(() => {
+        /* offline — leave current state */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [setAdminAuthenticated]);
+
+  // Primary navigation stays focused on customer journeys. Secondary pages
+  // (Orders & Help, Delivery Info, Become a Distributor) live in the footer,
+  // and the Distributor Portal is the utility button on the right.
+  const navLinks: { id: ScreenId; labelEn: string; labelSw: string }[] = [
     { id: 'home', labelEn: 'Home', labelSw: 'Mwanzo' },
     { id: 'products', labelEn: 'Products', labelSw: 'Bidhaa' },
     { id: 'goals', labelEn: 'Goal Finder', labelSw: 'Lengo & Pakiti' },
-    { id: 'delivery', labelEn: 'Delivery Info', labelSw: 'Uwasilishaji' },
-    { id: 'distributor', labelEn: 'Distributor', labelSw: 'Msambazaji', isPortal: true },
-    { id: 'help', labelEn: 'Orders & Help', labelSw: 'Maagizo & Msaada' },
   ];
 
   return (
@@ -88,13 +107,7 @@ export function AppHeader({
               <button
                 key={link.id}
                 id={`nav-link-${link.id}`}
-                onClick={() => {
-                  if (link.isPortal) {
-                    navigate('/portal');
-                  } else {
-                    onNavigate(link.id);
-                  }
-                }}
+                onClick={() => onNavigate(link.id)}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   isActive
                     ? 'bg-white text-[#123B6D] shadow-xs font-black border border-neutral-200/60'
@@ -107,21 +120,8 @@ export function AppHeader({
           })}
         </nav>
 
-        {/* Right: Actions (Flyer Studio, Language Segmented Toggle, Cart, Distributor) */}
+        {/* Right: Actions (Language Segmented Toggle, Cart, Distributor Portal) */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* 1-Tap Flyer Studio Generator button */}
-          {onOpenFlyerStudio && (
-            <button
-              id="header-flyer-studio-btn"
-              onClick={onOpenFlyerStudio}
-              className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs font-extrabold shadow-2xs transition-all cursor-pointer"
-              title={lang === 'sw' ? 'Tengeneza Picha ya WhatsApp Status' : 'Generate WhatsApp Status Flyer'}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              <span>{lang === 'sw' ? 'Picha za Status' : 'Flyer Studio'}</span>
-            </button>
-          )}
-
           {/* Clean Segmented Language Switcher */}
           <div
             id="language-switch-btn"
@@ -185,6 +185,36 @@ export function AppHeader({
               {isAdminAuthenticated ? (lang === 'sw' ? 'Ofisi Yangu' : 'My Back-Office') : (lang === 'sw' ? 'Msambazaji' : 'Distributor Portal')}
             </span>
           </Link>
+
+          {/* Sign Out — visible at ALL breakpoints when authenticated. Mobile
+              has no other account surface (the portal link is sm+ only), so an
+              authenticated distributor must still be able to end their session
+              from their phone. */}
+          {isAdminAuthenticated && (
+            <button
+              id="header-sign-out-btn"
+              onClick={async () => {
+                try {
+                  await supabase.auth.signOut();
+                } catch {
+                  // session may already be gone; local cleanup still proceeds
+                }
+                useDistributorStore.setState({
+                  isAdminAuthenticated: false,
+                  currentProfile: useDistributorStore.getState().getActiveDistributor(),
+                });
+                navigate('/');
+              }}
+              className="flex min-h-[44px] items-center gap-1.5 p-2 rounded-xl border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 transition-colors cursor-pointer"
+              title={lang === 'sw' ? 'Toka (Sign Out)' : 'Sign Out'}
+              aria-label={lang === 'sw' ? 'Toka (Sign Out)' : 'Sign Out'}
+            >
+              <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline text-xs font-black">
+                {lang === 'sw' ? 'Toka' : 'Sign Out'}
+              </span>
+            </button>
+          )}
         </div>
       </div>
     </header>

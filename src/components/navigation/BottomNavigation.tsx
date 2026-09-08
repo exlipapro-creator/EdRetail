@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion';
-import { Home, LayoutGrid, Sparkles, Truck, ShieldCheck } from 'lucide-react';
+import { Home, LayoutGrid, Target, Truck, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLang } from '../../context/LangContext';
+import { EdIcon } from '../brand/EdIcon';
 import { ScreenId } from './AppHeader';
 
 interface BottomNavigationProps {
@@ -29,7 +30,8 @@ export function BottomNavigation({ currentScreen, onNavigate }: BottomNavigation
     },
     {
       id: 'goals' as ScreenId,
-      icon: Sparkles,
+      edIcon: 'growth' as const, // brand-layer icon (wellness goals)
+      icon: Target,
       labelEn: 'Goals',
       labelSw: 'Malengo',
     },
@@ -42,8 +44,11 @@ export function BottomNavigation({ currentScreen, onNavigate }: BottomNavigation
     {
       id: 'distributor' as ScreenId,
       icon: ShieldCheck,
-      labelEn: 'Distributor',
-      labelSw: 'Msambazaji',
+      // This item opens the authenticated Distributor Portal (/portal) —
+      // labeled "Portal" so it isn't confused with the public
+      // "Become a Distributor" page (which lives in the footer).
+      labelEn: 'Portal',
+      labelSw: 'Portal',
       isPortalRoute: true,
     },
   ];
@@ -77,7 +82,14 @@ export function BottomNavigation({ currentScreen, onNavigate }: BottomNavigation
               aria-current={isActive ? 'page' : undefined}
             >
               <div className="relative flex items-center justify-center">
-                <Icon className={`w-5 h-5 transition-transform ${isActive ? 'scale-105 stroke-[2.5] text-[#123B6D]' : 'stroke-[1.8]'}`} />
+                {item.edIcon ? (
+                  <EdIcon
+                    name={item.edIcon}
+                    className={`w-5 h-5 transition-transform ${isActive ? 'scale-105 stroke-[2.5] text-[#123B6D]' : 'stroke-[1.8]'}`}
+                  />
+                ) : (
+                  <Icon className={`w-5 h-5 transition-transform ${isActive ? 'scale-105 stroke-[2.5] text-[#123B6D]' : 'stroke-[1.8]'}`} />
+                )}
                 {isActive && (
                   <motion.div
                     layoutId="bottomNavDot"
