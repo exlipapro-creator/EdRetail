@@ -1,10 +1,12 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { LangProvider } from './context/LangContext';
+import { CustomerAuthProvider } from './context/CustomerAuthContext';
 import { useDistributorStore } from './store/distributorStore';
 import { Spinner } from './components/ui';
 import { supabase } from './lib/supabase';
 import App from './App';
+import { CustomerResetPasswordPage } from './components/auth/CustomerResetPasswordPage';
 
 // Admin portal is code-split: its Supabase queries and auth context never
 // load for storefront visitors.
@@ -48,11 +50,13 @@ const DistributorResetPasswordPage = lazy(() =>
   import('./distributor/pages/DistributorResetPasswordPage').then((m) => ({ default: m.DistributorResetPasswordPage }))
 );
 
-// Storefront Wrapper with LangProvider
+// Storefront Wrapper with LangProvider + CustomerAuthProvider
 function StorefrontRoute() {
   return (
     <LangProvider>
-      <App />
+      <CustomerAuthProvider>
+        <App />
+      </CustomerAuthProvider>
     </LangProvider>
   );
 }
@@ -161,6 +165,24 @@ export function AppRouter() {
   }
 
   // 3. Public Storefront Routes
+  // /account/reset-password must render OUTSIDE the main storefront shell:
+  // it is reached from a Supabase recovery email and needs its own quiet page.
+  // The customer auth provider still wraps it so identity is available after
+  // the password is set.
+  if (pathname.startsWith('/account/')) {
+    return (
+      <LangProvider>
+        <CustomerAuthProvider>
+          <Routes>
+            <Route path="/account/reset-password" element={<CustomerResetPasswordPage />} />
+            <Route path="/account/*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </CustomerAuthProvider>
+      </LangProvider>
+    );
+  }
+
+  // 4. Public Storefront Routes
   return (
     <Routes>
       <Route path="/*" element={<StorefrontRoute />} />

@@ -329,15 +329,15 @@ export function SettingsPage() {
   const currentMode: AdNetworkMode = monetizationConfig?.mode || 'hybrid';
 
   return (
-    <div className="p-3 sm:p-6 space-y-6 max-w-7xl mx-auto animate-fadeIn text-stone-100 w-full max-w-full min-w-0 overflow-x-hidden">
+    <div className="p-3 sm:p-6 space-y-6 max-w-7xl mx-auto animate-fadeIn text-gray-900 w-full max-w-full min-w-0 overflow-x-hidden">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-800 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200 pb-5">
         <div className="min-w-0">
-          <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2.5 flex-wrap">
-            <Settings className="w-6 h-6 text-indigo-400 shrink-0" />
+          <h1 className="text-xl sm:text-2xl font-black text-gray-900 flex items-center gap-2.5 flex-wrap">
+            <Settings className="w-6 h-6 text-primary-600 shrink-0" />
             <span className="break-words">Admin Settings, Backups & Audit Logs</span>
           </h1>
-          <p className="text-xs text-stone-400 mt-1 break-words">
+          <p className="text-xs text-gray-500 mt-1 break-words">
             Advanced system controls: Master database backups, activity audit logs, native ad monetization & logistics.
           </p>
         </div>
@@ -347,7 +347,7 @@ export function SettingsPage() {
           <div
             className={`px-4 py-2 rounded-xl text-xs font-black flex items-center gap-2 shadow-lg transition-all animate-fadeIn shrink-0 ${
               notification.type === 'success'
-                ? 'bg-emerald-500 text-stone-950'
+                ? 'bg-emerald-600 text-white'
                 : 'bg-red-500 text-white'
             }`}
           >
@@ -358,13 +358,13 @@ export function SettingsPage() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-1.5 bg-stone-900/90 p-1.5 rounded-2xl border border-stone-800 overflow-x-auto max-w-full text-xs">
+      <div className="flex items-center gap-1.5 bg-gray-100 p-1.5 rounded-2xl border border-gray-200 overflow-x-auto max-w-full text-xs">
         <button
           onClick={() => setActiveTab('backups')}
           className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-black transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'backups'
-              ? 'bg-indigo-600 text-white shadow-md'
-              : 'text-stone-400 hover:text-white'
+              ? 'bg-primary-600 text-white shadow-md'
+              : 'text-gray-500 hover:text-gray-900'
           }`}
         >
           <Download className="w-4 h-4 shrink-0" />
@@ -375,8 +375,8 @@ export function SettingsPage() {
           onClick={() => setActiveTab('logs')}
           className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-black transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'logs'
-              ? 'bg-indigo-600 text-white shadow-md'
-              : 'text-stone-400 hover:text-white'
+              ? 'bg-primary-600 text-white shadow-md'
+              : 'text-gray-500 hover:text-gray-900'
           }`}
         >
           <Activity className="w-4 h-4 shrink-0" />
@@ -387,11 +387,11 @@ export function SettingsPage() {
           onClick={() => setActiveTab('ads')}
           className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-black transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'ads'
-              ? 'bg-indigo-600 text-white shadow-md'
-              : 'text-stone-400 hover:text-white'
+              ? 'bg-primary-600 text-white shadow-md'
+              : 'text-gray-500 hover:text-gray-900'
           }`}
         >
-          <EdIcon name="commerce" className="w-4 h-4 text-amber-400 shrink-0" />
+          <EdIcon name="commerce" className="w-4 h-4 text-amber-600 shrink-0" />
           <span>Native Ads (Passive Income)</span>
         </button>
 
@@ -399,8 +399,8 @@ export function SettingsPage() {
           onClick={() => setActiveTab('logistics')}
           className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-black transition-all cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === 'logistics'
-              ? 'bg-indigo-600 text-white shadow-md'
-              : 'text-stone-400 hover:text-white'
+              ? 'bg-primary-600 text-white shadow-md'
+              : 'text-gray-500 hover:text-gray-900'
           }`}
         >
           <Shield className="w-4 h-4 shrink-0" />
@@ -413,13 +413,13 @@ export function SettingsPage() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Export Full JSON Backup Card */}
-            <div className="bg-stone-900/90 border border-stone-800 rounded-3xl p-5 sm:p-6 space-y-4 shadow-sm flex flex-col justify-between">
+            <div className="bg-white border border-gray-200 rounded-3xl p-5 sm:p-6 space-y-4 shadow-sm flex flex-col justify-between">
               <div className="space-y-2">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-2xl bg-primary-50 border border-primary-100 text-primary-600 flex items-center justify-center">
                   <Download className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-black text-white">Full JSON Database Backup</h3>
-                <p className="text-xs text-stone-400 leading-relaxed">
+                <h3 className="text-base font-black text-gray-900">Full JSON Database Backup</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">
                   Downloads an exact snapshot of the entire application state: Catalog products, overrides, distributor registry, all sales records, debt tracker, tasks, settings, and logs.
                 </p>
               </div>
@@ -427,7 +427,7 @@ export function SettingsPage() {
               <div className="pt-2">
                 <button
                   onClick={handleExportBackup}
-                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                  className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white text-xs font-black rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                 >
                   <Download className="w-4 h-4" />
                   <span>Download Full Backup (.json)</span>
@@ -436,20 +436,20 @@ export function SettingsPage() {
             </div>
 
             {/* Restore JSON Backup Card */}
-            <div className="bg-stone-900/90 border border-stone-800 rounded-3xl p-5 sm:p-6 space-y-4 shadow-sm flex flex-col justify-between">
+            <div className="bg-white border border-gray-200 rounded-3xl p-5 sm:p-6 space-y-4 shadow-sm flex flex-col justify-between">
               <div className="space-y-2">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center">
                   <Upload className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-black text-white">Restore Database Snapshot</h3>
-                <p className="text-xs text-stone-400 leading-relaxed">
+                <h3 className="text-base font-black text-gray-900">Restore Database Snapshot</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">
                   Upload a previously downloaded JSON backup file to instantly restore all products, sales history, customer records, and settings.
                 </p>
               </div>
 
               <div className="pt-2">
-                <label className="w-full py-3 bg-stone-950 hover:bg-stone-800 text-stone-200 border border-stone-700 text-xs font-black rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98">
-                  <Upload className="w-4 h-4 text-emerald-400" />
+                <label className="w-full py-3 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 text-xs font-black rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98">
+                  <Upload className="w-4 h-4 text-emerald-600" />
                   <span>Select Backup File to Restore</span>
                   <input
                     ref={fileInputRef}
@@ -463,13 +463,13 @@ export function SettingsPage() {
             </div>
 
             {/* Export Sales Ledger Spreadsheet */}
-            <div className="bg-stone-900/90 border border-stone-800 rounded-3xl p-5 sm:p-6 space-y-4 shadow-sm flex flex-col justify-between">
+            <div className="bg-white border border-gray-200 rounded-3xl p-5 sm:p-6 space-y-4 shadow-sm flex flex-col justify-between">
               <div className="space-y-2">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center">
                   <FileSpreadsheet className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-black text-white">Export Sales Ledger (CSV)</h3>
-                <p className="text-xs text-stone-400 leading-relaxed">
+                <h3 className="text-base font-black text-gray-900">Export Sales Ledger (CSV)</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">
                   Export all {sales.length} sales and customer orders into Excel/CSV format with exact columns for customer name, phone, product, cash collected, and balance due.
                 </p>
               </div>
@@ -477,7 +477,7 @@ export function SettingsPage() {
               <div className="pt-2">
                 <button
                   onClick={handleExportSalesCsv}
-                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-stone-950 text-xs font-black rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98"
                 >
                   <FileSpreadsheet className="w-4 h-4" />
                   <span>Download Sales Spreadsheet (.csv)</span>
@@ -486,13 +486,13 @@ export function SettingsPage() {
             </div>
 
             {/* Catalog Defaults Reset */}
-            <div className="bg-stone-900/90 border border-stone-800 rounded-3xl p-5 sm:p-6 space-y-4 shadow-sm flex flex-col justify-between">
+            <div className="bg-white border border-gray-200 rounded-3xl p-5 sm:p-6 space-y-4 shadow-sm flex flex-col justify-between">
               <div className="space-y-2">
-                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center">
                   <RotateCcw className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-black text-white">Reset Catalog Overrides</h3>
-                <p className="text-xs text-stone-400 leading-relaxed">
+                <h3 className="text-base font-black text-gray-900">Reset Catalog Overrides</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">
                   Reverts custom product retail price modifications back to standard factory prices. Sales records and distributor debts are completely preserved.
                 </p>
               </div>
@@ -504,9 +504,7 @@ export function SettingsPage() {
                       resetMasterDatabaseToDefaults();
                       showToast('success', 'Catalog overrides restored to defaults.');
                     }
-                  }}
-                  className="w-full py-3 bg-stone-950 hover:bg-amber-950/60 text-amber-300 border border-amber-500/40 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
-                >
+                  }}className="w-full py-3 bg-white hover:bg-amber-50 text-amber-700 border border-amber-300 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer">
                   <RotateCcw className="w-4 h-4" />
                   <span>Reset Price Overrides Only</span>
                 </button>
@@ -520,15 +518,15 @@ export function SettingsPage() {
       {activeTab === 'logs' && (
         <div className="space-y-4">
           {/* Filter & Search Bar */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-stone-900/90 p-4 rounded-2xl border border-stone-800">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-gray-200">
             <div className="relative flex-1">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-500" />
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
                 value={logSearch}
                 onChange={(e) => setLogSearch(e.target.value)}
                 placeholder="Search audit logs by action, details, user..."
-                className="w-full pl-9 pr-4 py-2 bg-stone-950 border border-stone-800 rounded-xl text-xs text-white placeholder:text-stone-500 focus:outline-none focus:border-indigo-500"
+                className="w-full pl-9 pr-4 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-primary-500"
               />
             </div>
 
@@ -536,7 +534,7 @@ export function SettingsPage() {
               <select
                 value={logCategoryFilter}
                 onChange={(e) => setLogCategoryFilter(e.target.value)}
-                className="px-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-xs text-stone-200 focus:outline-none cursor-pointer"
+                className="px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-700 focus:outline-none cursor-pointer"
               >
                 <option value="all">All Categories</option>
                 <option value="price_change">Price Changes</option>
@@ -555,7 +553,7 @@ export function SettingsPage() {
                       showToast('success', 'Audit logs cleared.');
                     }
                   }}
-                  className="px-3 py-2 bg-stone-950 hover:bg-red-950/60 text-stone-400 hover:text-red-300 border border-stone-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="px-3 py-2 bg-white hover:bg-red-50 text-gray-600 hover:text-red-600 border border-gray-300 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>Clear Logs</span>
@@ -565,10 +563,10 @@ export function SettingsPage() {
           </div>
 
           {/* Audit Logs Table */}
-          <div className="bg-stone-900/90 border border-stone-800 rounded-2xl overflow-hidden shadow-sm">
+          <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-stone-300">
-                <thead className="bg-stone-950 text-stone-400 uppercase font-black tracking-wider text-[10px] border-b border-stone-800">
+              <table className="w-full text-left text-xs text-gray-700">
+                <thead className="bg-gray-50 text-gray-500 uppercase font-black tracking-wider text-[10px] border-b border-gray-200">
                   <tr>
                     <th className="p-3.5">Timestamp</th>
                     <th className="p-3.5">Action</th>
@@ -577,34 +575,34 @@ export function SettingsPage() {
                     <th className="p-3.5">Initiator</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-stone-800/60">
+                <tbody className="divide-y divide-gray-100">
                   {filteredLogs.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="p-8 text-center text-stone-500">
+                      <td colSpan={5} className="p-8 text-center text-gray-500">
                         No activity records matching your criteria.
                       </td>
                     </tr>
                   ) : (
                     filteredLogs.map((log) => (
-                      <tr key={log.id} className="hover:bg-stone-950/40 transition-colors">
-                        <td className="p-3.5 whitespace-nowrap text-stone-400 font-mono text-[11px]">
+                      <tr key={log.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="p-3.5 whitespace-nowrap text-gray-500 font-mono text-[11px]">
                           <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-stone-500" />
+                            <Clock className="w-3 h-3 text-gray-400" />
                             {new Date(log.timestamp).toLocaleString()}
                           </span>
                         </td>
-                        <td className="p-3.5 font-bold text-white whitespace-nowrap">
+                        <td className="p-3.5 font-bold text-gray-900 whitespace-nowrap">
                           {log.action}
                         </td>
                         <td className="p-3.5 whitespace-nowrap">
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-stone-950 border border-stone-800 text-stone-300">
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-gray-100 border border-gray-200 text-gray-600">
                             {log.category.replace('_', ' ')}
                           </span>
                         </td>
-                        <td className="p-3.5 text-stone-300 max-w-md">
+                        <td className="p-3.5 text-gray-700 max-w-md">
                           {log.details}
                         </td>
-                        <td className="p-3.5 whitespace-nowrap text-stone-400 font-medium">
+                        <td className="p-3.5 whitespace-nowrap text-gray-500 font-medium">
                           {log.user}
                         </td>
                       </tr>
@@ -621,15 +619,15 @@ export function SettingsPage() {
       {activeTab === 'ads' && (
         <div className="space-y-6">
           {/* Master Ad Monetization Banner */}
-          <div className="bg-linear-to-r from-amber-950/40 via-stone-900 to-stone-950 p-5 sm:p-6 rounded-3xl border border-amber-500/30 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+          <div className="bg-linear-to-r from-amber-50 via-white to-white p-5 sm:p-6 rounded-3xl border border-amber-200 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <span className="p-1.5 rounded-lg bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                <span className="p-1.5 rounded-lg bg-amber-100 text-amber-700 border border-amber-200">
                   <EdIcon name="shield" className="w-4 h-4" />
                 </span>
-                <h3 className="text-base font-black text-white">Native Ad Spaces & Multi-Channel Monetization</h3>
+                <h3 className="text-base font-black text-gray-900">Native Ad Spaces & Multi-Channel Monetization</h3>
               </div>
-              <p className="text-xs text-stone-400 max-w-2xl leading-relaxed">
+              <p className="text-xs text-gray-500 max-w-2xl leading-relaxed">
                 Empower your store network with passive revenue. Super Admin controls allow you to switch seamlessly between direct local partner placements (gyms, wellness spas, nutritionists) and programmatic Google AdSense banner networks.
               </p>
             </div>
@@ -650,8 +648,8 @@ export function SettingsPage() {
                 }}
                 className={`px-4 py-2.5 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
                   nativeAdsEnabled
-                    ? 'bg-amber-400 text-stone-950 shadow-md shadow-amber-400/20'
-                    : 'bg-stone-800 text-stone-400 border border-stone-700'
+                    ? 'bg-amber-500 text-white shadow-md'
+                    : 'bg-white text-gray-500 border border-gray-300'
                 }`}
               >
                 {nativeAdsEnabled ? <ToggleRight className="w-5 h-5" /> : <ToggleLeft className="w-5 h-5" />}
@@ -660,7 +658,7 @@ export function SettingsPage() {
 
               <button
                 onClick={() => handleOpenAdModal()}
-                className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer active:scale-98"
+                className="px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-xs font-black rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer active:scale-98"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Partner Slot</span>
@@ -670,56 +668,56 @@ export function SettingsPage() {
 
           {/* Revenue & Performance Overview Metrics */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-            <div className="bg-stone-900/90 border border-stone-800 rounded-2xl p-4 space-y-1">
-              <div className="flex items-center justify-between text-stone-400">
+            <div className="bg-white border border-gray-200 rounded-2xl p-4 space-y-1">
+              <div className="flex items-center justify-between text-gray-500">
                 <span className="text-[11px] font-bold uppercase tracking-wider">Direct Contract Revenue</span>
-                <DollarSign className="w-4 h-4 text-emerald-400" />
+                <DollarSign className="w-4 h-4 text-emerald-600" />
               </div>
-              <p className="text-xl font-black text-emerald-400">
+              <p className="text-xl font-black text-emerald-700">
                 TZS {totalMonthlyContractRevenue.toLocaleString()}
               </p>
-              <p className="text-[10px] text-stone-500 font-medium">Monthly recurring partner retainers</p>
+              <p className="text-[10px] text-gray-400 font-medium">Monthly recurring partner retainers</p>
             </div>
 
-            <div className="bg-stone-900/90 border border-stone-800 rounded-2xl p-4 space-y-1">
-              <div className="flex items-center justify-between text-stone-400">
+            <div className="bg-white border border-gray-200 rounded-2xl p-4 space-y-1">
+              <div className="flex items-center justify-between text-gray-500">
                 <span className="text-[11px] font-bold uppercase tracking-wider">Active Ad Slots</span>
               </div>
-              <p className="text-xl font-black text-white">
-                {activePartnerSlotsCount} <span className="text-xs text-stone-400 font-normal">/ {totalPartnerSlotsCount} total</span>
+              <p className="text-xl font-black text-gray-900">
+                {activePartnerSlotsCount} <span className="text-xs text-gray-400 font-normal">/ {totalPartnerSlotsCount} total</span>
               </p>
-              <p className="text-[10px] text-stone-500 font-medium">Booked direct sponsor spaces</p>
+              <p className="text-[10px] text-gray-400 font-medium">Booked direct sponsor spaces</p>
             </div>
 
-            <div className="bg-stone-900/90 border border-stone-800 rounded-2xl p-4 space-y-1">
-              <div className="flex items-center justify-between text-stone-400">
+            <div className="bg-white border border-gray-200 rounded-2xl p-4 space-y-1">
+              <div className="flex items-center justify-between text-gray-500">
                 <span className="text-[11px] font-bold uppercase tracking-wider">Total Impressions</span>
-                <Eye className="w-4 h-4 text-indigo-400" />
+                <Eye className="w-4 h-4 text-primary-600" />
               </div>
-              <p className="text-xl font-black text-white">{totalAdViews.toLocaleString()}</p>
-              <p className="text-[10px] text-stone-500 font-medium">Storefront & modal customer views</p>
+              <p className="text-xl font-black text-gray-900">{totalAdViews.toLocaleString()}</p>
+              <p className="text-[10px] text-gray-400 font-medium">Storefront & modal customer views</p>
             </div>
 
-            <div className="bg-stone-900/90 border border-stone-800 rounded-2xl p-4 space-y-1">
-              <div className="flex items-center justify-between text-stone-400">
+            <div className="bg-white border border-gray-200 rounded-2xl p-4 space-y-1">
+              <div className="flex items-center justify-between text-gray-500">
                 <span className="text-[11px] font-bold uppercase tracking-wider">Clicks & CTR</span>
-                <MousePointerClick className="w-4 h-4 text-amber-400" />
+                <MousePointerClick className="w-4 h-4 text-amber-600" />
               </div>
-              <p className="text-xl font-black text-amber-300">
-                {totalAdClicks.toLocaleString()} <span className="text-xs text-stone-400 font-normal">({averageCtr}%)</span>
+              <p className="text-xl font-black text-amber-700">
+                {totalAdClicks.toLocaleString()} <span className="text-xs text-gray-400 font-normal">({averageCtr}%)</span>
               </p>
-              <p className="text-[10px] text-stone-500 font-medium">Customer leads directed to sponsors</p>
+              <p className="text-[10px] text-gray-400 font-medium">Customer leads directed to sponsors</p>
             </div>
           </div>
 
           {/* Monetization Engine Mode Selection */}
-          <div className="bg-stone-900/90 border border-stone-800 rounded-3xl p-5 sm:p-6 space-y-4 shadow-sm">
+          <div className="bg-white border border-gray-200 rounded-3xl p-5 sm:p-6 space-y-4 shadow-sm">
             <div>
-              <h4 className="text-sm font-black text-white flex items-center gap-2">
-                <Globe className="w-4 h-4 text-indigo-400" />
+              <h4 className="text-sm font-black text-gray-900 flex items-center gap-2">
+                <Globe className="w-4 h-4 text-primary-600" />
                 <span>Monetization Delivery Mode</span>
               </h4>
-              <p className="text-xs text-stone-400 mt-0.5">
+              <p className="text-xs text-gray-500 mt-0.5">
                 Select how ads are served across the store experience:
               </p>
             </div>
@@ -734,23 +732,23 @@ export function SettingsPage() {
                 }}
                 className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                   currentMode === 'hybrid'
-                    ? 'bg-indigo-950/40 border-indigo-500 text-white shadow-lg ring-1 ring-indigo-500/50'
-                    : 'bg-stone-950/60 border-stone-800 text-stone-300 hover:border-stone-700'
+                    ? 'bg-primary-50 border-primary-500 text-gray-900 shadow-sm ring-1 ring-primary-500/50'
+                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-indigo-300">Hybrid Waterfall</span>
+                    <span className="text-xs font-black text-primary-700">Hybrid Waterfall</span>
                     {currentMode === 'hybrid' && (
                       <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-indigo-500 text-white">Active</span>
                     )}
                   </div>
-                  <h5 className="text-sm font-black text-white mt-1.5">Direct Ads + AdSense Fallback</h5>
-                  <p className="text-[11px] text-stone-400 mt-1 leading-relaxed">
+                  <h5 className="text-sm font-black text-gray-900 mt-1.5">Direct Ads + AdSense Fallback</h5>
+                  <p className="text-[11px] text-gray-500 mt-1 leading-relaxed">
                     Prioritizes your high-paying local direct sponsor bookings. If any slot is unbooked or paused, it automatically fills the gap with Google AdSense.
                   </p>
                 </div>
-                <div className="mt-3 pt-2 border-t border-stone-800/80 text-[10px] font-bold text-emerald-400">
+                <div className="mt-3 pt-2 border-t border-gray-100 text-[10px] font-bold text-emerald-700">
                   Recommended for maximum income
                 </div>
               </button>
@@ -764,23 +762,23 @@ export function SettingsPage() {
                 }}
                 className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                   currentMode === 'custom_sponsors_only'
-                    ? 'bg-amber-950/40 border-amber-500 text-white shadow-lg ring-1 ring-amber-500/50'
-                    : 'bg-stone-950/60 border-stone-800 text-stone-300 hover:border-stone-700'
+                    ? 'bg-amber-50 border-amber-500 text-gray-900 shadow-sm ring-1 ring-amber-500/50'
+                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-amber-300">🤝 Direct Partners Only</span>
+                    <span className="text-xs font-black text-amber-700">Direct Partners Only</span>
                     {currentMode === 'custom_sponsors_only' && (
                       <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-amber-500 text-stone-950">Active</span>
                     )}
                   </div>
-                  <h5 className="text-sm font-black text-white mt-1.5">Exclusive Local Sponsors</h5>
-                  <p className="text-[11px] text-stone-400 mt-1 leading-relaxed">
+                  <h5 className="text-sm font-black text-gray-900 mt-1.5">Exclusive Local Sponsors</h5>
+                  <p className="text-[11px] text-gray-500 mt-1 leading-relaxed">
                     Exclusively renders manually created sponsor banners (e.g. gym passes, spa discounts, couriers). No third-party network ads.
                   </p>
                 </div>
-                <div className="mt-3 pt-2 border-t border-stone-800/80 text-[10px] font-bold text-amber-300">
+                <div className="mt-3 pt-2 border-t border-gray-100 text-[10px] font-bold text-amber-700">
                   100% control over advertiser brands
                 </div>
               </button>
@@ -794,23 +792,23 @@ export function SettingsPage() {
                 }}
                 className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                   currentMode === 'adsense_only'
-                    ? 'bg-blue-950/40 border-blue-500 text-white shadow-lg ring-1 ring-blue-500/50'
-                    : 'bg-stone-950/60 border-stone-800 text-stone-300 hover:border-stone-700'
+                    ? 'bg-blue-50 border-blue-500 text-gray-900 shadow-sm ring-1 ring-blue-500/50'
+                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-blue-300">Google AdSense Only</span>
+                    <span className="text-xs font-black text-blue-700">Google AdSense Only</span>
                     {currentMode === 'adsense_only' && (
                       <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-blue-500 text-white">Active</span>
                     )}
                   </div>
-                  <h5 className="text-sm font-black text-white mt-1.5">Pure Programmatic Network</h5>
-                  <p className="text-[11px] text-stone-400 mt-1 leading-relaxed">
+                  <h5 className="text-sm font-black text-gray-900 mt-1.5">Pure Programmatic Network</h5>
+                  <p className="text-[11px] text-gray-500 mt-1 leading-relaxed">
                     Uses Google AdSense client tags across all ad slots. Completely automated monetization with no need to manage local advertisers.
                   </p>
                 </div>
-                <div className="mt-3 pt-2 border-t border-stone-800/80 text-[10px] font-bold text-blue-400">
+                <div className="mt-3 pt-2 border-t border-gray-100 text-[10px] font-bold text-blue-700">
                   Zero management effort
                 </div>
               </button>
@@ -818,25 +816,25 @@ export function SettingsPage() {
           </div>
 
           {/* Google AdSense Configuration Panel */}
-          <div className="bg-stone-900/90 border border-stone-800 rounded-3xl p-5 sm:p-6 space-y-5 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-800 pb-4">
+          <div className="bg-white border border-gray-200 rounded-3xl p-5 sm:p-6 space-y-5 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200 pb-4">
               <div>
-                <h4 className="text-sm font-black text-white flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-blue-400" />
+                <h4 className="text-sm font-black text-gray-900 flex items-center gap-2">
+                  <Globe className="w-4 h-4 text-blue-600" />
                   <span>Google AdSense Integration Settings</span>
                 </h4>
-                <p className="text-xs text-stone-400 mt-0.5">
+                <p className="text-xs text-gray-500 mt-0.5">
                   Configure your Google AdSense Publisher Client ID and individual responsive ad unit slot codes.
                 </p>
               </div>
 
               <div className="flex items-center gap-3">
-                <label className="flex items-center gap-2 text-xs text-stone-300 font-bold cursor-pointer">
+                <label className="flex items-center gap-2 text-xs text-gray-700 font-bold cursor-pointer">
                   <input
                     type="checkbox"
                     checked={adsenseTestMode}
                     onChange={(e) => setAdsenseTestMode(e.target.checked)}
-                    className="w-4 h-4 rounded text-indigo-600 bg-stone-950 border-stone-700"
+                    className="w-4 h-4 rounded text-primary-600 bg-white border-gray-300"
                   />
                   <span>Test Ad Mode (Mock / Sandbox)</span>
                 </label>
@@ -845,7 +843,7 @@ export function SettingsPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-stone-300 mb-1">
+                <label className="block text-xs font-bold text-gray-700 mb-1">
                   AdSense Publisher ID (Client ID) *
                 </label>
                 <input
@@ -853,30 +851,30 @@ export function SettingsPage() {
                   value={adsensePublisherId}
                   onChange={(e) => setAdsensePublisherId(e.target.value)}
                   placeholder="ca-pub-XXXXXXXXXXXXXXXX"
-                  className="w-full px-3.5 py-2.5 bg-stone-950 border border-stone-800 rounded-xl text-xs font-mono text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-xl text-xs font-mono text-gray-900 focus:outline-none focus:border-primary-500"
                 />
-                <p className="text-[10px] text-stone-500 mt-1">
+                <p className="text-[10px] text-gray-400 mt-1">
                   Found in your Google AdSense account &gt; Account Information &gt; Publisher ID.
                 </p>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-300 mb-1">
+                <label className="block text-xs font-bold text-gray-700 mb-1">
                   Auto-Ads Network Injection
                 </label>
-                <div className="flex items-center justify-between px-3.5 py-2 bg-stone-950 border border-stone-800 rounded-xl">
-                  <span className="text-xs text-stone-300">Enable Google Page-Level Auto Ads</span>
+                <div className="flex items-center justify-between px-3.5 py-2 bg-white border border-gray-300 rounded-xl">
+                  <span className="text-xs text-gray-700">Enable Google Page-Level Auto Ads</span>
                   <button
                     type="button"
                     onClick={() => setAdsenseAutoAds(!adsenseAutoAds)}
                     className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase transition-colors ${
-                      adsenseAutoAds ? 'bg-indigo-600 text-white' : 'bg-stone-800 text-stone-400'
+                      adsenseAutoAds ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-500'
                     }`}
                   >
                     {adsenseAutoAds ? 'Enabled' : 'Disabled'}
                   </button>
                 </div>
-                <p className="text-[10px] text-stone-500 mt-1">
+                <p className="text-[10px] text-gray-400 mt-1">
                   Lets Google automatically place ads in optimal positions on your store pages.
                 </p>
               </div>
@@ -884,12 +882,12 @@ export function SettingsPage() {
 
             {/* Slot ID Mapping */}
             <div className="space-y-3 pt-2">
-              <h5 className="text-xs font-black uppercase text-stone-400 tracking-wider">
+              <h5 className="text-xs font-black uppercase text-gray-500 tracking-wider">
                 Ad Unit Slot ID Mapping (Per Placement)
               </h5>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold text-stone-300 mb-1">
+                  <label className="block text-[11px] font-bold text-gray-700 mb-1">
                     Storefront Hero Slot ID
                   </label>
                   <input
@@ -897,12 +895,12 @@ export function SettingsPage() {
                     value={slotStorefront}
                     onChange={(e) => setSlotStorefront(e.target.value)}
                     placeholder="7840192831"
-                    className="w-full px-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-xs font-mono text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-mono text-gray-900 focus:outline-none focus:border-primary-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-stone-300 mb-1">
+                  <label className="block text-[11px] font-bold text-gray-700 mb-1">
                     Catalog Banner Slot ID
                   </label>
                   <input
@@ -910,12 +908,12 @@ export function SettingsPage() {
                     value={slotCatalog}
                     onChange={(e) => setSlotCatalog(e.target.value)}
                     placeholder="6592810342"
-                    className="w-full px-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-xs font-mono text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-mono text-gray-900 focus:outline-none focus:border-primary-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-stone-300 mb-1">
+                  <label className="block text-[11px] font-bold text-gray-700 mb-1">
                     Detail Modal Slot ID
                   </label>
                   <input
@@ -923,12 +921,12 @@ export function SettingsPage() {
                     value={slotModal}
                     onChange={(e) => setSlotModal(e.target.value)}
                     placeholder="3482019482"
-                    className="w-full px-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-xs font-mono text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-mono text-gray-900 focus:outline-none focus:border-primary-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-stone-300 mb-1">
+                  <label className="block text-[11px] font-bold text-gray-700 mb-1">
                     Checkout Footer Slot ID
                   </label>
                   <input
@@ -936,22 +934,22 @@ export function SettingsPage() {
                     value={slotCheckout}
                     onChange={(e) => setSlotCheckout(e.target.value)}
                     placeholder="8920193847"
-                    className="w-full px-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-xs font-mono text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-mono text-gray-900 focus:outline-none focus:border-primary-500"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-stone-800">
-              <div className="flex items-center gap-2 text-xs text-stone-400">
-                <Info className="w-4 h-4 text-indigo-400" />
+            <div className="flex items-center justify-between pt-2 border-t border-gray-200">
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <Info className="w-4 h-4 text-primary-600" />
                 <span>Script automatically mounts `adsbygoogle.js` with responsive client parameters.</span>
               </div>
 
               <button
                 type="button"
                 onClick={handleSaveAdSenseSettings}
-                className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-black rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer active:scale-98"
+                className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer active:scale-98"
               >
                 <Save className="w-4 h-4" />
                 <span>Save AdSense Settings</span>
@@ -963,8 +961,8 @@ export function SettingsPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-base font-black text-white">Direct Local Partner Slots ({sponsorAds.length})</h4>
-                <p className="text-xs text-stone-400">
+                <h4 className="text-base font-black text-gray-900">Direct Local Partner Slots ({sponsorAds.length})</h4>
+                <p className="text-xs text-gray-500">
                   Manage individual local brand placements, monthly retainer agreements, and contact details.
                 </p>
               </div>
@@ -982,31 +980,31 @@ export function SettingsPage() {
               {sponsorAds.map((ad) => (
                 <div
                   key={ad.id}
-                  className="bg-stone-900/90 border border-stone-800 rounded-3xl p-5 space-y-4 shadow-sm flex flex-col justify-between"
+                  className="bg-white border border-gray-200 rounded-3xl p-5 space-y-4 shadow-sm flex flex-col justify-between"
                 >
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
                         {ad.bannerImage && (
-                          <div className="w-14 h-14 rounded-2xl overflow-hidden border border-stone-700 bg-stone-950 shrink-0">
+                          <div className="w-14 h-14 rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 shrink-0">
                             <img src={ad.bannerImage} alt={ad.sponsorName} className="w-full h-full object-cover" />
                           </div>
                         )}
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-amber-50 text-amber-700 border border-amber-200">
                               {ad.placement.replace('_', ' ')}
                             </span>
                             {ad.monthlyFee && ad.monthlyFee > 0 && (
-                              <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-emerald-950 text-emerald-300 border border-emerald-700/50">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
                                 TZS {ad.monthlyFee.toLocaleString()}/mo
                               </span>
                             )}
                           </div>
-                          <h4 className="text-sm font-black text-white mt-1">
+                          <h4 className="text-sm font-black text-gray-900 mt-1">
                             {typeof ad.title === 'string' ? ad.title : ad.title.en}
                           </h4>
-                          <span className="text-xs text-stone-400 font-semibold">{ad.sponsorName}</span>
+                          <span className="text-xs text-gray-500 font-semibold">{ad.sponsorName}</span>
                         </div>
                       </div>
 
@@ -1018,38 +1016,38 @@ export function SettingsPage() {
                         }}
                         className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase transition-colors cursor-pointer ${
                           ad.enabled
-                            ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/60'
-                            : 'bg-stone-800 text-stone-500 border border-stone-700'
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : 'bg-gray-100 text-gray-500 border border-gray-200'
                         }`}
                       >
                         {ad.enabled ? 'Active' : 'Paused'}
                       </button>
                     </div>
 
-                    <p className="text-xs text-stone-300 leading-relaxed">
+                    <p className="text-xs text-gray-600 leading-relaxed">
                       {typeof ad.tagline === 'string' ? ad.tagline : ad.tagline.en}
                     </p>
 
                     {ad.contactPhone && (
-                      <div className="text-[11px] text-stone-400 flex items-center gap-1.5">
-                        <span className="text-stone-500">Contact / WhatsApp:</span>
-                        <span className="text-indigo-300 font-mono">{ad.contactPhone}</span>
+                      <div className="text-[11px] text-gray-500 flex items-center gap-1.5">
+                        <span className="text-gray-400">Contact / WhatsApp:</span>
+                        <span className="text-primary-700 font-mono">{ad.contactPhone}</span>
                       </div>
                     )}
                   </div>
 
                   {/* Performance Analytics Bar */}
-                  <div className="pt-3 border-t border-stone-800 flex items-center justify-between">
+                  <div className="pt-3 border-t border-gray-200 flex items-center justify-between">
                     <div className="flex items-center gap-4 text-xs">
-                      <div className="flex items-center gap-1.5 text-stone-400">
-                        <Eye className="w-3.5 h-3.5 text-indigo-400" />
+                      <div className="flex items-center gap-1.5 text-gray-500">
+                        <Eye className="w-3.5 h-3.5 text-primary-600" />
                         <span>{ad.impressions || 0} views</span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-stone-400">
-                        <MousePointerClick className="w-3.5 h-3.5 text-emerald-400" />
+                      <div className="flex items-center gap-1.5 text-gray-500">
+                        <MousePointerClick className="w-3.5 h-3.5 text-emerald-600" />
                         <span>{ad.clicks || 0} clicks</span>
                       </div>
-                      <div className="text-[11px] text-amber-300 font-bold">
+                      <div className="text-[11px] text-amber-700 font-bold">
                         CTR: {ad.impressions > 0 ? ((ad.clicks / ad.impressions) * 100).toFixed(1) : 0}%
                       </div>
                     </div>
@@ -1057,7 +1055,7 @@ export function SettingsPage() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleOpenAdModal(ad)}
-                        className="px-2.5 py-1 bg-stone-950 hover:bg-stone-800 text-stone-300 border border-stone-800 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                        className="px-2.5 py-1 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 rounded-lg text-xs font-bold transition-colors cursor-pointer"
                       >
                         Edit
                       </button>
@@ -1068,7 +1066,7 @@ export function SettingsPage() {
                             showToast('success', 'Ad deleted.');
                           }
                         }}
-                        className="p-1.5 bg-stone-950 hover:bg-red-950/60 text-stone-400 hover:text-red-400 border border-stone-800 rounded-lg text-xs transition-colors cursor-pointer"
+                        className="p-1.5 bg-white hover:bg-red-50 text-gray-400 hover:text-red-600 border border-gray-300 rounded-lg text-xs transition-colors cursor-pointer"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -1083,68 +1081,68 @@ export function SettingsPage() {
 
       {/* ── TAB 4: PLATFORM & LOGISTICS ── */}
       {activeTab === 'logistics' && (
-        <div className="bg-stone-900/90 border border-stone-800 rounded-3xl p-5 sm:p-6 space-y-5 shadow-sm max-w-2xl">
-          <h3 className="text-base font-black text-white">Platform Logistics & Rates</h3>
+        <div className="bg-white border border-gray-200 rounded-3xl p-5 sm:p-6 space-y-5 shadow-sm max-w-2xl">
+          <h3 className="text-base font-black text-gray-900">Platform Logistics & Rates</h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-stone-300 mb-1">
+              <label className="block text-xs font-bold text-gray-700 mb-1">
                 Dar es Salaam Express Courier (TZS)
               </label>
               <input
                 type="number"
                 value={platformSettings.darExpressFee}
                 onChange={(e) => updatePlatformSettings({ darExpressFee: Number(e.target.value) })}
-                className="w-full px-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-bold text-gray-900 focus:outline-none focus:border-primary-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-300 mb-1">
+              <label className="block text-xs font-bold text-gray-700 mb-1">
                 Upcountry Bus Parcel Fee (TZS)
               </label>
               <input
                 type="number"
                 value={platformSettings.upcountryBusFee}
                 onChange={(e) => updatePlatformSettings({ upcountryBusFee: Number(e.target.value) })}
-                className="w-full px-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-bold text-gray-900 focus:outline-none focus:border-primary-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-300 mb-1">
+              <label className="block text-xs font-bold text-gray-700 mb-1">
                 Zanzibar Ferry Courier Fee (TZS)
               </label>
               <input
                 type="number"
                 value={platformSettings.zanzibarFerryFee}
                 onChange={(e) => updatePlatformSettings({ zanzibarFerryFee: Number(e.target.value) })}
-                className="w-full px-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-bold text-gray-900 focus:outline-none focus:border-primary-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-300 mb-1">
+              <label className="block text-xs font-bold text-gray-700 mb-1">
                 National Commission Rate (%)
               </label>
               <input
                 type="number"
                 value={platformSettings.nationalCommission}
                 onChange={(e) => updatePlatformSettings({ nationalCommission: Number(e.target.value) })}
-                className="w-full px-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs font-bold text-gray-900 focus:outline-none focus:border-primary-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-stone-300 mb-1">
+            <label className="block text-xs font-bold text-gray-700 mb-1">
               Emergency Contact & Escalations
             </label>
             <input
               type="text"
               value={platformSettings.emergencyPhone}
               onChange={(e) => updatePlatformSettings({ emergencyPhone: e.target.value })}
-              className="w-full px-3 py-2 bg-stone-950 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-primary-500"
             />
           </div>
 
@@ -1161,14 +1159,14 @@ export function SettingsPage() {
       {/* ── CREATE / EDIT SPONSOR AD MODAL ── */}
       {isAdModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto animate-fadeIn">
-          <div className="w-full max-w-lg bg-stone-950 border border-stone-800 rounded-3xl p-5 sm:p-6 space-y-4 shadow-2xl text-stone-100 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-base font-black text-white">
+          <div className="w-full max-w-lg bg-white border border-gray-200 rounded-3xl p-5 sm:p-6 space-y-4 shadow-2xl text-gray-900 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-base font-black text-gray-900">
               {editingAd ? 'Edit Partner Sponsor Space' : 'Create New Partner Sponsor Slot'}
             </h3>
 
             <form onSubmit={handleSaveAd} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-stone-300 mb-1">
+                <label className="block text-xs font-bold text-gray-700 mb-1">
                   Sponsor Business / Partner Name *
                 </label>
                 <input
@@ -1177,13 +1175,13 @@ export function SettingsPage() {
                   value={adFormSponsor}
                   onChange={(e) => setAdFormSponsor(e.target.value)}
                   placeholder="E.g. PowerGym Mlimani City, Afya Spa Dar"
-                  className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-bold text-stone-300 mb-1">
+                  <label className="block text-xs font-bold text-gray-700 mb-1">
                     Title (English) *
                   </label>
                   <input
@@ -1192,11 +1190,11 @@ export function SettingsPage() {
                     value={adFormTitleEn}
                     onChange={(e) => setAdFormTitleEn(e.target.value)}
                     placeholder="E.g. Get 20% Gym Pass"
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-stone-300 mb-1">
+                  <label className="block text-xs font-bold text-gray-700 mb-1">
                     Title (Kiswahili)
                   </label>
                   <input
@@ -1204,14 +1202,14 @@ export function SettingsPage() {
                     value={adFormTitleSw}
                     onChange={(e) => setAdFormTitleSw(e.target.value)}
                     placeholder="Mf: Pata Punguzo la 20%"
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-bold text-stone-300 mb-1">
+                  <label className="block text-xs font-bold text-gray-700 mb-1">
                     Offer Tagline (English) *
                   </label>
                   <textarea
@@ -1220,11 +1218,11 @@ export function SettingsPage() {
                     value={adFormTaglineEn}
                     onChange={(e) => setAdFormTaglineEn(e.target.value)}
                     placeholder="E.g. Special fitness discount for Edmark detox clients."
-                    className="w-full p-2.5 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full p-2.5 bg-white border border-gray-300 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-stone-300 mb-1">
+                  <label className="block text-xs font-bold text-gray-700 mb-1">
                     Offer Tagline (Kiswahili)
                   </label>
                   <textarea
@@ -1232,20 +1230,20 @@ export function SettingsPage() {
                     value={adFormTaglineSw}
                     onChange={(e) => setAdFormTaglineSw(e.target.value)}
                     placeholder="Mf: Punguzo maalum kwa wateja wa Edmark."
-                    className="w-full p-2.5 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full p-2.5 bg-white border border-gray-300 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-bold text-stone-300 mb-1">
+                  <label className="block text-xs font-bold text-gray-700 mb-1">
                     Placement Spot
                   </label>
                   <select
                     value={adFormPlacement}
                     onChange={(e) => setAdFormPlacement(e.target.value as AdPlacement)}
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                   >
                     <option value="storefront_hero">Storefront Hero</option>
                     <option value="products_banner">Products Catalog Banner</option>
@@ -1254,7 +1252,7 @@ export function SettingsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-stone-300 mb-1">
+                  <label className="block text-xs font-bold text-gray-700 mb-1">
                     Monthly Contract Fee (TZS)
                   </label>
                   <input
@@ -1262,14 +1260,14 @@ export function SettingsPage() {
                     value={adFormMonthlyFee}
                     onChange={(e) => setAdFormMonthlyFee(Number(e.target.value))}
                     placeholder="50000"
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-xs font-bold text-stone-300 mb-1">
+                  <label className="block text-xs font-bold text-gray-700 mb-1">
                     Banner Image URL
                   </label>
                   <input
@@ -1277,11 +1275,11 @@ export function SettingsPage() {
                     value={adFormImage}
                     onChange={(e) => setAdFormImage(e.target.value)}
                     placeholder="https://..."
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-stone-300 mb-1">
+                  <label className="block text-xs font-bold text-gray-700 mb-1">
                     Advertiser Contact Phone / WA
                   </label>
                   <input
@@ -1289,13 +1287,13 @@ export function SettingsPage() {
                     value={adFormContactPhone}
                     onChange={(e) => setAdFormContactPhone(e.target.value)}
                     placeholder="+255 783 481 416"
-                    className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-stone-300 mb-1">
+                <label className="block text-xs font-bold text-gray-700 mb-1">
                   Target WhatsApp Link or URL *
                 </label>
                 <input
@@ -1304,7 +1302,7 @@ export function SettingsPage() {
                   value={adFormTarget}
                   onChange={(e) => setAdFormTarget(e.target.value)}
                   placeholder="https://wa.me/255783481416?text=Habari!%20Nimetoka%20ED%20Retail."
-                  className="w-full px-3 py-2 bg-stone-900 border border-stone-800 rounded-xl text-xs text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                 />
               </div>
 
@@ -1312,7 +1310,7 @@ export function SettingsPage() {
                 <button
                   type="button"
                   onClick={() => setIsAdModalOpen(false)}
-                  className="px-4 py-2 text-xs font-bold text-stone-400 hover:text-white rounded-xl bg-stone-900 border border-stone-800 cursor-pointer"
+                  className="px-4 py-2 text-xs font-bold text-gray-500 hover:text-gray-900 rounded-xl bg-white border border-gray-300 cursor-pointer"
                 >
                   Cancel
                 </button>

@@ -1,12 +1,13 @@
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
-import { ShoppingCart, ShieldCheck, ArrowLeft, LogOut } from 'lucide-react';
+import { ShoppingCart, ShieldCheck, ArrowLeft, LogOut, UserRound, Search, X } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
 import { CartBadge } from '../CartBadge';
 import { useLang } from '../../context/LangContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+import { useCustomerAuth } from '../../context/CustomerAuthContext';
 
 export type ScreenId = 'home' | 'products' | 'goals' | 'delivery' | 'distributor' | 'favourites' | 'help' | 'flyers';
 
@@ -20,12 +21,16 @@ interface AppHeaderProps {
   onOpenDistributorAuth?: () => void;
   onOpenBackOffice?: () => void;
   onOpenStoreLinkModal?: () => void;
+  onOpenCustomerAuth?: () => void;
 }
 
 export function AppHeader({
   currentScreen,
   onNavigate,
   onOpenCart,
+  onOpenCustomerAuth,
+  searchValue = '',
+  onSearchChange,
 }: AppHeaderProps) {
   const { lang, setLang } = useLang();
   const navigate = useNavigate();
@@ -33,16 +38,33 @@ export function AppHeader({
   const distributor = useDistributorStore((s) => s.getActiveDistributor());
   const isAdminAuthenticated = useDistributorStore((s) => s.isAdminAuthenticated);
   const setAdminAuthenticated = useDistributorStore((s) => s.setAdminAuthenticated);
+  const { status, greetingName } = useCustomerAuth();
 
   // The store flag is UI-only and never persisted; re-derive it from the real
-  // Supabase session on every header mount so a page refresh on the storefront
-  // still shows the account controls for a signed-in distributor.
+  // Supabase session AND the server-side role on every header mount. A plain
+  // session alone no longer flips the portal state — a CUSTOMER session must
+  // not be presented as a distributor (role gate mirrors the server RLS).
   useEffect(() => {
     let cancelled = false;
     supabase.auth
       .getSession()
-      .then(({ data }) => {
-        if (!cancelled) setAdminAuthenticated(!!data.session);
+      .then(async ({ data }) => {
+        if (cancelled) return;
+        if (!data.session) {
+          setAdminAuthenticated(false);
+          return;
+        }
+        try {
+          const { data: roleRow } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', data.session.user.id)
+            .maybeSingle();
+          const r = roleRow?.role;
+          setAdminAuthenticated(r === 'distributor' || r === 'super_admin');
+        } catch {
+          setAdminAuthenticated(false);
+        }
       })
       .catch(() => {
         /* offline — leave current state */
@@ -168,7 +190,51 @@ export function AppHeader({
             <CartBadge count={totalItems} />
           </motion.button>
 
-          {/* Dedicated Distributor Back-Office Direct Access */}
+          {/* Customer account control — state-aware, never a fake greeting.
+              restoring → neutral icon; anonymous → Sign in; authenticated →
+              first name (+ Sign out). */}
+          {status === 'authenticated' ? (
+            <div
+              id="header-account-authenticated"
+              className="flex items-center gap-1.5 p-1 pl-2 rounded-xl border border-emerald-200 bg-emerald-50"
+              title={greetingName || undefined}
+            >
+              <span className="hidden sm:flex w-6 h-6 rounded-full bg-emerald-600 text-white items-center justify-center text-[10px] font-black uppercase">
+                {(greetingName || 'E').slice(0, 1)}
+              </span>
+              <span className="hidden md:inline text-xs font-black text-emerald-900 max-w-[90px] truncate">
+                {greetingName || (lang === 'sw' ? 'Akaunti' : 'Account')}
+              </span>
+              <button
+                id="header-customer-signout-btn"
+                onClick={async () => {
+                  try {
+                    await supabase.auth.signOut();
+                  } catch {
+                    // session may already be gone
+                  }
+                }}
+                className="p-1.5 rounded-lg text-emerald-800 hover:bg-emerald-100 transition-colors cursor-pointer"
+                aria-label={lang === 'sw' ? 'Toka' : 'Sign out'}
+                title={lang === 'sw' ? 'Toka' : 'Sign out'}
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              id="header-account-btn"
+              onClick={onOpenCustomerAuth}
+              className="p-2 sm:px-3 sm:py-2 rounded-xl border transition-all flex items-center gap-1.5 cursor-pointer bg-neutral-100/80 border-neutral-300 hover:bg-neutral-200 text-neutral-800"
+              aria-label={lang === 'sw' ? 'Ingia kwenye akaunti' : 'Account sign in'}
+              title={lang === 'sw' ? 'Ingia / Fungua akaunti' : 'Sign in / Create account'}
+            >
+              <UserRound className={`w-4 h-4 ${status === 'restoring' ? 'text-neutral-400' : 'text-neutral-600'}`} />
+              <span className="text-xs font-black">
+                {status === 'restoring' ? '' : lang === 'sw' ? 'Ingia' : 'Sign in'}
+              </span>
+            </button>
+          )}
           <Link
             to="/portal"
             id="distributor-portal-link"
@@ -217,6 +283,49 @@ export function AppHeader({
           )}
         </div>
       </div>
+
+      {/* Layer 3 — search as a first-class commerce primitive. Always visible,
+          submits into the Products screen (the existing catalog search there
+          powers matching; no invented backend search). */}
+      <form
+        id="header-search-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          onNavigate('products');
+        }}
+        className="max-w-6xl mx-auto px-4 pb-2.5"
+        role="search"
+      >
+        <div className="relative">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
+          <input
+            id="header-search-input"
+            type="search"
+            value={searchValue}
+            onChange={(e) => onSearchChange?.(e.target.value)}
+            onFocus={() => {
+              if (currentScreen !== 'products') onNavigate('products');
+            }}
+            placeholder={
+              lang === 'sw'
+                ? 'Tafuta bidhaa... (Shake Off, Spirulina, MRT)'
+                : 'Search products... (Shake Off, Spirulina, MRT)'
+            }
+            aria-label={lang === 'sw' ? 'Tafuta bidhaa' : 'Search products'}
+            className="w-full pl-10 pr-10 py-2.5 bg-neutral-100/80 border border-transparent focus:bg-white focus:border-[#123B6D]/50 focus:ring-2 focus:ring-[#123B6D]/10 rounded-xl text-xs sm:text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-all"
+          />
+          {searchValue ? (
+            <button
+              type="button"
+              onClick={() => onSearchChange?.('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-lg text-neutral-400 hover:text-neutral-700 hover:bg-neutral-200/60 transition-colors cursor-pointer"
+              aria-label={lang === 'sw' ? 'Futa utafutaji' : 'Clear search'}
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          ) : null}
+        </div>
+      </form>
     </header>
   );
 }

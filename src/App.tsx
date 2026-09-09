@@ -48,6 +48,9 @@ const DistributorBackOfficeModal = lazy(() =>
 const ViewFlyers = lazy(() =>
   import('./components/marketing/ViewFlyers').then((m) => ({ default: m.ViewFlyers }))
 );
+const CustomerAuthModal = lazy(() =>
+  import('./components/auth/CustomerAuthModal').then((m) => ({ default: m.CustomerAuthModal }))
+);
 
 function App() {
   const { lang } = useLang();
@@ -59,6 +62,7 @@ function App() {
   const [isFlyerStudioOpen, setIsFlyerStudioOpen] = useState(false);
   const [isDistributorAuthOpen, setIsDistributorAuthOpen] = useState(false);
   const [isStoreLinkOpen, setIsStoreLinkOpen] = useState(false);
+  const [isCustomerAuthOpen, setIsCustomerAuthOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
 
   // Latch: a modal chunk is fetched on first open; afterwards the component
@@ -72,15 +76,21 @@ function App() {
         ...(isFlyerStudioOpen ? { flyer: true } : null),
         ...(isDistributorAuthOpen ? { auth: true } : null),
         ...(isStoreLinkOpen ? { storelink: true } : null),
+        ...(isCustomerAuthOpen ? { customerauth: true } : null),
       } as Record<string, boolean>;
       const changed = Object.keys(next).some((k) => !prev[k]);
       return changed ? { ...prev, ...next } : prev;
     });
-  }, [isChatOpen, isBackOfficeOpen, isFlyerStudioOpen, isDistributorAuthOpen, isStoreLinkOpen]);
+  }, [isChatOpen, isBackOfficeOpen, isFlyerStudioOpen, isDistributorAuthOpen, isStoreLinkOpen, isCustomerAuthOpen]);
 
   const totalItems = useCartStore((s) => s.getTotalItems());
   const totalPrice = useCartStore((s) => s.getTotalPrice());
   const setActiveRefSlug = useDistributorStore((s) => s.setActiveRefSlug);
+
+  // Persistent header search — one primitive shared by the whole storefront:
+  // typing in the header and submitting (or tapping a result) filters the
+  // Products catalog. State lives here so it survives screen switches.
+  const [searchValue, setSearchValue] = useState('');
 
   // Auto-detect distributor referral slug from URL (e.g., ?ref=asha or /@fatuma)
   useEffect(() => {
@@ -129,6 +139,9 @@ function App() {
         onOpenDistributorAuth={() => setIsDistributorAuthOpen(true)}
         onOpenBackOffice={() => setIsBackOfficeOpen(true)}
         onOpenStoreLinkModal={() => setIsStoreLinkOpen(true)}
+        onOpenCustomerAuth={() => setIsCustomerAuthOpen(true)}
+        searchValue={searchValue}
+        onSearchChange={setSearchValue}
       />
 
       {/* ── PWA INSTALLATION BANNER (MOBILE-FIRST) ── */}
@@ -137,7 +150,7 @@ function App() {
       </div>
 
       {/* ── PRIMARY SCREEN ROUTING CONTAINER ── */}
-      <main className="flex-1 pb-24 lg:pb-12">
+      <main className="flex-1">
         <AnimatePresence mode="wait">
           {currentScreen === 'home' && (
             <motion.div
@@ -164,7 +177,7 @@ function App() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2 }}
             >
-              <ProductsView onSelectProduct={setSelectedProduct} />
+              <ProductsView onSelectProduct={setSelectedProduct} searchValue={searchValue} onClearSearch={() => setSearchValue('')} />
             </motion.div>
           )}
 
@@ -359,6 +372,16 @@ function App() {
           <DistributorStoreLinkModal
             isOpen={isStoreLinkOpen}
             onClose={() => setIsStoreLinkOpen(false)}
+          />
+        </Suspense>
+      )}
+
+      {/* ── CUSTOMER ACCOUNT AUTH (sign in / sign up / reset) ── */}
+      {openedOnce.customerauth && (
+        <Suspense fallback={null}>
+          <CustomerAuthModal
+            isOpen={isCustomerAuthOpen}
+            onClose={() => setIsCustomerAuthOpen(false)}
           />
         </Suspense>
       )}

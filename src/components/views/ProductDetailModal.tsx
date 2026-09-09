@@ -4,19 +4,18 @@ import {
   X,
   Heart,
   Share2,
-  Star,
   ShoppingBag,
   Plus,
   Minus,
   CheckCircle2,
-  // Sparkles removed — replaced by EdIcon (brand layer)
   Phone,
+  MapPin,
   ArrowLeft,
 } from 'lucide-react';
 import { Product, CATEGORIES } from '../../types';
 import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
-import { formatPrice, formatUsd, WHATSAPP_LINK, DISTRIBUTOR_NAME } from '../../utils/whatsappCompiler';
+import { formatPrice, formatUsd, getActiveWhatsAppLink } from '../../utils/whatsappCompiler';
 import { useLang } from '../../context/LangContext';
 import { motionTokens } from '../../design/motion';
 import { EdIcon } from '../brand/EdIcon';
@@ -33,8 +32,13 @@ const CATEGORY_TAG_COLORS: Record<string, string> = {
   'lifestyle-beverages': 'bg-amber-50 text-amber-700 border-amber-200',
 };
 
-const BENEFIT_CHIPS: Record<string, string[]> = {
-  'mrt-complex': ['Meal Replacement', 'High Protein', 'Weight Loss', 'Metabolism Boost'],
+/**
+ * Informational highlight tags keyed per product — catalog descriptors drawn
+ * from each product's own description/usage. Plain tags, NOT certified claims,
+ * NOT ratings.
+ */
+const PRODUCT_TAGS: Record<string, string[]> = {
+  'mrt-complex': ['Meal Replacement', 'High Protein', 'Weight Management', 'Balanced Nutrition'],
   'shake-off-phyto': ['Colon Cleanse', 'Digestion Support', 'Detox Formula', 'Rich in Fiber'],
   'splina-chlorophyll': ['Natural Detox', 'Alkalises Body', 'Blood Health', 'Antioxidants'],
   'hawaiian-spirulina': ['Immunity Booster', 'Superfood', 'Vital Energy', 'Essential Nutrients'],
@@ -60,6 +64,7 @@ export function ProductDetailModal({
   const [copiedLink, setCopiedLink] = useState(false);
 
   const getEffectiveProduct = useDistributorStore((s) => s.getEffectiveProduct);
+  const activeDistributor = useDistributorStore((s) => s.getActiveDistributor());
   const liveProduct = product ? getEffectiveProduct(product.id) || product : null;
 
   if (!liveProduct) return null;
@@ -69,7 +74,8 @@ export function ProductDetailModal({
   const categoryLabel = CATEGORIES.find((c) => c.id === effectiveProduct.category)?.label;
   const cartItem = items.find((i) => i.id === effectiveProduct.id);
   const currentInCart = cartItem?.quantity ?? 0;
-  const chips = BENEFIT_CHIPS[effectiveProduct.id] || ['100% Authentic', 'Distributor Backed', 'Tanzania Delivery'];
+  const chips = PRODUCT_TAGS[effectiveProduct.id] || ['100% Authentic', 'Distributor Backed', 'Tanzania Delivery'];
+  const sellerName = activeDistributor.storeName || activeDistributor.name;
 
   const handleAddToCart = () => {
     if (!effectiveProduct.inStock) return;
@@ -83,7 +89,7 @@ export function ProductDetailModal({
   };
 
   const handleShare = async () => {
-    const shareText = `Check out ${t(effectiveProduct.name)} at ED Retail (Tanzania): ${formatPrice(effectiveProduct.price)} TZS`;
+    const shareText = `${t(effectiveProduct.name)} — ${formatPrice(effectiveProduct.price)} TZS · ${sellerName} (Edmark, Tanzania)`;
     if (navigator.share) {
       try {
         await navigator.share({
@@ -120,7 +126,7 @@ export function ProductDetailModal({
             role="dialog"
             aria-modal="true"
             aria-label={t(product.name)}
-            className="fixed bottom-0 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 z-50 bg-white rounded-t-3xl sm:rounded-2xl max-w-xl w-full max-h-[92vh] sm:max-h-[88vh] overflow-y-auto shadow-2xl flex flex-col"
+            className="fixed bottom-0 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 z-50 bg-white rounded-t-3xl sm:rounded-2xl sm:max-w-3xl w-full max-h-[92vh] sm:max-h-[88vh] overflow-y-auto shadow-2xl flex flex-col"
             initial={{ y: '100%', opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: '100%', opacity: 0 }}
@@ -182,10 +188,11 @@ export function ProductDetailModal({
               </div>
             </div>
 
-            {/* Modal Body */}
-            <div className="p-5 sm:p-6 overflow-y-auto space-y-5">
+            {/* Modal Body — stacked on mobile, two-column composition on desktop */}
+            <div className="p-5 sm:p-6 overflow-y-auto space-y-5 sm:space-y-0 sm:grid sm:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] sm:gap-7">
+              <div className="sm:self-start">
               {/* Product Visual Area */}
-              <div className="relative bg-gradient-to-b from-neutral-50 to-neutral-100/70 rounded-2xl h-56 sm:h-64 flex items-center justify-center p-6 border border-neutral-200/60 overflow-hidden">
+              <div className="relative bg-gradient-to-b from-neutral-50 to-neutral-100/70 rounded-2xl h-56 sm:h-72 flex items-center justify-center p-6 border border-neutral-200/60 overflow-hidden">
                 {effectiveProduct.badge && (
                   <span className="absolute top-3 left-3 z-10 px-3 py-1 rounded-full text-xs font-bold bg-white/90 backdrop-blur-xs text-primary-700 border border-primary-200/80 shadow-xs uppercase tracking-wide">
                     {effectiveProduct.badge}
@@ -206,7 +213,9 @@ export function ProductDetailModal({
                   <ShoppingBag className="w-10 h-10" />
                 </div>
               </div>
+              </div>
 
+              <div className="space-y-5">
               {/* Title & Metadata */}
               <div>
                 <div className="flex items-center gap-2 mb-1.5">
@@ -215,11 +224,6 @@ export function ProductDetailModal({
                       {t(categoryLabel)}
                     </span>
                   )}
-                  <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
-                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    <span>4.9</span>
-                    <span className="text-neutral-400 text-[11px] font-normal">(120+ reviews)</span>
-                  </div>
                 </div>
 
                 <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 leading-snug">
@@ -251,10 +255,10 @@ export function ProductDetailModal({
                 </div>
               </div>
 
-              {/* Benefit Chips */}
+              {/* Informational highlight tags (real catalog descriptors — no fabricated claims) */}
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">
-                  {lang === 'sw' ? 'Faida Muhimu' : 'Key Highlights'}
+                  {lang === 'sw' ? 'Mambo Muhimu' : 'Highlights'}
                 </h4>
                 <div className="flex flex-wrap gap-1.5">
                   {chips.map((chip, i) => (
@@ -262,7 +266,7 @@ export function ProductDetailModal({
                       key={i}
                       className="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-full text-xs font-medium transition-colors"
                     >
-                      ✓ {chip}
+                      {chip}
                     </span>
                   ))}
                 </div>
@@ -289,14 +293,34 @@ export function ProductDetailModal({
                 </p>
               </div>
 
+              {/* Distributor / store context — only real, live distributor data */}
+              <div className="p-3.5 bg-neutral-50 rounded-xl border border-neutral-200/80">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-8 h-8 rounded-lg bg-primary-50 border border-primary-100 flex items-center justify-center flex-shrink-0">
+                    <EdIcon name="leaf" className="w-4 h-4 text-primary-700" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-neutral-400">
+                      {lang === 'sw' ? 'Inauzwa na' : 'Sold through'}
+                    </p>
+                    <p className="text-sm font-bold text-neutral-900 truncate">{sellerName}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 mt-2 text-xs text-neutral-500">
+                  <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span className="truncate">{activeDistributor.city}</span>
+                </div>
+              </div>
+
               {/* Distributor Direct Guarantee Notice */}
               <div className="flex items-center gap-3 p-3 bg-neutral-50 rounded-xl border border-neutral-200/80 text-xs text-neutral-600">
                 <CheckCircle2 className="w-5 h-5 text-[#0E6B52] flex-shrink-0" />
                 <p className="leading-snug">
                   {lang === 'sw'
-                    ? `Imethibitishwa na ${DISTRIBUTOR_NAME}. Uwasilishaji salama na mwongozo wa bure wa afya kupitia WhatsApp.`
-                    : `Verified genuine stock from ${DISTRIBUTOR_NAME}. Safe delivery and free dosage coaching on WhatsApp.`}
+                    ? `Bidhaa halisi za Edmark zimethibitishwa na ${sellerName}. Uwasilishaji salama na mwongozo wa bure kupitia WhatsApp.`
+                    : `Verified genuine Edmark stock from ${sellerName}. Safe delivery and free dosage coaching on WhatsApp.`}
                 </p>
+              </div>
               </div>
             </div>
 
@@ -358,7 +382,11 @@ export function ProductDetailModal({
               {/* Ask on WhatsApp button */}
               <a
                 id="modal-whatsapp-ask-btn"
-                href={`${WHATSAPP_LINK}?text=${encodeURIComponent(`Hello ${DISTRIBUTOR_NAME}, I have a question about ${t(effectiveProduct.name)}:`)}`}
+                href={getActiveWhatsAppLink(
+                  lang === 'sw'
+                    ? `Habari ${sellerName}, nina swali kuhusu ${t(effectiveProduct.name)}:`
+                    : `Hello ${sellerName}, I have a question about ${t(effectiveProduct.name)}:`
+                )}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-3.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition-colors flex items-center justify-center flex-shrink-0"

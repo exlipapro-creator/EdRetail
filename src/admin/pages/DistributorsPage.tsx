@@ -125,8 +125,8 @@ export function DistributorsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-white">Distributors Oversight</h1>
-            <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-black">
+            <h1 className="text-xl font-bold text-gray-900">Distributors Oversight</h1>
+            <span className="px-2.5 py-0.5 rounded-full bg-primary-50 text-primary-700 border border-primary-200 text-xs font-black">
               {savedDistributors.length} Registered
             </span>
           </div>
@@ -137,7 +137,7 @@ export function DistributorsPage() {
 
         <button
           onClick={handleOpenCreate}
-          className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-md self-start sm:self-auto"
+          className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-md self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Add Distributor</span>
@@ -151,7 +151,7 @@ export function DistributorsPage() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search by name, city, handle (@slug), or phone..."
-          className="w-full max-w-md bg-gray-900 border border-gray-800 rounded-xl px-4 py-2.5 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full max-w-md bg-white border border-gray-300 rounded-xl px-4 py-2.5 text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
         />
       </div>
 
@@ -160,7 +160,7 @@ export function DistributorsPage() {
         {filteredDistributors.map((dist) => (
           <div
             key={dist.id}
-            className="bg-gray-900 border border-gray-800 rounded-2xl p-5 space-y-4 hover:border-gray-700 transition-colors"
+            className="bg-white border border-gray-200 rounded-2xl p-5 space-y-4 hover:border-gray-300 transition-colors"
           >
             {/* Top row */}
             <div className="flex items-start justify-between gap-3">
@@ -168,11 +168,11 @@ export function DistributorsPage() {
                 <img
                   src={dist.avatarUrl || '/logo/distributor-circle.png'}
                   alt={dist.name}
-                  className="w-12 h-12 rounded-xl object-cover border border-gray-800 bg-gray-800"
+                  className="w-12 h-12 rounded-xl object-cover border border-gray-200 bg-gray-100"
                 />
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <h2 className="text-sm font-bold text-white leading-tight">{dist.name}</h2>
+                    <h2 className="text-sm font-bold text-gray-900 leading-tight">{dist.name}</h2>
                     {dist.isVerified && (
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400/20" />
                     )}
@@ -183,7 +183,7 @@ export function DistributorsPage() {
                       href={`/@${dist.slug}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[10px] text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-0.5"
+                      className="text-[10px] text-primary-600 hover:text-primary-700 font-semibold flex items-center gap-0.5"
                     >
                       <Globe className="w-3 h-3" />
                       <span>@{dist.slug}</span>
@@ -197,8 +197,8 @@ export function DistributorsPage() {
               <span
                 className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
                   dist.status === 'active'
-                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                    : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    : 'bg-red-50 text-red-700 border border-red-200'
                 }`}
               >
                 {dist.status}
@@ -206,7 +206,7 @@ export function DistributorsPage() {
             </div>
 
             {/* Info details */}
-            <div className="bg-gray-950/60 rounded-xl p-3 space-y-1.5 text-xs text-gray-300 border border-gray-800/80">
+            <div className="bg-gray-50 rounded-xl p-3 space-y-1.5 text-xs text-gray-700 border border-gray-200">
               <div className="flex items-center gap-2 text-[11px]">
                 <MapPin className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
                 <span className="truncate">{dist.city} • {dist.deliveryCoverage}</span>
@@ -217,7 +217,7 @@ export function DistributorsPage() {
               </div>
               <div className="flex items-center gap-2 text-[11px]">
                 <CreditCard className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
-                <span className="font-mono text-amber-300">{dist.lipaNumber}</span>
+                <span className="font-mono text-amber-700">{dist.lipaNumber}</span>
               </div>
               <div className="flex items-center gap-2 text-[11px]">
                 <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400 flex-shrink-0" />
@@ -226,14 +226,14 @@ export function DistributorsPage() {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-between pt-1 border-t border-gray-800">
+            <div className="flex items-center justify-between pt-1 border-t border-gray-200">
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => toggleDistributorVerification(dist.id)}
                   className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer ${
                     dist.isVerified
-                      ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
-                      : 'bg-amber-500/10 text-amber-400 border-amber-500/30 hover:bg-amber-500/20'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                      : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
                   }`}
                   title="Toggle verified badge"
                 >
@@ -249,8 +249,8 @@ export function DistributorsPage() {
                   }
                   className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-colors cursor-pointer ${
                     dist.status === 'active'
-                      ? 'bg-red-500/10 text-red-400 border-red-500/30 hover:bg-red-500/20'
-                      : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
+                      ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+                      : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
                   }`}
                 >
                   {dist.status === 'active' ? 'Suspend' : 'Activate'}
@@ -260,7 +260,7 @@ export function DistributorsPage() {
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => handleOpenEdit(dist)}
-                  className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors cursor-pointer"
+                  className="p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                   title="Edit details"
                 >
                   <Pencil className="w-3.5 h-3.5" />
@@ -272,7 +272,7 @@ export function DistributorsPage() {
                         deleteDistributorAdmin(dist.id);
                       }
                     }}
-                    className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-gray-800 rounded-lg transition-colors cursor-pointer"
+                    className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                     title="Delete distributor"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -287,9 +287,9 @@ export function DistributorsPage() {
       {/* Edit / Create Modal */}
       {(isCreating || editing) && (
         <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800 bg-gray-950">
-              <h2 className="text-sm font-bold text-white">
+          <div className="bg-white border border-gray-200 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
+              <h2 className="text-sm font-bold text-gray-900">
                 {isCreating ? 'Register New Authorized Distributor' : `Edit Distributor: ${editing?.name}`}
               </h2>
               <button
@@ -297,7 +297,7 @@ export function DistributorsPage() {
                   setEditing(null);
                   setIsCreating(false);
                 }}
-                className="text-gray-400 hover:text-white p-1 rounded-lg"
+                className="text-gray-500 hover:text-gray-900 p-1 rounded-lg"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -306,115 +306,115 @@ export function DistributorsPage() {
             <form onSubmit={handleSave} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-gray-400 mb-1">Full Name & Title</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Full Name & Title</label>
                   <input
                     type="text"
                     required
                     value={formData.name || ''}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
                     placeholder="e.g., Diamond Leader Fatuma Ally"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-400 mb-1">Custom Slug (/@handle)</label>
-                  <div className="flex items-center bg-gray-800 border border-gray-700 rounded-xl px-3 text-xs text-gray-400">
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Custom Slug (/@handle)</label>
+                  <div className="flex items-center bg-white border border-gray-300 rounded-xl px-3 text-xs text-gray-500">
                     <span>/@</span>
                     <input
                       type="text"
                       required
                       value={formData.slug || ''}
                       onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
-                      className="w-full bg-transparent py-2 pl-1 text-white focus:outline-none"
+                      className="w-full bg-transparent py-2 pl-1 text-gray-900 focus:outline-none"
                       placeholder="fatuma"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-400 mb-1">Rank / Position</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Rank / Position</label>
                   <input
                     type="text"
                     value={formData.rank || ''}
                     onChange={(e) => setFormData({ ...formData, rank: e.target.value })}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
                     placeholder="Diamond Star Leader"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-400 mb-1">Phone Number</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Phone Number</label>
                   <input
                     type="text"
                     required
                     value={formData.phone || ''}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
                     placeholder="+255 754 282 900"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-400 mb-1">Lipa Namba</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Lipa Namba</label>
                   <input
                     type="text"
                     required
                     value={formData.lipaNumber || ''}
                     onChange={(e) => setFormData({ ...formData, lipaNumber: e.target.value })}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2 text-xs text-amber-400 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs text-amber-700 font-mono focus:outline-none focus:ring-2 focus:ring-primary-500"
                     placeholder="Lipa Namba: 554433"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-400 mb-1">City / Region</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">City / Region</label>
                   <input
                     type="text"
                     value={formData.city || ''}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
                     placeholder="Dar es Salaam"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-400 mb-1">Delivery Coverage</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Delivery Coverage</label>
                   <input
                     type="text"
                     value={formData.deliveryCoverage || ''}
                     onChange={(e) => setFormData({ ...formData, deliveryCoverage: e.target.value })}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500"
                     placeholder="Dar & Mikoani kote"
                   />
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-gray-400 mb-1">Storefront Bio</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">Storefront Bio</label>
                   <textarea
                     rows={2}
                     value={formData.bio || ''}
                     onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                    className="w-full bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                    className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
                     placeholder="Msambazaji rasmi wa Edmark Tanzania..."
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-800">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-200">
                 <button
                   type="button"
                   onClick={() => {
                     setEditing(null);
                     setIsCreating(false);
                   }}
-                  className="px-4 py-2 text-xs font-semibold text-gray-400 hover:text-white rounded-xl transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-gray-600 hover:text-gray-900 rounded-xl transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex items-center gap-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors cursor-pointer"
+                  className="flex items-center gap-2 px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors cursor-pointer"
                 >
                   <Save className="w-3.5 h-3.5" />
                   <span>Save Distributor</span>

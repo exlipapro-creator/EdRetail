@@ -29,7 +29,7 @@ export function StorefrontFooter({ onNavigate }: StorefrontFooterProps) {
   );
 
   return (
-    <footer className="border-t border-neutral-200/80 bg-white mt-10">
+    <footer className="border-t border-neutral-200/80 bg-white mt-8 pb-24 lg:pb-12">
       <div className="max-w-6xl mx-auto px-4 py-10 sm:py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {/* Brand */}

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, MessageCircle } from 'lucide-react';
-import { EdIcon } from './brand/EdIcon';
 import { motionTokens } from '../design/motion';
 import { getActiveWhatsAppLink } from '../utils/whatsappCompiler';
 import { useDistributorStore } from '../store/distributorStore';
@@ -11,52 +10,50 @@ import { ScreenId } from './navigation/AppHeader';
 interface Slide {
   id: string;
   image: string;
-  taglineEn: string;
-  taglineSw: string;
   titleEn: string;
   titleSw: string;
-  descEn: string;
-  descSw: string;
   ctaEn: string;
   ctaSw: string;
 }
 
+/**
+ * Hero banners are complete, art-directed marketing compositions supplied by
+ * EdRetail (real product artwork). The artwork carries its own headline/copy,
+ * so the carousel renders it clean — no duplicate text overlay — and adds
+ * only a compact CTA row over a subtle bottom scrim.
+ */
 const SLIDES: Slide[] = [
   {
-    id: 'splina',
-    image: '/hero/hero-splina.png',
-    taglineEn: 'Daily Essential Detox',
-    taglineSw: 'Usafi wa Damu Kila Siku',
-    titleEn: 'Splina Liquid Chlorophyll',
-    titleSw: 'Splina Liquid Chlorophyll',
-    descEn: 'Alkalises body pH, boosts red blood cell vitality, and purifies cellular waste.',
-    descSw: 'Huondoa asidi mwilini, huimarisha uzalishaji wa damu, na kusafisha sumu mwilini.',
-    ctaEn: 'Shop Splina',
-    ctaSw: 'Nunua Splina',
-  },
-  {
-    id: 'shakeoff',
-    image: '/hero/hero-shakeoff-1.png',
-    taglineEn: 'Colon Cleansing Power',
-    taglineSw: 'Kusafisha Tumbo & Kitambi',
+    id: 'shake-off',
+    image: '/hero/hero-shakeoff.jpg',
     titleEn: 'Shake Off Phyto Fiber',
     titleSw: 'Shake Off Phyto Fiber',
-    descEn: 'Fast-acting botanical colon cleanse. Relieves constipation and flushes intestinal toxins.',
-    descSw: 'Husafisha utumbo mkubwa ndani ya saa 8. Huondoa choo kigumu na kutoa gesi na sumu.',
     ctaEn: 'Shop Shake Off',
     ctaSw: 'Nunua Shake Off',
   },
   {
-    id: 'ginseng',
-    image: '/hero/hero-ginseng.png',
-    taglineEn: 'Sustained Morning Energy',
-    taglineSw: 'Nishati & Umakini wa Asubuhi',
-    titleEn: 'Ginseng Herbal Coffee',
-    titleSw: 'Kahawa ya Ginseng',
-    descEn: 'Korean ginseng extract for natural stamina and mental sharpness without coffee jitters.',
-    descSw: 'Kahawa bora yenye dondoo ya ginseng ya Korea. Huamsha nguvu na umakini kazini bila mshtuko.',
-    ctaEn: 'Shop Ginseng',
-    ctaSw: 'Nunua Ginseng',
+    id: 'spirulina',
+    image: '/hero/hero-spirulina.jpg',
+    titleEn: 'Hawaiian Spirulina',
+    titleSw: 'Hawaiian Spirulina',
+    ctaEn: 'Shop Spirulina',
+    ctaSw: 'Nunua Spirulina',
+  },
+  {
+    id: 'troika',
+    image: '/hero/hero-troika.jpg',
+    titleEn: 'Café Troika Premium Coffee',
+    titleSw: 'Café Troika Kahawa Bora',
+    ctaEn: 'Shop Troika',
+    ctaSw: 'Nunua Troika',
+  },
+  {
+    id: 'cocollagen',
+    image: '/hero/hero-cocollagen.jpg',
+    titleEn: 'CoCollagen Chocolate Drink',
+    titleSw: 'Kinywaji cha CoCollagen',
+    ctaEn: 'Shop CoCollagen',
+    ctaSw: 'Nunua CoCollagen',
   },
 ];
 
@@ -83,6 +80,7 @@ export function HeroCarousel({ onNavigate }: HeroCarouselProps) {
   }, [next, paused]);
 
   const slide = SLIDES[current];
+  const title = lang === 'sw' ? slide.titleSw : slide.titleEn;
 
   return (
     <section
@@ -103,52 +101,40 @@ export function HeroCarousel({ onNavigate }: HeroCarouselProps) {
           >
             <img
               src={slide.image}
-              alt={lang === 'sw' ? slide.titleSw : slide.titleEn}
-              className="w-full h-full object-cover object-center brightness-[0.45]"
+              alt={title}
+              className="w-full h-full object-cover object-center"
             />
           </motion.div>
         </AnimatePresence>
 
-        {/* Content Overlay */}
-        <div className="relative z-10 p-5 sm:p-8 max-w-xl text-white space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[11px] font-black uppercase tracking-wider">
-            <EdIcon name="leaf" className="w-3 h-3 text-emerald-400" />
-            <span>{lang === 'sw' ? slide.taglineSw : slide.taglineEn}</span>
-          </div>
+        {/* Bottom scrim — legibility for the CTA row only; artwork stays clean */}
+        <div className="absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-black/55 to-transparent pointer-events-none" />
 
-          <h3 className="text-xl sm:text-2xl font-black text-white leading-tight">
-            {lang === 'sw' ? slide.titleSw : slide.titleEn}
-          </h3>
+        {/* CTA row */}
+        <div className="absolute bottom-3 left-4 z-20 flex flex-wrap items-center gap-2.5">
+          <button
+            onClick={() => onNavigate ? onNavigate('products') : undefined}
+            className="px-4 py-2 bg-[#123B6D] hover:bg-[#0D315D] text-white rounded-xl text-xs font-black shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer border border-white/20"
+          >
+            <ShoppingCart className="w-3.5 h-3.5" />
+            <span>{lang === 'sw' ? slide.ctaSw : slide.ctaEn}</span>
+          </button>
 
-          <p className="text-xs sm:text-sm text-stone-200 leading-relaxed max-w-md">
-            {lang === 'sw' ? slide.descSw : slide.descEn}
-          </p>
-
-          <div className="flex flex-wrap items-center gap-2.5 pt-1">
-            <button
-              onClick={() => onNavigate ? onNavigate('products') : undefined}
-              className="px-4 py-2 bg-[#123B6D] hover:bg-[#0D315D] text-white rounded-xl text-xs font-black shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer border border-white/20"
-            >
-              <ShoppingCart className="w-3.5 h-3.5" />
-              <span>{lang === 'sw' ? slide.ctaSw : slide.ctaEn}</span>
-            </button>
-
-            <a
-              href={getActiveWhatsAppLink(
-                `Habari ${distributor.name}, ninahitaji maelezo na kuagiza ${lang === 'sw' ? slide.titleSw : slide.titleEn}:`
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3.5 py-2 bg-white/15 hover:bg-white/25 text-white border border-white/30 rounded-xl text-xs font-bold backdrop-blur-xs transition-colors flex items-center gap-1.5"
-            >
-              <MessageCircle className="w-3.5 h-3.5 text-[#0E6B52]" />
-              <span>{lang === 'sw' ? 'Uliza WhatsApp' : 'Ask on WhatsApp'}</span>
-            </a>
-          </div>
+          <a
+            href={getActiveWhatsAppLink(
+              `Habari ${distributor.name}, ninahitaji maelezo na kuagiza ${title}:`
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3.5 py-2 bg-white/15 hover:bg-white/25 text-white border border-white/30 rounded-xl text-xs font-bold backdrop-blur-xs transition-colors flex items-center gap-1.5"
+          >
+            <MessageCircle className="w-3.5 h-3.5 text-[#0E6B52]" />
+            <span>{lang === 'sw' ? 'Uliza WhatsApp' : 'Ask on WhatsApp'}</span>
+          </a>
         </div>
 
         {/* Carousel Indicators */}
-        <div className="absolute bottom-3 right-4 z-20 flex gap-1.5">
+        <div className="absolute bottom-5 right-4 z-20 flex gap-1.5">
           {SLIDES.map((s, i) => (
             <button
               key={s.id}

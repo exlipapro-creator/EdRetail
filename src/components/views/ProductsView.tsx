@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search,
   LayoutGrid,
   List,
   Filter,
@@ -22,7 +21,10 @@ import { EdIcon } from '../brand/EdIcon';
 
 interface ProductsViewProps {
   onSelectProduct: (product: Product) => void;
-  initialSearch?: string;
+  /** Live search text from the global AppHeader search — the single search source of truth. */
+  searchValue?: string;
+  /** Clears the global header search (used by the empty-state reset action). */
+  onClearSearch?: () => void;
 }
 
 const CATEGORY_ICONS: Record<string, typeof Activity> = {
@@ -31,10 +33,9 @@ const CATEGORY_ICONS: Record<string, typeof Activity> = {
   'lifestyle-beverages': Coffee,
 };
 
-export function ProductsView({ onSelectProduct, initialSearch = '' }: ProductsViewProps) {
+export function ProductsView({ onSelectProduct, searchValue = '', onClearSearch }: ProductsViewProps) {
   const { lang, t } = useLang();
   const [activeCategory, setActiveCategory] = useState<string>('all');
-  const [search, setSearch] = useState(initialSearch);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [inStockOnly, setInStockOnly] = useState(false);
 
@@ -56,8 +57,8 @@ export function ProductsView({ onSelectProduct, initialSearch = '' }: ProductsVi
       list = list.filter((p) => p.inStock);
     }
 
-    if (search.trim()) {
-      const q = search.toLowerCase();
+    if (searchValue.trim()) {
+      const q = searchValue.toLowerCase();
       list = list.filter(
         (p) =>
           p.name.en.toLowerCase().includes(q) ||
@@ -68,72 +69,49 @@ export function ProductsView({ onSelectProduct, initialSearch = '' }: ProductsVi
     }
 
     return list;
-  }, [activeCategory, search, inStockOnly, liveProducts]);
+  }, [activeCategory, searchValue, inStockOnly, liveProducts]);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 sm:py-8 space-y-6 animate-fadeIn">
-      {/* ── SEARCH & FILTER HEADER BAR ── */}
+    <div className="max-w-6xl mx-auto px-4 pb-6 sm:pb-8 space-y-6 animate-fadeIn">
+      {/* ── FILTER & CATEGORY HEADER BAR (search lives in the global AppHeader) ── */}
       <div className="bg-white rounded-3xl border border-neutral-200/80 p-4 sm:p-6 shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          {/* Search Box */}
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
-            <input
-              id="products-catalog-search"
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={lang === 'sw' ? 'Tafuta kwa jina la bidhaa, dalili, au faida...' : 'Search by product name, benefit, or category...'}
-              className="w-full pl-10 pr-9 py-2.5 bg-neutral-50 border border-neutral-200/80 rounded-2xl text-xs sm:text-sm text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all"
-            />
-            {search && (
-              <button
-                onClick={() => setSearch('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400 hover:text-neutral-600 font-bold cursor-pointer"
-              >
-                ✕
-              </button>
-            )}
-          </div>
+        <div className="flex items-center justify-between gap-3">
+          {/* In-Stock Filter */}
+          <button
+            id="filter-instock-toggle"
+            onClick={() => setInStockOnly(!inStockOnly)}
+            className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-colors flex items-center gap-1.5 cursor-pointer ${
+              inStockOnly
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                : 'bg-neutral-50 text-neutral-600 border-neutral-200/80 hover:bg-neutral-100'
+            }`}
+          >
+            <Filter className="w-3.5 h-3.5" />
+            <span>{lang === 'sw' ? 'Zilizo Stoo Tu' : 'In Stock Only'}</span>
+          </button>
 
-          {/* Controls: In-Stock Filter & Layout Switcher */}
-          <div className="flex items-center justify-between sm:justify-end gap-2">
+          {/* Layout mode switcher */}
+          <div className="flex items-center bg-neutral-100 p-1 rounded-xl border border-neutral-200/60">
             <button
-              id="filter-instock-toggle"
-              onClick={() => setInStockOnly(!inStockOnly)}
-              className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-colors flex items-center gap-1.5 cursor-pointer ${
-                inStockOnly
-                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                  : 'bg-neutral-50 text-neutral-600 border-neutral-200/80 hover:bg-neutral-100'
+              id="view-mode-grid"
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                viewMode === 'grid' ? 'bg-white text-primary-600 shadow-xs' : 'text-neutral-400 hover:text-neutral-700'
               }`}
+              aria-label="Grid view"
             >
-              <Filter className="w-3.5 h-3.5" />
-              <span>{lang === 'sw' ? 'Zilizo Stoo Tu' : 'In Stock Only'}</span>
+              <LayoutGrid className="w-4 h-4" />
             </button>
-
-            {/* Layout mode switcher */}
-            <div className="flex items-center bg-neutral-100 p-1 rounded-xl border border-neutral-200/60">
-              <button
-                id="view-mode-grid"
-                onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                  viewMode === 'grid' ? 'bg-white text-primary-600 shadow-xs' : 'text-neutral-400 hover:text-neutral-700'
-                }`}
-                aria-label="Grid view"
-              >
-                <LayoutGrid className="w-4 h-4" />
-              </button>
-              <button
-                id="view-mode-list"
-                onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                  viewMode === 'list' ? 'bg-white text-primary-600 shadow-xs' : 'text-neutral-400 hover:text-neutral-700'
-                }`}
-                aria-label="List view"
-              >
-                <List className="w-4 h-4" />
-              </button>
-            </div>
+            <button
+              id="view-mode-list"
+              onClick={() => setViewMode('list')}
+              className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                viewMode === 'list' ? 'bg-white text-primary-600 shadow-xs' : 'text-neutral-400 hover:text-neutral-700'
+              }`}
+              aria-label="List view"
+            >
+              <List className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
@@ -404,14 +382,14 @@ export function ProductsView({ onSelectProduct, initialSearch = '' }: ProductsVi
         <div className="text-center py-16 bg-white rounded-3xl border border-neutral-200/80 p-8 space-y-3">
           <Coffee className="w-10 h-10 mx-auto text-neutral-300" />
           <h3 className="text-sm font-bold text-neutral-800">
-            {lang === 'sw' ? `Hakuna bidhaa inayolingana na "${search}"` : `No products found matching "${search}"`}
+            {lang === 'sw' ? `Hakuna bidhaa inayolingana na "${searchValue}"` : `No products found matching "${searchValue}"`}
           </h3>
           <p className="text-xs text-neutral-500">
             {lang === 'sw' ? 'Jaribu kubadilisha maneno ya utafutaji au kuchagua kikundi kingine.' : 'Try changing your search keywords or switching category filters.'}
           </p>
           <button
             onClick={() => {
-              setSearch('');
+              onClearSearch?.();
               setActiveCategory('all');
               setInStockOnly(false);
             }}
