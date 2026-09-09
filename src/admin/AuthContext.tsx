@@ -88,6 +88,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setRole(null);
           setRoleResolved(true);
         } else {
+          // A NEW identity just signed in: re-gate routes until the fresh role
+          // verdict arrives. Without this, roleResolved is still true from the
+          // initial load while `user` is already set — so AdminLogin/Protected
+          // evaluated the stale null role and bounced a genuine super_admin to
+          // /portal (observed live on production form-login at /admin).
+          if (event === 'SIGNED_IN' || event === 'USER_UPDATED') setRoleResolved(false);
           setRole(await fetchRole(s.user.id));
           setRoleResolved(true);
         }
