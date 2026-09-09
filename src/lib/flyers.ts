@@ -78,7 +78,10 @@ export async function fetchMyCampaigns(): Promise<FlyerCampaign[]> {
   return (data ?? []) as FlyerCampaign[];
 }
 
-/** Insert or update by id. Returns the saved row. */
+/** Insert or update by id. Returns the saved row.
+ *  IMPORTANT: lifecycle status is caller-owned. Callers that do not intend
+ *  a transition MUST pass the row's current status — the default 'draft'
+ *  is only correct for brand-new campaigns. */
 export async function saveCampaignDraft(
   campaign: Partial<FlyerCampaign> & { distributor_id: string; product_id: string; title: string }
 ): Promise<FlyerCampaign> {
@@ -136,6 +139,15 @@ export async function publishCampaign(id: string): Promise<void> {
   const { error } = await supabase
     .from('flyer_campaigns')
     .update({ status: 'published' })
+    .eq('id', id);
+  if (error) throw error;
+}
+
+/** Unpublish = return a published campaign to draft (no longer public). */
+export async function unpublishCampaign(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('flyer_campaigns')
+    .update({ status: 'draft' })
     .eq('id', id);
   if (error) throw error;
 }

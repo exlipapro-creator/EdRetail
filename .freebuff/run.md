@@ -86,3 +86,15 @@ Then register the preview at `http://localhost:3000/` with that PID.
 - .env.example documents VITE_PUBLIC_SITE_URL for the deploy host.
 - FOLLOW-UP (post-deploy): the live campaign aba9ee27… has a localhost QR baked into its rendered PNG. After deploy with
   VITE_PUBLIC_SITE_URL set, re-open the campaign in Flyer Studio and re-publish to regenerate the PNG with the production QR.
+
+## FLYER LIFECYCLE BUGS — ROOT-CAUSED, FIXED, LIVE-REGRESSED
+- Bug 1 (critical): saveCampaignDraft defaulted status='draft' on EVERY upsert → any draft-save downgraded a
+  published campaign (explains "published but not in View Flyers" + perceived non-persistence).
+  Fix: editor preserves the row's existing status; only new campaigns start as draft. Transitions are explicit.
+- Bug 2: no unpublish. Fix: unpublishCampaign() + EyeOff library action on published cards.
+- Bug 3: library load errors rendered as fake "No campaigns yet". Fix: honest error surface + Try again.
+- Local .env now sets VITE_PUBLIC_SITE_URL=https://www.edretail.store so dev-time saves write production QRs.
+- Live regression (her real session): T1 save-draft preserves published ✓; T2 save writes production qr_destination ✓;
+  T3 unpublish → status=draft ✓; T4 re-publish → published ✓; ANON sees published row with production QR ✓;
+  anon signed render read: 258,542-byte PNG over HTTP OK ✓. tsc 0, build clean, diff-check clean.
+- PENDING: commit + push the fix; Render redeploys with it.
