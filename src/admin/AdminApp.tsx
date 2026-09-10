@@ -10,6 +10,7 @@ import { SalesPage }     from './pages/SalesPage';
 import { LoansPage }     from './pages/LoansPage';
 import { CashFlowPage }  from './pages/CashFlowPage';
 import { TestimonialsPage } from './pages/TestimonialsPage';
+import { HeroesPage } from './pages/HeroesPage';
 import { SettingsPage }  from './pages/SettingsPage';
 import { SecurityPage }  from './pages/SecurityPage';
 
@@ -71,6 +72,7 @@ export default function AdminApp() {
         <Route path="loans"          element={<Protected><LoansPage /></Protected>} />
         <Route path="cashflow"       element={<Protected><CashFlowPage /></Protected>} />
         <Route path="testimonials"   element={<Protected><TestimonialsPage /></Protected>} />
+        <Route path="heroes"         element={<Protected><HeroesPage /></Protected>} />
         <Route path="settings"       element={<Protected><SettingsPage /></Protected>} />
         <Route path="security"       element={<Protected><SecurityPage /></Protected>} />
         <Route path="*"              element={<Navigate to="/admin" replace />} />

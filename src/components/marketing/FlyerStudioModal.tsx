@@ -85,6 +85,16 @@ export const FlyerStudioModal: React.FC<FlyerStudioModalProps> = ({ isOpen, onCl
   const products = getEffectiveProducts();
   const activeProduct = getEffectiveProduct(productId) || products[0];
 
+  // Escape closes the flyer studio.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
+
   /* QR generation — real destination: /@slug product deep link */
   useEffect(() => {
     if (!form.qr || !distributor.slug) {
@@ -446,7 +456,7 @@ export const FlyerStudioModal: React.FC<FlyerStudioModalProps> = ({ isOpen, onCl
               </div>
             ) : loadError ? (
               <div className="py-12 text-center">
-                <AlertTriangle className="w-7 h-7 text-amber-500 mx-auto mb-3" />
+                <AlertTriangle className="w-7 h-7 text-warning-600 mx-auto mb-3" />
                 <p className="text-sm font-semibold text-gray-700">{loadError}</p>
                 <button
                   onClick={() => void loadCampaigns()}
@@ -487,7 +497,7 @@ export const FlyerStudioModal: React.FC<FlyerStudioModalProps> = ({ isOpen, onCl
                         <p className="text-[10px] text-gray-400 flex items-center gap-1.5 mt-0.5">
                           <span
                             className={`w-1.5 h-1.5 rounded-full ${
-                              c.status === 'published' ? 'bg-success' : c.status === 'archived' ? 'bg-gray-300' : 'bg-amber-400'
+                              c.status === 'published' ? 'bg-success' : c.status === 'archived' ? 'bg-gray-300' : 'bg-warning-600'
                             }`}
                           />
                           {statusLabel(c.status)} · {FLYER_FORMATS[c.format].label}
@@ -506,7 +516,7 @@ export const FlyerStudioModal: React.FC<FlyerStudioModalProps> = ({ isOpen, onCl
                               setErrorMsg(err instanceof Error ? err.message : 'Unpublish failed.');
                             }
                           }}
-                          className="p-1.5 rounded-md bg-white/90 border border-gray-200 text-gray-400 hover:text-amber-600 transition-colors outline-none"
+                          className="p-1.5 rounded-md bg-white/90 border border-gray-200 text-gray-400 hover:text-warning-600 transition-colors outline-none"
                           aria-label={sw ? 'Sitisha kuchapishwa' : 'Unpublish campaign'}
                           title={sw ? 'Sitisha kuchapishwa' : 'Unpublish'}
                         >
@@ -659,7 +669,7 @@ export const FlyerStudioModal: React.FC<FlyerStudioModalProps> = ({ isOpen, onCl
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-500 mb-1">{sw ? 'Kitendo (CTA)' : 'Call to action'}</label>
+                    <label className="block text-xs font-semibold text-gray-500 mb-1">{sw ? 'Maandishi ya Kitufe' : 'Button text'}</label>
                     <input
                       type="text"
                       value={form.cta}
@@ -693,7 +703,7 @@ export const FlyerStudioModal: React.FC<FlyerStudioModalProps> = ({ isOpen, onCl
 
               {/* Status / errors / gate */}
               {statusMsg && (
-                <div role="status" className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-md text-xs text-success font-semibold">
+                <div role="status" className="flex items-center gap-2 p-3 bg-success-50 border border-success-100 rounded-md text-xs text-success font-semibold">
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
                   {statusMsg}
                 </div>
@@ -708,7 +718,7 @@ export const FlyerStudioModal: React.FC<FlyerStudioModalProps> = ({ isOpen, onCl
                 </div>
               )}
               {gate && !gate.ok && (
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-md text-xs text-amber-800">
+                <div className="p-3 bg-warning-50 border border-warning-100 rounded-md text-xs text-warning-700">
                   <p className="font-semibold mb-1">{sw ? 'Kabla ya kuchapisha:' : 'Before publishing:'}</p>
                   <ul className="list-disc list-inside space-y-0.5">
                     {(sw ? gate.problemsSw : gate.problems).map((p) => (
@@ -748,7 +758,7 @@ export const FlyerStudioModal: React.FC<FlyerStudioModalProps> = ({ isOpen, onCl
                 <button
                   onClick={handleWhatsAppShare}
                   disabled={rendering}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-md text-success hover:bg-green-50 text-xs font-semibold transition-colors outline-none disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] rounded-md text-success hover:bg-success-50 text-xs font-semibold transition-colors outline-none disabled:opacity-50"
                 >
                   {rendering ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Share2 className="w-3.5 h-3.5" />}
                   WhatsApp
@@ -772,7 +782,7 @@ export const FlyerStudioModal: React.FC<FlyerStudioModalProps> = ({ isOpen, onCl
             <button
               onClick={handleWhatsAppShare}
               disabled={rendering}
-              className="p-2.5 min-h-[44px] min-w-[44px] rounded-md text-success hover:bg-green-50 transition-colors outline-none disabled:opacity-50"
+              className="p-2.5 min-h-[44px] min-w-[44px] rounded-md text-success hover:bg-success-50 transition-colors outline-none disabled:opacity-50"
               aria-label="WhatsApp"
             >
               {rendering ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : <Share2 className="w-4 h-4 mx-auto" />}

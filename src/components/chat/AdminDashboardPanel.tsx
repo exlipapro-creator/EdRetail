@@ -127,9 +127,11 @@ export const AdminDashboardPanel: React.FC<AdminDashboardPanelProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="px-2.5 py-0.5 bg-[#C5A059] text-stone-950 font-extrabold text-[10px] rounded-md uppercase tracking-wider">
-                Distributor Command Center
+                {lang === 'sw' ? 'Kituo cha Uendeshaji' : 'Distributor Command Center'}
               </span>
-              <span className="text-emerald-400 text-xs font-semibold">Live Real-time Sync</span>
+              <span className="text-emerald-400 text-xs font-semibold">
+                {lang === 'sw' ? 'Taarifa za Moja kwa Moja' : 'Live Real-time Sync'}
+              </span>
             </div>
             <h2 className="text-base sm:text-lg font-black text-white mt-1">
               {lang === 'sw' ? `Dashibodi ya ${distributor.name || 'Msambazaji'}` : `${distributor.name || 'Distributor'} Business Dashboard`}
@@ -200,7 +202,7 @@ export const AdminDashboardPanel: React.FC<AdminDashboardPanelProps> = ({
             }`}
           >
             <MessageSquare className="w-3.5 h-3.5" />
-            <span>{lang === 'sw' ? '🚨 Arifa za Siku 10 & Refill CRM' : '🚨 Day-10 Refill CRM'}</span>
+            <span>{lang === 'sw' ? 'Arifa za Siku 10 & Refill CRM' : 'Day-10 Refill CRM'}</span>
           </button>
         </div>
       </div>
@@ -758,7 +760,7 @@ export const AdminDashboardPanel: React.FC<AdminDashboardPanelProps> = ({
                     : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100'
                 }`}
               >
-                <div className="font-bold">🚨 {lang === 'sw' ? 'Siku ya 10: Mzigo Unakaribia' : 'Day 10: Refill Reminder'}</div>
+                <div className="font-bold">{lang === 'sw' ? 'Siku ya 10: Mzigo Unakaribia' : 'Day 10: Refill Reminder'}</div>
                 <div className="text-[10px] text-stone-500 mt-0.5">Zimebaki pakiti 2–3</div>
               </button>
 
@@ -771,8 +773,8 @@ export const AdminDashboardPanel: React.FC<AdminDashboardPanelProps> = ({
                     : 'bg-stone-50 border-stone-200 text-stone-600 hover:bg-stone-100'
                 }`}
               >
-                <div className="font-bold">🌱 {lang === 'sw' ? 'Siku ya 5: Kujulia Hali' : 'Day 5: Progress Check'}</div>
-                <div className="text-[10px] text-stone-500 mt-0.5">Kufuatilia tumbo kuwa jepesi</div>
+                <div className="font-bold">{lang === 'sw' ? 'Siku ya 5: Kujulia Hali' : 'Day 5: Progress Check'}</div>
+                <div className="text-[10px] text-stone-500 mt-0.5">{lang === 'sw' ? 'Kufuatilia tumbo kuwa jepesi' : 'Lean belly tracking'}</div>
               </button>
 
               <button
@@ -785,7 +787,7 @@ export const AdminDashboardPanel: React.FC<AdminDashboardPanelProps> = ({
                 }`}
               >
                 <div className="font-bold">{lang === 'sw' ? 'Hatua ya Pili: P4 Slimming' : 'Phase 2: Slimming Next Step'}</div>
-                <div className="text-[10px] text-stone-500 mt-0.5">Kutoka Shake Off kwenda MRT</div>
+                <div className="text-[10px] text-stone-500 mt-0.5">{lang === 'sw' ? 'Kutoka Shake Off kwenda MRT' : 'Shake Off to MRT transition'}</div>
               </button>
             </div>
           </div>
@@ -831,7 +833,7 @@ export const AdminDashboardPanel: React.FC<AdminDashboardPanelProps> = ({
                           <span className="text-[11px] text-stone-500">({sale.customerPhone})</span>
                         </div>
                         <p className="text-xs text-emerald-800 font-semibold mt-0.5">
-                          📦 {sale.productName} (x{sale.quantity}) • Tarehe: {new Date(sale.createdAt).toLocaleDateString()}
+                          {sale.productName} (x{sale.quantity}) • Tarehe: {new Date(sale.createdAt).toLocaleDateString()}
                         </p>
                       </div>
 
@@ -848,8 +850,8 @@ export const AdminDashboardPanel: React.FC<AdminDashboardPanelProps> = ({
                           {sale.refillStatus === 'reordered'
                             ? 'Ameongeza Oda'
                             : sale.refillStatus === 'followed_up'
-                            ? '💬 Nimeshamjulia Hali'
-                            : '⏰ Inasubiri Ufuatiliaji'}
+                            ? 'Nimeshamjulia Hali'
+                            : 'Inasubiri Ufuatiliaji'}
                         </span>
                       </div>
                     </div>
@@ -885,7 +887,7 @@ export const AdminDashboardPanel: React.FC<AdminDashboardPanelProps> = ({
                         className="px-3.5 py-1.5 rounded-xl bg-green-600 hover:bg-green-700 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-2xs transition-all"
                       >
                         <MessageSquare className="w-3.5 h-3.5" />
-                        <span>Tuma WhatsApp Papo Hapo</span>
+                        <span>{lang === 'sw' ? 'Tuma WhatsApp Papo Hapo' : 'Send WhatsApp Now'}</span>
                       </a>
                     </div>
                   </div>

@@ -6,81 +6,139 @@ import { getActiveWhatsAppLink } from '../utils/whatsappCompiler';
 import { useDistributorStore } from '../store/distributorStore';
 import { useLang } from '../context/LangContext';
 import { ScreenId } from './navigation/AppHeader';
-
-interface Slide {
-  id: string;
-  image: string;
-  titleEn: string;
-  titleSw: string;
-  ctaEn: string;
-  ctaSw: string;
-}
-
-/**
- * Hero banners are complete, art-directed marketing compositions supplied by
- * EdRetail (real product artwork). The artwork carries its own headline/copy,
- * so the carousel renders it clean — no duplicate text overlay — and adds
- * only a compact CTA row over a subtle bottom scrim.
- */
-const SLIDES: Slide[] = [
-  {
-    id: 'shake-off',
-    image: '/hero/hero-shakeoff.jpg',
-    titleEn: 'Shake Off Phyto Fiber',
-    titleSw: 'Shake Off Phyto Fiber',
-    ctaEn: 'Shop Shake Off',
-    ctaSw: 'Nunua Shake Off',
-  },
-  {
-    id: 'spirulina',
-    image: '/hero/hero-spirulina.jpg',
-    titleEn: 'Hawaiian Spirulina',
-    titleSw: 'Hawaiian Spirulina',
-    ctaEn: 'Shop Spirulina',
-    ctaSw: 'Nunua Spirulina',
-  },
-  {
-    id: 'troika',
-    image: '/hero/hero-troika.jpg',
-    titleEn: 'Café Troika Premium Coffee',
-    titleSw: 'Café Troika Kahawa Bora',
-    ctaEn: 'Shop Troika',
-    ctaSw: 'Nunua Troika',
-  },
-  {
-    id: 'cocollagen',
-    image: '/hero/hero-cocollagen.jpg',
-    titleEn: 'CoCollagen Chocolate Drink',
-    titleSw: 'Kinywaji cha CoCollagen',
-    ctaEn: 'Shop CoCollagen',
-    ctaSw: 'Nunua CoCollagen',
-  },
-];
+import { fetchPublishedHeroes, PublishedHero, isProductDestination, resolveProfileIdBySlug } from '../lib/heroes';
+import { Product } from '../types';
 
 const INTERVAL = 7000;
 
 interface HeroCarouselProps {
   onNavigate?: (screen: ScreenId) => void;
+  onSelectProduct?: (product: Product) => void;
 }
 
-export function HeroCarousel({ onNavigate }: HeroCarouselProps) {
+/**
+ * Hero banners come from persisted, published hero_slides records
+ * (global + active-distributor scope). The artwork carries its own
+ * headline/copy, so each slide renders clean — no duplicate text overlay —
+ * with only a compact CTA row over a subtle bottom scrim.
+ *
+ * Honest empty state: with zero published heroes we show a neutral
+ * EdRetail welcome band — no fake promotional content, and no hardcoded
+ * slides silently overriding valid published content.
+ */
+export function HeroCarousel({ onNavigate, onSelectProduct }: HeroCarouselProps) {
   const { lang } = useLang();
+  const [slides, setSlides] = useState<PublishedHero[]>([]);
+  const [loading, setLoading] = useState(true);
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
   const distributor = useDistributorStore((s) => s.getActiveDistributor());
-
-  const next = useCallback(() => {
-    setCurrent((c) => (c + 1) % SLIDES.length);
-  }, []);
+  const activeRefSlug = useDistributorStore((s) => s.activeRefSlug);
+  const products = useDistributorStore((s) => s.getEffectiveProducts());
 
   useEffect(() => {
-    if (paused) return;
+    let cancelled = false;
+    setLoading(true);
+    // The storefront's registry ids are presentation ids — hero ownership is
+    // keyed to the real distributor_profiles.id, so resolve the active ref
+    // slug against the DB. Unknown slugs resolve to null (global-only).
+    resolveProfileIdBySlug(activeRefSlug)
+      .then((profileId) => {
+        if (cancelled) return;
+        return fetchPublishedHeroes(profileId);
+      })
+      .then((rows) => {
+        if (cancelled || !rows) return;
+        setSlides(rows);
+        setCurrent(0);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setSlides([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeRefSlug]);
+
+  const next = useCallback(() => {
+    setCurrent((c) => (c + 1) % Math.max(slides.length, 1));
+  }, [slides.length]);
+
+  useEffect(() => {
+    if (paused || slides.length < 2) return;
     const t = setInterval(next, INTERVAL);
     return () => clearInterval(t);
-  }, [next, paused]);
+  }, [next, paused, slides.length]);
 
-  const slide = SLIDES[current];
-  const title = lang === 'sw' ? slide.titleSw : slide.titleEn;
+  // Loading: keep the previous carousel height without flashing content.
+  if (loading) {
+    return <div className="w-full min-h-[260px] sm:min-h-[300px] bg-stone-100 animate-pulse" aria-hidden />;
+  }
+
+  // Honest neutral state — no fake promotions when nothing is published.
+  if (slides.length === 0) {
+    return (
+      <section
+        id="featured-wellness-banner"
+        className="relative rounded-none sm:rounded-3xl overflow-hidden bg-primary-600 border-y sm:border border-primary-700 sm:border-stone-200/80 shadow-none sm:shadow-2xs w-full"
+      >
+        <div className="relative w-full min-h-[200px] sm:min-h-[220px] flex flex-col items-center justify-center gap-3 px-6 text-center">
+          <img src="/logo/wordmark.png" alt="ED Retail Tanzania" className="h-8 w-auto object-contain opacity-95" />
+          <div>
+            <h2 className="text-white font-extrabold text-lg sm:text-xl tracking-tight">
+              {lang === 'sw' ? 'Bidhaa halisi za Edmark Tanzania' : 'Genuine Edmark wellness products in Tanzania'}
+            </h2>
+            <p className="text-primary-100 text-xs sm:text-sm mt-1 max-w-md mx-auto">
+              {lang === 'sw'
+                ? 'Kutoka kwa msambazaji wako wa karibu — dhamana ya uhalisi kila agizo.'
+                : 'Delivered by your local authorized distributor — authenticity guaranteed on every order.'}
+            </p>
+          </div>
+          <button
+            onClick={() => onNavigate?.('products')}
+            className="px-4 py-2 bg-white text-primary-700 rounded-xl text-xs font-black shadow-xs transition-colors cursor-pointer hover:bg-primary-50 flex items-center gap-1.5"
+          >
+            <ShoppingCart className="w-3.5 h-3.5" />
+            {lang === 'sw' ? 'Tazama Bidhaa' : 'Shop Products'}
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  const slide = slides[Math.min(current, slides.length - 1)];
+  const title = lang === 'sw' ? slide.headline_sw || slide.headline_en : slide.headline_en || slide.headline_sw;
+  const ctaLabel = lang === 'sw' ? slide.cta_sw || slide.cta_en : slide.cta_en || slide.cta_sw;
+  const subhead = lang === 'sw' ? slide.subhead_sw || slide.subhead_en : slide.subhead_en || slide.subhead_sw;
+
+  // Resolve the CTA to a real destination. A product that no longer exists
+  // falls back to the catalog screen — never a dead button.
+  const handleCta = () => {
+    if (isProductDestination(slide.cta_destination)) {
+      const pid = slide.cta_destination.slice('product:'.length);
+      const product = products.find((p) => p.id === pid);
+      if (product && onSelectProduct) {
+        onSelectProduct(product);
+        return;
+      }
+      onNavigate?.('products');
+      return;
+    }
+    if (slide.cta_destination === 'goals') {
+      onNavigate?.('goals');
+      return;
+    }
+    if (slide.cta_destination === 'whatsapp') {
+      const link = getActiveWhatsAppLink();
+      if (link) window.open(link, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    onNavigate?.('products');
+  };
 
   return (
     <section
@@ -100,8 +158,8 @@ export function HeroCarousel({ onNavigate }: HeroCarouselProps) {
             transition={motionTokens.easings.heroFade}
           >
             <img
-              src={slide.image}
-              alt={title}
+              src={slide.imageUrl || '/logo/wordmark.png'}
+              alt={subhead ? `${title}. ${subhead}` : title}
               className="w-full h-full object-cover object-center"
             />
           </motion.div>
@@ -112,39 +170,43 @@ export function HeroCarousel({ onNavigate }: HeroCarouselProps) {
 
         {/* CTA row */}
         <div className="absolute bottom-3 left-4 z-20 flex flex-wrap items-center gap-2.5">
-          <button
-            onClick={() => onNavigate ? onNavigate('products') : undefined}
-            className="px-4 py-2 bg-[#123B6D] hover:bg-[#0D315D] text-white rounded-xl text-xs font-black shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer border border-white/20"
-          >
-            <ShoppingCart className="w-3.5 h-3.5" />
-            <span>{lang === 'sw' ? slide.ctaSw : slide.ctaEn}</span>
-          </button>
+          {ctaLabel && (
+            <button
+              onClick={handleCta}
+              className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-xs font-black shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer border border-white/20"
+            >
+              <ShoppingCart className="w-3.5 h-3.5" />
+              <span>{ctaLabel}</span>
+            </button>
+          )}
 
           <a
             href={getActiveWhatsAppLink(
-              `Habari ${distributor.name}, ninahitaji maelezo na kuagiza ${title}:`
+              lang === 'sw'
+                ? `Habari ${distributor.name}, ninaomba maelezo na kuagiza ${title}:`
+                : `Hello ${distributor.name}, I would like more details and to order ${title}:`
             )}
             target="_blank"
             rel="noopener noreferrer"
             className="px-3.5 py-2 bg-white/15 hover:bg-white/25 text-white border border-white/30 rounded-xl text-xs font-bold backdrop-blur-xs transition-colors flex items-center gap-1.5"
           >
-            <MessageCircle className="w-3.5 h-3.5 text-[#0E6B52]" />
+            <MessageCircle className="w-3.5 h-3.5 text-success-600" />
             <span>{lang === 'sw' ? 'Uliza WhatsApp' : 'Ask on WhatsApp'}</span>
           </a>
         </div>
 
         {/* Carousel Indicators */}
         <div className="absolute bottom-5 right-4 z-20 flex gap-1.5">
-          {SLIDES.map((s, i) => (
+          {slides.map((s, i) => (
             <button
               key={s.id}
               onClick={() => {
                 setCurrent(i);
                 setPaused(true);
               }}
-              aria-label={`Slide ${i + 1}`}
+              aria-label={`${lang === 'sw' ? 'Slaidi' : 'Slide'} ${i + 1}`}
               className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                i === current ? 'w-6 bg-emerald-400' : 'w-2 bg-white/40 hover:bg-white/70'
+                i === current ? 'w-6 bg-gold-400' : 'w-2 bg-white/40 hover:bg-white/70'
               }`}
             />
           ))}

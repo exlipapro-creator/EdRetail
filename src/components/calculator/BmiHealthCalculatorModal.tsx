@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calculator, ArrowRight } from 'lucide-react';
 import { BmiHealthCalculator } from './BmiHealthCalculator';
@@ -19,6 +19,16 @@ export const BmiHealthCalculatorModal: React.FC<BmiHealthCalculatorModalProps> =
   onOpenGoalFinder,
 }) => {
   const { lang } = useLang();
+
+  // Escape closes the calculator.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -100,7 +110,7 @@ export const BmiHealthCalculatorModal: React.FC<BmiHealthCalculatorModalProps> =
                     onClose();
                     onOpenGoalFinder();
                   }}
-                  className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>{lang === 'sw' ? 'Tazama Pakiti (Bundles)' : 'View Goal Bundles'}</span>
                   <ArrowRight className="w-3.5 h-3.5" />

@@ -5,11 +5,20 @@ import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
 import { CartBadge } from '../CartBadge';
 import { useLang } from '../../context/LangContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 
-export type ScreenId = 'home' | 'products' | 'goals' | 'delivery' | 'distributor' | 'favourites' | 'help' | 'flyers';
+export type ScreenId =
+  | 'home'
+  | 'products'
+  | 'goals'
+  | 'delivery'
+  | 'distributor-login'
+  | 'favourites'
+  | 'help'
+  | 'flyers'
+  | 'legal';
 
 interface AppHeaderProps {
   currentScreen: ScreenId;
@@ -18,10 +27,11 @@ interface AppHeaderProps {
   onOpenSearch?: () => void;
   searchValue?: string;
   onSearchChange?: (v: string) => void;
-  onOpenDistributorAuth?: () => void;
-  onOpenBackOffice?: () => void;
-  onOpenStoreLinkModal?: () => void;
   onOpenCustomerAuth?: () => void;
+  /** Fired when the global search gains focus (may navigate to Products). */
+  onSearchFocus?: () => void;
+  /** Where header Back should return (origin screen when search-driven). */
+  backTarget?: ScreenId;
 }
 
 export function AppHeader({
@@ -31,6 +41,8 @@ export function AppHeader({
   onOpenCustomerAuth,
   searchValue = '',
   onSearchChange,
+  onSearchFocus,
+  backTarget = 'home',
 }: AppHeaderProps) {
   const { lang, setLang } = useLang();
   const navigate = useNavigate();
@@ -39,6 +51,16 @@ export function AppHeader({
   const isAdminAuthenticated = useDistributorStore((s) => s.isAdminAuthenticated);
   const setAdminAuthenticated = useDistributorStore((s) => s.setAdminAuthenticated);
   const { status, greetingName } = useCustomerAuth();
+
+  // Contextual back label — honest about the destination instead of a hardcoded
+  // "Home". Direct Products navigation (bottom nav, category links) still
+  // returns Home via the default.
+  const backLabel =
+    backTarget === 'goals'
+      ? (lang === 'sw' ? 'Rudi Malengo' : 'Back to Goals')
+      : backTarget === 'delivery'
+        ? (lang === 'sw' ? 'Rudi Uwasilishaji' : 'Back to Delivery')
+        : (lang === 'sw' ? 'Rudi Nyumbani' : 'Back to Home');
 
   // The store flag is UI-only and never persisted; re-derive it from the real
   // Supabase session AND the server-side role on every header mount. A plain
@@ -88,12 +110,12 @@ export function AppHeader({
       <div className="max-w-6xl mx-auto px-4 py-2.5 sm:py-3 flex items-center justify-between gap-4">
         {/* Left: Brand / Logo or Back Button if in sub-screen */}
         <div className="flex items-center gap-3">
-          {currentScreen !== 'home' && (
+          {currentScreen !== 'home' && currentScreen !== 'distributor-login' && (
             <button
               id="header-back-btn"
-              onClick={() => onNavigate('home')}
+              onClick={() => onNavigate(backTarget)}
               className="p-2 -ml-1 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors sm:hidden cursor-pointer"
-              aria-label={lang === 'sw' ? 'Rudi Nyumbani' : 'Back to Home'}
+              aria-label={backLabel}
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -110,8 +132,8 @@ export function AppHeader({
               className="h-8 sm:h-9 w-auto object-contain"
             />
             <div className="hidden sm:flex flex-col">
-              <span className="text-[10px] font-black text-emerald-800 uppercase tracking-wider flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-emerald-600 inline" />
+              <span className="text-[10px] font-black text-success-700 uppercase tracking-wider flex items-center gap-1">
+                <ShieldCheck className="w-3 h-3 text-success-600 inline" />
                 {lang === 'sw' ? 'Msambazaji Rasmi' : 'Authorized Distributor'}
               </span>
               <span className="text-[10px] text-neutral-500 font-medium leading-none">
@@ -181,7 +203,7 @@ export function AppHeader({
             className="relative p-2 sm:px-3.5 sm:py-2 bg-[#123B6D] hover:bg-[#0D315D] text-white rounded-xl shadow-xs transition-colors flex items-center gap-2 cursor-pointer"
             onClick={onOpenCart}
             whileTap={{ scale: 0.92 }}
-            aria-label={lang === 'sw' ? `Kikapu chenye bidhaa ${totalItems}` : `Cart with ${totalItems} items`}
+            aria-label={lang === 'sw' ? `Mkoba chenye bidhaa ${totalItems}` : `Cart with ${totalItems} items`}
           >
             <ShoppingCart className="w-4 h-4 sm:w-4.5 sm:h-4.5" strokeWidth={2.2} />
             <span className="hidden sm:inline text-xs font-black tracking-tight">
@@ -196,13 +218,13 @@ export function AppHeader({
           {status === 'authenticated' ? (
             <div
               id="header-account-authenticated"
-              className="flex items-center gap-1.5 p-1 pl-2 rounded-xl border border-emerald-200 bg-emerald-50"
+              className="flex items-center gap-1.5 p-1 pl-2 rounded-xl border border-primary-200 bg-primary-50"
               title={greetingName || undefined}
             >
-              <span className="hidden sm:flex w-6 h-6 rounded-full bg-emerald-600 text-white items-center justify-center text-[10px] font-black uppercase">
+              <span className="hidden sm:flex w-6 h-6 rounded-full bg-primary-600 text-white items-center justify-center text-[10px] font-black uppercase">
                 {(greetingName || 'E').slice(0, 1)}
               </span>
-              <span className="hidden md:inline text-xs font-black text-emerald-900 max-w-[90px] truncate">
+              <span className="hidden md:inline text-xs font-black text-primary-800 max-w-[90px] truncate">
                 {greetingName || (lang === 'sw' ? 'Akaunti' : 'Account')}
               </span>
               <button
@@ -214,7 +236,7 @@ export function AppHeader({
                     // session may already be gone
                   }
                 }}
-                className="p-1.5 rounded-lg text-emerald-800 hover:bg-emerald-100 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-primary-800 hover:bg-primary-100 transition-colors cursor-pointer"
                 aria-label={lang === 'sw' ? 'Toka' : 'Sign out'}
                 title={lang === 'sw' ? 'Toka' : 'Sign out'}
               >
@@ -235,22 +257,9 @@ export function AppHeader({
               </span>
             </button>
           )}
-          <Link
-            to="/portal"
-            id="distributor-portal-link"
-            className={`hidden sm:flex p-2 px-3 rounded-xl border transition-all items-center gap-1.5 cursor-pointer shadow-2xs ${
-              isAdminAuthenticated
-                ? 'border-emerald-600 bg-emerald-50 text-emerald-900 hover:bg-emerald-100'
-                : 'border-neutral-300 bg-neutral-100/80 hover:bg-neutral-200 text-neutral-800'
-            }`}
-            title="Distributor Back-Office Login"
-            aria-label="Distributor Back-Office"
-          >
-            <ShieldCheck className={`w-4 h-4 ${isAdminAuthenticated ? 'text-emerald-600' : 'text-neutral-600'}`} />
-            <span className="text-xs font-black">
-              {isAdminAuthenticated ? (lang === 'sw' ? 'Ofisi Yangu' : 'My Back-Office') : (lang === 'sw' ? 'Msambazaji' : 'Distributor Portal')}
-            </span>
-          </Link>
+          {/* Distributor portal entry intentionally removed from the customer
+              header — hidden access via the Goals 3-pull gesture only. An
+              authenticated distributor's sign-out remains available below. */}
 
           {/* Sign Out — visible at ALL breakpoints when authenticated. Mobile
               has no other account surface (the portal link is sm+ only), so an
@@ -303,9 +312,7 @@ export function AppHeader({
             type="search"
             value={searchValue}
             onChange={(e) => onSearchChange?.(e.target.value)}
-            onFocus={() => {
-              if (currentScreen !== 'products') onNavigate('products');
-            }}
+            onFocus={() => onSearchFocus?.()}
             placeholder={
               lang === 'sw'
                 ? 'Tafuta bidhaa... (Shake Off, Spirulina, MRT)'

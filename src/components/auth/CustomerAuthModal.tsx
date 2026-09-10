@@ -80,7 +80,7 @@ export function CustomerAuthModal({ isOpen, onClose }: CustomerAuthModalProps) {
   const validateEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
   const inputBase =
-    'w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:border-[#123B6D] focus:ring-2 focus:ring-[#123B6D]/10 outline-none transition-all';
+    'w-full pl-10 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:border-primary-600 focus:ring-2 focus:ring-primary-600/10 outline-none transition-all';
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,7 +165,7 @@ export function CustomerAuthModal({ isOpen, onClose }: CustomerAuthModalProps) {
     <button
       type="button"
       onClick={resetAndClose}
-      className="w-full py-2.5 text-xs font-bold text-neutral-500 hover:text-neutral-800 transition-colors cursor-pointer"
+      className="w-full py-2 text-xs font-bold text-neutral-500 hover:text-neutral-800 transition-colors cursor-pointer"
     >
       {lang === 'sw' ? 'Endelea kuvinjari bila akaunti' : 'Continue shopping as guest'}
     </button>
@@ -180,7 +180,7 @@ export function CustomerAuthModal({ isOpen, onClose }: CustomerAuthModalProps) {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto"
+        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/60 backdrop-blur-xs"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -191,33 +191,31 @@ export function CustomerAuthModal({ isOpen, onClose }: CustomerAuthModalProps) {
           role="dialog"
           aria-modal="true"
           aria-label={lang === 'sw' ? 'Uthibitisho wa Akaunti' : 'Account Sign In'}
-          className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-neutral-200/70 overflow-hidden"
-          initial={{ opacity: 0, y: 18, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 12, scale: 0.98 }}
-          transition={{ duration: 0.18 }}
+          className="w-full sm:max-w-sm bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl border border-neutral-200/70 overflow-hidden max-h-[92dvh] sm:max-h-[85vh] flex flex-col"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 40 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Brand + close */}
-          <div className="relative flex flex-col items-center pt-7 pb-5 px-6 border-b border-neutral-100">
+          {/* Compact brand row + close — auth is a focused utility task, not a
+              marketing panel. Logo stays small and anchored to the left. */}
+          <div className="flex items-center justify-between px-5 pt-3 pb-2.5 border-b border-neutral-100 shrink-0">
+            <img src="/logo/wordmark.png" alt="ED Retail Tanzania" className="h-6 w-auto object-contain" />
             <button
               onClick={onClose}
-              className="absolute top-3.5 right-3.5 p-2 rounded-xl text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors cursor-pointer"
-              aria-label="Close"
+              className="p-2 -mr-1.5 rounded-xl text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors cursor-pointer"
+              aria-label={lang === 'sw' ? 'Funga' : 'Close'}
             >
-              <X className="w-4.5 h-4.5" />
+              <X className="w-4 h-4" />
             </button>
-            <img src="/logo/wordmark.png" alt="ED Retail Tanzania" className="h-8 w-auto object-contain" />
-            <p className="text-[11px] text-neutral-500 mt-2">
-              {lang === 'sw' ? 'Duka la Afya la Edmark Tanzania' : 'Edmark wellness, delivered in Tanzania'}
-            </p>
           </div>
 
-          <div className="p-6 sm:p-7">
+          <div className="px-5 pt-3.5 pb-5 sm:p-6 overflow-y-auto">
             {notice ? (
               /* ── Signup email-confirmation notice ── */
               <div className="text-center space-y-4 py-2">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
+                <div className="w-12 h-12 rounded-2xl bg-success-50 text-success-600 flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
                 <h2 className="text-lg font-extrabold text-neutral-900">
@@ -226,7 +224,7 @@ export function CustomerAuthModal({ isOpen, onClose }: CustomerAuthModalProps) {
                 <p className="text-xs text-neutral-500 leading-relaxed max-w-xs mx-auto">{notice}</p>
                 <button
                   onClick={resetAndClose}
-                  className="w-full py-3 bg-[#123B6D] hover:bg-[#0D315D] text-white rounded-xl text-sm font-black transition-colors cursor-pointer"
+                  className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-black transition-colors cursor-pointer"
                 >
                   {lang === 'sw' ? 'Endelea kuvinjari' : 'Continue shopping'}
                 </button>
@@ -235,12 +233,12 @@ export function CustomerAuthModal({ isOpen, onClose }: CustomerAuthModalProps) {
               <>
                 {/* ── SIGN IN ── */}
                 {mode === 'signin' && (
-                  <form onSubmit={handleSignIn} className="space-y-4" noValidate>
+                  <form onSubmit={handleSignIn} className="space-y-3" noValidate>
                     <div>
-                      <h2 className="text-lg font-extrabold text-neutral-900">
+                      <h2 className="text-lg font-extrabold text-neutral-900 leading-tight">
                         {lang === 'sw' ? 'Karibu tena' : 'Welcome back'}
                       </h2>
-                      <p className="text-xs text-neutral-500 mt-0.5">
+                      <p className="text-xs text-neutral-500 mt-0">
                         {lang === 'sw' ? 'Ingia kwenye akaunti yako ya EdRetail.' : 'Sign in to your EdRetail account.'}
                       </p>
                     </div>
@@ -274,7 +272,7 @@ export function CustomerAuthModal({ isOpen, onClose }: CustomerAuthModalProps) {
                         <button
                           type="button"
                           onClick={() => switchMode('forgot')}
-                          className="text-[11px] font-bold text-[#123B6D] hover:text-[#0D315D] cursor-pointer"
+                          className="text-[11px] font-bold text-primary-700 hover:text-primary-800 cursor-pointer"
                         >
                           {lang === 'sw' ? 'Umesahau?' : 'Forgot password?'}
                         </button>
@@ -303,13 +301,13 @@ export function CustomerAuthModal({ isOpen, onClose }: CustomerAuthModalProps) {
                     <button
                       type="submit"
                       disabled={busy}
-                      className="w-full py-3 bg-[#123B6D] hover:bg-[#0D315D] text-white rounded-xl text-sm font-black transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="w-full py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-black transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {busy && <Loader2 className="w-4 h-4 animate-spin" />}
                       {lang === 'sw' ? 'Ingia' : 'Sign in'}
                     </button>
 
-                    <div className="flex items-center gap-3 py-1">
+                    <div className="flex items-center gap-3 py-0.5">
                       <span className="flex-1 h-px bg-neutral-200" />
                       <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400">
                         {lang === 'sw' ? 'au' : 'or'}
@@ -321,7 +319,7 @@ export function CustomerAuthModal({ isOpen, onClose }: CustomerAuthModalProps) {
                       type="button"
                       onClick={handleGoogle}
                       disabled={busy}
-                      className="w-full py-3 bg-white hover:bg-neutral-50 border border-neutral-300 rounded-xl text-sm font-bold text-neutral-800 transition-colors cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2.5"
+                      className="w-full py-2.5 bg-white hover:bg-neutral-50 border border-neutral-300 rounded-xl text-sm font-bold text-neutral-800 transition-colors cursor-pointer disabled:opacity-60 flex items-center justify-center gap-2.5"
                     >
                       <svg width="17" height="17" viewBox="0 0 48 48" aria-hidden="true">
                         <path
@@ -349,7 +347,7 @@ export function CustomerAuthModal({ isOpen, onClose }: CustomerAuthModalProps) {
                       <button
                         type="button"
                         onClick={() => switchMode('signup')}
-                        className="font-black text-[#123B6D] hover:text-[#0D315D] cursor-pointer"
+                        className="font-black text-primary-700 hover:text-primary-800 cursor-pointer"
                       >
                         {lang === 'sw' ? 'Fungua akaunti' : 'Create an account'}
                       </button>
@@ -361,7 +359,7 @@ export function CustomerAuthModal({ isOpen, onClose }: CustomerAuthModalProps) {
 
                 {/* ── SIGN UP ── */}
                 {mode === 'signup' && (
-                  <form onSubmit={handleSignUp} className="space-y-4" noValidate>
+                  <form onSubmit={handleSignUp} className="space-y-3" noValidate>
                     <div>
                       <button
                         type="button"
@@ -459,7 +457,7 @@ export function CustomerAuthModal({ isOpen, onClose }: CustomerAuthModalProps) {
                     <button
                       type="submit"
                       disabled={busy}
-                      className="w-full py-3 bg-[#123B6D] hover:bg-[#0D315D] text-white rounded-xl text-sm font-black transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="w-full py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-black transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {busy && <Loader2 className="w-4 h-4 animate-spin" />}
                       {lang === 'sw' ? 'Fungua Akaunti' : 'Create account'}
@@ -470,7 +468,7 @@ export function CustomerAuthModal({ isOpen, onClose }: CustomerAuthModalProps) {
                       <button
                         type="button"
                         onClick={() => switchMode('signin')}
-                        className="font-black text-[#123B6D] hover:text-[#0D315D] cursor-pointer"
+                        className="font-black text-primary-700 hover:text-primary-800 cursor-pointer"
                       >
                         {lang === 'sw' ? 'Ingia' : 'Sign in'}
                       </button>
@@ -482,7 +480,7 @@ export function CustomerAuthModal({ isOpen, onClose }: CustomerAuthModalProps) {
 
                 {/* ── FORGOT PASSWORD ── */}
                 {mode === 'forgot' && (
-                  <form onSubmit={handleForgot} className="space-y-4" noValidate>
+                  <form onSubmit={handleForgot} className="space-y-3" noValidate>
                     <div>
                       <button
                         type="button"
@@ -526,7 +524,7 @@ export function CustomerAuthModal({ isOpen, onClose }: CustomerAuthModalProps) {
                     <button
                       type="submit"
                       disabled={busy}
-                      className="w-full py-3 bg-[#123B6D] hover:bg-[#0D315D] text-white rounded-xl text-sm font-black transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="w-full py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-black transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
                       {busy && <Loader2 className="w-4 h-4 animate-spin" />}
                       {lang === 'sw' ? 'Tuma Kiungo' : 'Send reset link'}
@@ -539,7 +537,7 @@ export function CustomerAuthModal({ isOpen, onClose }: CustomerAuthModalProps) {
                 {/* ── RESET EMAIL SENT ── */}
                 {mode === 'sent' && (
                   <div className="text-center space-y-4 py-2">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
+                    <div className="w-12 h-12 rounded-2xl bg-success-50 text-success-600 flex items-center justify-center mx-auto">
                       <CheckCircle2 className="w-6 h-6" />
                     </div>
                     <h2 className="text-lg font-extrabold text-neutral-900">
@@ -552,7 +550,7 @@ export function CustomerAuthModal({ isOpen, onClose }: CustomerAuthModalProps) {
                     </p>
                     <button
                       onClick={() => switchMode('signin')}
-                      className="w-full py-3 bg-[#123B6D] hover:bg-[#0D315D] text-white rounded-xl text-sm font-black transition-colors cursor-pointer"
+                      className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-black transition-colors cursor-pointer"
                     >
                       {lang === 'sw' ? 'Rudi kuingia' : 'Back to sign in'}
                     </button>

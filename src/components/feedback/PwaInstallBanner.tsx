@@ -126,7 +126,7 @@ export function PwaInstallBanner() {
                   </button>
                 </>
               ) : (
-                <div className="flex items-center gap-1 text-green-600 text-xs font-semibold">
+                <div className="flex items-center gap-1 text-success-600 text-xs font-semibold">
                   <CheckCircle className="w-4 h-4" />
                   <span>{lang === 'sw' ? 'Imekamilika!' : 'Installed!'}</span>
                 </div>

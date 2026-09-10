@@ -109,7 +109,7 @@ export function CustomerResetPasswordPage() {
             ) : !ready ? (
               /* No recovery session — the link is missing, expired, or used. */
               <div className="text-center space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
+                <div className="w-12 h-12 rounded-2xl bg-warning-50 text-warning-600 flex items-center justify-center mx-auto">
                   <AlertTriangle className="w-6 h-6" />
                 </div>
                 <h1 className="text-lg font-extrabold text-neutral-900">
@@ -129,7 +129,7 @@ export function CustomerResetPasswordPage() {
               </div>
             ) : success ? (
               <div className="text-center space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
+                <div className="w-12 h-12 rounded-2xl bg-success-50 text-success-600 flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
                 <h1 className="text-lg font-extrabold text-neutral-900">

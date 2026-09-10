@@ -102,7 +102,7 @@ export const ClientCareCrmPanel: React.FC<ClientCareCrmPanelProps> = ({ lang }) 
                 : 'bg-white border-gray-200 text-gray-500 hover:text-gray-900 hover:border-gray-300'
             }`}
           >
-            <div className="font-semibold text-gray-900">🚨 {lang === 'sw' ? 'Siku 10: Mzigo Unakaribia' : 'Day 10: Refill Reminder'}</div>
+            <div className="font-semibold text-gray-900">{lang === 'sw' ? 'Siku 10: Mzigo Unakaribia' : 'Day 10: Refill Reminder'}</div>
             <div className="text-[11px] text-gray-400 mt-1">Zimebaki pakiti 2–3 za dozi</div>
           </button>
 
@@ -115,8 +115,8 @@ export const ClientCareCrmPanel: React.FC<ClientCareCrmPanelProps> = ({ lang }) 
                 : 'bg-white border-gray-200 text-gray-500 hover:text-gray-900 hover:border-gray-300'
             }`}
           >
-            <div className="font-semibold text-gray-900">🌱 {lang === 'sw' ? 'Siku 5: Kujulia Hali' : 'Day 5: Progress Check'}</div>
-            <div className="text-[11px] text-gray-400 mt-1">Kufuatilia tumbo kuwa jepesi</div>
+            <div className="font-semibold text-gray-900">{lang === 'sw' ? 'Siku 5: Kujulia Hali' : 'Day 5: Progress Check'}</div>
+            <div className="text-[11px] text-gray-400 mt-1">{lang === 'sw' ? 'Kufuatilia tumbo kuwa jepesi' : 'Lean belly tracking'}</div>
           </button>
 
           <button
@@ -129,7 +129,7 @@ export const ClientCareCrmPanel: React.FC<ClientCareCrmPanelProps> = ({ lang }) 
             }`}
           >
             <div className="font-semibold text-gray-900">{lang === 'sw' ? 'Hatua ya Pili: P4 Slimming' : 'Phase 2: Slimming Next Step'}</div>
-            <div className="text-[11px] text-gray-400 mt-1">Kutoka Shake Off kwenda MRT</div>
+            <div className="text-[11px] text-gray-400 mt-1">{lang === 'sw' ? 'Kutoka Shake Off kwenda MRT' : 'Shake Off to MRT transition'}</div>
           </button>
         </div>
       </div>

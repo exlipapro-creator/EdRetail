@@ -3,49 +3,58 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Package, ShoppingBag, CreditCard,
   TrendingUp, LogOut, Menu, X, Star, Users, Settings,
-  ShieldCheck,
+  ShieldCheck, Image as ImageIcon,
 } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { can, Permission } from '../../lib/permissions';
+import { useLang } from '../../context/LangContext';
 
-type NavItem = { to: string; icon: typeof LayoutDashboard; label: string; permission: Permission };
+/** Bilingual label (canonical terms per docs/i18n-glossary.md). */
+type Bi = { en: string; sw: string };
+const tr = (lang: 'en' | 'sw') => (s: Bi) => (lang === 'sw' ? s.sw : s.en);
 
-const NAV_GROUPS: Array<{ label: string; items: NavItem[] }> = [
+type NavItem = { to: string; icon: typeof LayoutDashboard; label: Bi; permission: Permission };
+
+const NAV_GROUPS: Array<{ label: Bi; items: NavItem[] }> = [
   {
-    label: 'Overview',
-    items: [{ to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard', permission: 'VIEW_PLATFORM_DASHBOARD' }],
+    label: { en: 'Overview', sw: 'Muhtasari' },
+    items: [{ to: '/admin/dashboard', icon: LayoutDashboard, label: { en: 'Dashboard', sw: 'Dashibodi' }, permission: 'VIEW_PLATFORM_DASHBOARD' }],
   },
   {
-    label: 'Catalog',
-    items: [{ to: '/admin/products', icon: Package, label: 'Products', permission: 'MANAGE_ALL_PRODUCTS' }],
+    label: { en: 'Catalog', sw: 'Katalogi' },
+    items: [{ to: '/admin/products', icon: Package, label: { en: 'Products', sw: 'Bidhaa' }, permission: 'MANAGE_ALL_PRODUCTS' }],
   },
   {
-    label: 'Commerce',
+    label: { en: 'Commerce', sw: 'Biashara' },
     items: [
-      { to: '/admin/sales', icon: ShoppingBag, label: 'Sales', permission: 'VIEW_ALL_SALES' },
-      { to: '/admin/cashflow', icon: TrendingUp, label: 'Cash Flow', permission: 'MANAGE_CASH_FLOW' },
-      { to: '/admin/loans', icon: CreditCard, label: 'Loans', permission: 'MANAGE_LOANS' },
+      { to: '/admin/sales', icon: ShoppingBag, label: { en: 'Sales', sw: 'Mauzo' }, permission: 'VIEW_ALL_SALES' },
+      { to: '/admin/cashflow', icon: TrendingUp, label: { en: 'Cash Flow', sw: 'Mtiririko wa Fedha' }, permission: 'MANAGE_CASH_FLOW' },
+      { to: '/admin/loans', icon: CreditCard, label: { en: 'Loans', sw: 'Mikopo' }, permission: 'MANAGE_LOANS' },
     ],
   },
   {
-    label: 'People',
-    items: [{ to: '/admin/distributors', icon: Users, label: 'Distributors', permission: 'MANAGE_ALL_DISTRIBUTORS' }],
+    label: { en: 'People', sw: 'Watu' },
+    items: [{ to: '/admin/distributors', icon: Users, label: { en: 'Distributors', sw: 'Wasambazaji' }, permission: 'MANAGE_ALL_DISTRIBUTORS' }],
   },
   {
-    label: 'Engagement',
-    items: [{ to: '/admin/testimonials', icon: Star, label: 'Reviews', permission: 'MANAGE_REVIEWS' }],
+    label: { en: 'Engagement', sw: 'Mahusiano' },
+    items: [
+      { to: '/admin/testimonials', icon: Star, label: { en: 'Reviews', sw: 'Maoni' }, permission: 'MANAGE_REVIEWS' },
+      { to: '/admin/heroes', icon: ImageIcon, label: { en: 'Storefront Banners', sw: 'Mabango ya Duka' }, permission: 'MANAGE_STOREFRONT_CONTENT' },
+    ],
   },
   {
-    label: 'System',
-    items: [{ to: '/admin/settings', icon: Settings, label: 'Settings & Backups', permission: 'MANAGE_SYSTEM_SETTINGS' }],
+    label: { en: 'System', sw: 'Mfumo' },
+    items: [{ to: '/admin/settings', icon: Settings, label: { en: 'Settings & Backups', sw: 'Mipangilio & Hifadhi' }, permission: 'MANAGE_SYSTEM_SETTINGS' }],
   },
 ];
 
 const ACCOUNT_ITEMS: NavItem[] = [
-  { to: '/admin/security', icon: ShieldCheck, label: 'Security', permission: 'MANAGE_ADMIN_SECURITY' },
+  { to: '/admin/security', icon: ShieldCheck, label: { en: 'Security', sw: 'Usalama' }, permission: 'MANAGE_ADMIN_SECURITY' },
 ];
 
 function NavItemLink({ item, onClick }: { item: NavItem; onClick?: () => void }) {
+  const { lang } = useLang();
   return (
     <NavLink
       key={item.to}
@@ -60,21 +69,23 @@ function NavItemLink({ item, onClick }: { item: NavItem; onClick?: () => void })
       }
     >
       <item.icon className="w-4 h-4 shrink-0" />
-      {item.label}
+      {tr(lang)(item.label)}
     </NavLink>
   );
 }
 
 function NavItems({ onNavigate }: { onNavigate?: () => void }) {
+  const { lang } = useLang();
+  const t = tr(lang);
   return (
-    <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto" aria-label="Admin sections">
+    <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto" aria-label={lang === 'sw' ? 'Sehemu za usimamizi' : 'Admin sections'}>
       {NAV_GROUPS.map((group) => {
         const visible = group.items.filter((item) => can('SUPER_ADMIN', item.permission));
         if (visible.length === 0) return null;
         return (
-          <div key={group.label}>
+          <div key={group.label.en}>
             <p className="px-3 pb-1 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
-              {group.label}
+              {t(group.label)}
             </p>
             <div className="space-y-0.5">
               {visible.map((item) => (
@@ -89,6 +100,7 @@ function NavItems({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 export function AdminLayout({ children }: { children: ReactNode }) {
+  const { lang } = useLang();
   const { signOut, user } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -104,7 +116,9 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       <aside className="hidden md:flex w-60 flex-col bg-white border-r border-gray-200 fixed inset-y-0 left-0">
         <div className="px-5 py-5 border-b border-gray-100">
           <img src="/logo/wordmark.png" alt="ED Retail" className="h-8 w-auto" />
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mt-1">Admin Panel</p>
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mt-1">
+            {lang === 'sw' ? 'Jopo la Usimamizi' : 'Admin Panel'}
+          </p>
         </div>
 
         <NavItems />
@@ -112,7 +126,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
         {/* Account section */}
         <div className="px-3 py-3 border-t border-gray-100">
           <p className="px-3 pb-1 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
-            Account
+            {lang === 'sw' ? 'Akaunti' : 'Account'}
           </p>
           {ACCOUNT_ITEMS.filter((item) => can('SUPER_ADMIN', item.permission)).map((item) => (
             <NavItemLink key={item.to} item={item} />
@@ -125,7 +139,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
             className="flex min-h-[44px] items-center gap-3 px-3 py-2 w-full rounded-md text-[13px] font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors outline-none"
           >
             <LogOut className="w-4 h-4" />
-            Sign Out
+            {lang === 'sw' ? 'Toka' : 'Sign Out'}
           </button>
         </div>
       </aside>
@@ -134,12 +148,14 @@ export function AdminLayout({ children }: { children: ReactNode }) {
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <img src="/logo/wordmark.png" alt="ED Retail" className="h-7 w-auto" />
-          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Admin</span>
+          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
+            {lang === 'sw' ? 'Usimamizi' : 'Admin'}
+          </span>
         </div>
         <button
           onClick={() => setOpen(v => !v)}
           className="p-2 -mr-2 text-gray-500 hover:text-gray-900 transition-colors outline-none"
-          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-label={open ? (lang === 'sw' ? 'Funga menyu' : 'Close menu') : (lang === 'sw' ? 'Fungua menyu' : 'Open menu')}
           aria-expanded={open}
         >
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -154,12 +170,12 @@ export function AdminLayout({ children }: { children: ReactNode }) {
             onClick={e => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
-            aria-label="Admin menu"
+            aria-label={lang === 'sw' ? 'Menyu ya usimamizi' : 'Admin menu'}
           >
             <NavItems onNavigate={() => setOpen(false)} />
             <div className="px-3 py-3 border-t border-gray-100">
               <p className="px-3 pb-1 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
-                Account
+                {lang === 'sw' ? 'Akaunti' : 'Account'}
               </p>
               {ACCOUNT_ITEMS.filter((item) => can('SUPER_ADMIN', item.permission)).map((item) => (
                 <NavItemLink key={item.to} item={item} onClick={() => setOpen(false)} />
@@ -172,7 +188,7 @@ export function AdminLayout({ children }: { children: ReactNode }) {
                 className="flex min-h-[44px] items-center gap-3 px-3 py-2 w-full rounded-md text-[13px] font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors outline-none"
               >
                 <LogOut className="w-4 h-4" />
-                Sign Out
+                {lang === 'sw' ? 'Toka' : 'Sign Out'}
               </button>
             </div>
           </div>

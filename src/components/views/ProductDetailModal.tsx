@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -27,9 +27,9 @@ export interface ProductDetailModalProps {
 }
 
 const CATEGORY_TAG_COLORS: Record<string, string> = {
-  'p4-slimming': 'bg-blue-50 text-blue-700 border-blue-200',
-  'health-wellness': 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  'lifestyle-beverages': 'bg-amber-50 text-amber-700 border-amber-200',
+  'p4-slimming': 'bg-primary-50 text-primary-700 border-primary-200',
+  'health-wellness': 'bg-success-50 text-success-700 border-success-100',
+  'lifestyle-beverages': 'bg-warning-50 text-warning-700 border-warning-100',
 };
 
 /**
@@ -62,6 +62,16 @@ export function ProductDetailModal({
   const [selectedQty, setSelectedQty] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // Escape closes the product surface (accessibility requirement).
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
 
   const getEffectiveProduct = useDistributorStore((s) => s.getEffectiveProduct);
   const activeDistributor = useDistributorStore((s) => s.getActiveDistributor());
@@ -170,10 +180,10 @@ export function ProductDetailModal({
                 <button
                   id="modal-favourite-btn"
                   onClick={() => toggleFavourite(product.id)}
-                  className="p-2 text-neutral-600 hover:text-rose-600 rounded-xl hover:bg-neutral-100 transition-colors"
+                  className="p-2 text-neutral-600 hover:text-brand-red rounded-xl hover:bg-neutral-100 transition-colors"
                   aria-label={isFavourite ? 'Remove favourite' : 'Add favourite'}
                 >
-                  <Heart className={`w-5 h-5 ${isFavourite ? 'fill-rose-500 text-rose-500' : 'text-neutral-400'}`} />
+                  <Heart className={`w-5 h-5 ${isFavourite ? 'fill-brand-red text-brand-red' : 'text-neutral-400'}`} />
                 </button>
 
                 {/* Close Button */}
@@ -243,11 +253,11 @@ export function ProductDetailModal({
                   <span
                     className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${
                       effectiveProduct.inStock
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        ? 'bg-success-50 text-success-700 border border-success-100'
                         : 'bg-red-50 text-red-700 border border-red-200'
                     }`}
                   >
-                    <span className={`w-1.5 h-1.5 rounded-full ${effectiveProduct.inStock ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full ${effectiveProduct.inStock ? 'bg-success-600' : 'bg-danger-600'}`} />
                     {effectiveProduct.inStock
                       ? (lang === 'sw' ? 'Ipo Stoo' : 'In Stock')
                       : (lang === 'sw' ? 'Imeisha' : 'Out of Stock')}
@@ -359,7 +369,7 @@ export function ProductDetailModal({
                 className={`flex-1 flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl text-sm font-bold text-white shadow-sm transition-all ${
                   effectiveProduct.inStock
                     ? justAdded
-                      ? 'bg-emerald-600'
+                      ? 'bg-success-600'
                       : 'bg-primary-600 hover:bg-primary-700 active:bg-primary-800'
                     : 'bg-neutral-300 cursor-not-allowed text-neutral-500'
                 }`}
@@ -389,7 +399,7 @@ export function ProductDetailModal({
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-3.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 rounded-xl transition-colors flex items-center justify-center flex-shrink-0"
+                className="p-3.5 bg-success-50 hover:bg-success-100 border border-success-100 text-success-700 rounded-xl transition-colors flex items-center justify-center flex-shrink-0"
                 title={lang === 'sw' ? 'Uliza msambazaji WhatsApp' : 'Ask distributor on WhatsApp'}
                 aria-label="Ask distributor on WhatsApp"
               >

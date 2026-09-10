@@ -160,7 +160,7 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
               className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 border border-amber-400/40 rounded-xl text-xs font-bold transition-colors"
             >
               <EdIcon name="flyer" className="w-3.5 h-3.5" />
-              <span>Flyer Studio</span>
+              <span>{lang === 'sw' ? 'Studio ya Flyer' : 'Flyer Studio'}</span>
             </button>
           )}
 
@@ -433,7 +433,7 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                           className="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                         >
                           <Send className="w-3.5 h-3.5" />
-                          <span>Tuma WhatsApp</span>
+                          <span>{lang === 'sw' ? 'Tuma WhatsApp' : 'Send WhatsApp'}</span>
                         </button>
                       </div>
 
@@ -456,7 +456,7 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                           className="w-full py-2 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                         >
                           <Send className="w-3.5 h-3.5" />
-                          <span>Tuma WhatsApp</span>
+                          <span>{lang === 'sw' ? 'Tuma WhatsApp' : 'Send WhatsApp'}</span>
                         </button>
                       </div>
 
@@ -479,7 +479,7 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                           className="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                         >
                           <Send className="w-3.5 h-3.5" />
-                          <span>Tuma WhatsApp</span>
+                          <span>{lang === 'sw' ? 'Tuma WhatsApp' : 'Send WhatsApp'}</span>
                         </button>
                       </div>
 
@@ -502,7 +502,7 @@ export const DistributorBackOfficeModal: React.FC<DistributorBackOfficeModalProp
                           className="w-full py-2 bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                         >
                           <Send className="w-3.5 h-3.5" />
-                          <span>Tuma WhatsApp</span>
+                          <span>{lang === 'sw' ? 'Tuma WhatsApp' : 'Send WhatsApp'}</span>
                         </button>
                       </div>
                     </div>

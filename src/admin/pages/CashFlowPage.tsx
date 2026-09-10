@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { formatPrice } from '../../utils/whatsappCompiler';
 import { TrendingUp, TrendingDown, DollarSign, ShoppingBag } from 'lucide-react';
 import { useDistributorStore } from '../../store/distributorStore';
+import { useLang } from '../../context/LangContext';
 import {
   PageHeader, FilterPills, Badge, EmptyState, Spinner, cn,
 } from '../../components/ui';
@@ -26,6 +27,7 @@ const ICON_TONES: Record<string, string> = {
 };
 
 export function CashFlowPage() {
+  const { lang } = useLang();
   const [rows, setRows]         = useState<Row[]>([]);
   const [loading, setLoading]   = useState(true);
   const [period, setPeriod]     = useState<'today' | 'week' | 'month' | 'all'>('month');
@@ -102,7 +104,7 @@ export function CashFlowPage() {
 
   return (
     <div className="p-4 md:p-6 max-w-5xl">
-      <PageHeader title="Cash Flow" sub="Revenue and transaction history" />
+      <PageHeader title={lang === 'sw' ? 'Mtiririko wa Fedha' : 'Cash Flow'} sub="Revenue and transaction history" />
 
       <FilterPills
         ariaLabel="Select period"
@@ -134,14 +136,14 @@ export function CashFlowPage() {
       {/* Transactions table */}
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
         <div className="px-4 py-3 border-b border-gray-100">
-          <h2 className="text-sm font-bold text-gray-900">Transactions</h2>
+          <h2 className="text-sm font-bold text-gray-900">{lang === 'sw' ? 'Miamala' : 'Transactions'}</h2>
         </div>
         {loading ? (
           <div className="flex items-center justify-center h-32"><Spinner /></div>
         ) : rows.length === 0 ? (
           <EmptyState
             icon={<DollarSign className="w-5 h-5 text-gray-400" />}
-            title="No transactions in this period"
+            title={lang === 'sw' ? 'Hakuna miamala katika kipindi hiki' : 'No transactions in this period'}
             sub="Sales recorded during the selected period will appear here."
           />
         ) : (

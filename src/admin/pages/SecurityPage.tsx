@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ShieldCheck, Eye, EyeOff, Loader2, Mail, KeyRound, CheckCircle2, LogOut } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { supabase } from '../../lib/supabase';
+import { useLang } from '../../context/LangContext';
 
 type Strength = 0 | 1 | 2 | 3;
 
@@ -15,6 +16,7 @@ function passwordStrength(pw: string): Strength {
 }
 
 export function SecurityPage() {
+  const { lang } = useLang();
   const { user, lastEvent, signOut, updatePassword, resetPasswordForEmail } = useAuth();
   const navigate = useNavigate();
 
@@ -109,7 +111,7 @@ export function SecurityPage() {
     <div className="p-4 sm:p-6 lg:p-8 max-w-3xl">
       <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Security</h1>
+          <h1 className="text-xl font-bold text-gray-900">{lang === 'sw' ? 'Usalama' : 'Security'}</h1>
           <p className="text-sm text-gray-500 mt-0.5">
             Manage your admin account password and active session.
           </p>
@@ -122,15 +124,15 @@ export function SecurityPage() {
           <span className="w-8 h-8 rounded-lg bg-primary-50 text-primary-700 flex items-center justify-center">
             <ShieldCheck className="w-4 h-4" />
           </span>
-          <h2 className="text-sm font-semibold text-gray-900">Active session</h2>
+          <h2 className="text-sm font-semibold text-gray-900">{lang === 'sw' ? 'Kikao kinachoendelea' : 'Active session'}</h2>
         </div>
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           <div>
-            <dt className="text-gray-400 font-medium">Email</dt>
+            <dt className="text-gray-400 font-medium">{lang === 'sw' ? 'Barua pepe' : 'Email'}</dt>
             <dd className="text-gray-900 font-semibold mt-0.5">{user?.email}</dd>
           </div>
           <div>
-            <dt className="text-gray-400 font-medium">Member since</dt>
+            <dt className="text-gray-400 font-medium">{lang === 'sw' ? 'Amejiunga tangu' : 'Member since'}</dt>
             <dd className="text-gray-900 font-semibold mt-0.5">
               {user?.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}
             </dd>
@@ -296,12 +298,12 @@ export function SecurityPage() {
 
       {checkingRecovery && (
         <div className="mt-6 text-center">
-          <Loader2 className="w-5 h-5 text-primary-500 animate-spin mx-auto" aria-label="Loading" />
+          <Loader2 className="w-5 h-5 text-primary-500 animate-spin mx-auto" aria-label={lang === 'sw' ? 'Inapakia' : 'Loading'} />
         </div>
       )}
 
       <p className="text-xs text-gray-400 mt-6">
-        <Link to="/admin" className="text-primary-600 hover:underline">Return to dashboard</Link>
+        <Link to="/admin" className="text-primary-600 hover:underline">{lang === 'sw' ? 'Rudi kwenye dashibodi' : 'Return to dashboard'}</Link>
       </p>
     </div>
   );

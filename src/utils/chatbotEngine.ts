@@ -725,7 +725,6 @@ export function parseCustomerOrDistributorIntent(
       { label: lang === 'sw' ? 'Vidonda vya Tumbo & Asidi' : 'Stomach Ulcers & Acid', action: 'Vidonda vya Tumbo & Asidi' },
       { label: lang === 'sw' ? 'Nguvu & Stamina (Troika)' : 'Male Stamina & Energy', action: 'Nguvu & Stamina' },
       { label: lang === 'sw' ? 'Usafirishaji & Malipo' : 'Delivery & Payment Info', action: 'Usafirishaji & Malipo' },
-      { label: lang === 'sw' ? 'Kuingia Ofisi ya Msambazaji' : 'Distributor Portal Login', action: 'admin' },
     ],
   };
 }

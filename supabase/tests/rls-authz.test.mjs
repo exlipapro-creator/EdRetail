@@ -8,8 +8,8 @@
 // clients, exactly like the real app. RLS is the system under test.
 //
 // CLEANUP GUARANTEE: every created auth user, distributor profile,
-// sale, loan, loan payment and flyer campaign is tracked and deleted
-// in a `finally` block — cleanup runs even when assertions fail.
+// sale, loan, loan payment, flyer campaign and hero slide is tracked
+// and deleted in a `finally` block — cleanup runs even when assertions fail.
 // All test rows carry the unique marker `RLS-PROBE-<stamp>` so they
 // are identifiable and never collide with real data. Real catalog
 // rows are never mutated (the products test restores the read value).
@@ -52,7 +52,9 @@ const createdSaleIds = [];
 const createdLoanIds = [];
 const createdPaymentIds = [];
 const createdCampaignIds = [];
+const createdHeroIds = [];
 const createdStoragePaths = [];
+const createdHeroStoragePaths = [];
 const stamp = Date.now();
 const MARK = `RLS-PROBE-${stamp}`;
 
@@ -84,6 +86,15 @@ async function cleanup() {
   if (createdCampaignIds.length) {
     const r = await admin.from('flyer_campaigns').delete().in('id', createdCampaignIds);
     console.log(`  flyer_campaigns: ${r.error ? 'ERROR ' + r.error.message : 'removed'}`);
+  }
+  if (createdHeroIds.length) {
+    const r = await admin.from('hero_slides').delete().in('id', createdHeroIds);
+    console.log(`  hero_slides: ${r.error ? 'ERROR ' + r.error.message : 'removed'}`);
+  }
+  if (createdHeroStoragePaths.length) {
+    const r = await admin.storage.from('hero-assets').remove(createdHeroStoragePaths);
+    const err = r.error ? r.error.message : '';
+    console.log(`  storage heroes: ${err ? 'best-effort (' + err + ')' : 'removed'}`);
   }
   if (createdProfileIds.length) {
     const r = await admin.from('distributor_profiles').delete().in('id', createdProfileIds);
@@ -319,6 +330,123 @@ try {
     expect('Archived campaign disappears from public gallery', zeroRows(pub3));
     const ownArch = await clientA.from('flyer_campaigns').select('*').eq('id', campA).single();
     expect('Owner still reads own archived campaign', allowed(ownArch));
+  }
+
+  console.log('\n── HERO SLIDES (0004: hero_slides + hero-assets bucket) ──');
+  let heroA;
+  {
+    // Owner create (draft)
+    const mk = await clientA.from('hero_slides').insert({
+      distributor_id: profA, image_path: '', headline_en: MARK,
+      cta_en: 'Shop', cta_destination: 'products', sort_order: 1, status: 'draft',
+    }).select('id').single();
+    expect('A creates own draft hero', allowed(mk));
+    heroA = mk.data?.id;
+    if (heroA) createdHeroIds.push(heroA);
+
+    // Forge ownership → denied (WITH CHECK)
+    const forge = await clientA.from('hero_slides').insert({
+      distributor_id: profB, image_path: '', headline_en: MARK + ' forged',
+      cta_en: 'Shop', cta_destination: 'products', status: 'draft',
+    });
+    expect('A cannot create a hero owned by B (server-derived ownership)', denied(forge));
+
+    // Distributor cannot forge a GLOBAL (NULL) hero
+    const forgeGlobal = await clientA.from('hero_slides').insert({
+      distributor_id: null, image_path: '', headline_en: MARK + ' global-forge',
+      cta_en: 'Shop', cta_destination: 'products', status: 'published',
+    });
+    expect('A cannot create a global hero (NULL distributor_id denied)', denied(forgeGlobal));
+
+    // Owner read / update
+    const own = await clientA.from('hero_slides').select('*').eq('id', heroA).single();
+    expect('A reads own draft hero', allowed(own) && own.data?.status === 'draft');
+    const up = await clientA.from('hero_slides').update({ headline_sw: MARK + ' sw' }).eq('id', heroA);
+    expect('A updates own hero', allowed(up));
+
+    // Re-pointing ownership is denied by WITH CHECK (A → B / A → NULL)
+    const repoint = await clientA.from('hero_slides').update({ distributor_id: profB }).eq('id', heroA);
+    expect('A cannot re-point hero to B (WITH CHECK)', denied(repoint));
+    const repointNull = await clientA.from('hero_slides').update({ distributor_id: null }).eq('id', heroA);
+    expect('A cannot re-point hero to global (WITH CHECK)', denied(repointNull));
+
+    // Cross-tenant invisible / denied
+    const rB = await clientB.from('hero_slides').select('id').eq('id', heroA).maybeSingle();
+    expect('B cannot read A draft hero (row invisible)', !rB.error && rB.data === null);
+    const uB = await clientB.from('hero_slides').update({ status: 'archived' }).eq('id', heroA);
+    expect('B cannot update A hero', allowed(uB) ? zeroRows(uB) : denied(uB));
+    const dB = await clientB.from('hero_slides').delete().eq('id', heroA);
+    expect('B cannot delete A hero', allowed(dB) ? zeroRows(dB) : denied(dB));
+
+    // Anonymous/customer: draft invisible
+    const cRead = await clientC.from('hero_slides').select('id').eq('id', heroA).maybeSingle();
+    expect('Customer cannot read A draft hero (row invisible)', !cRead.error && cRead.data === null);
+    const aRead = await anonClient.from('hero_slides').select('*').eq('id', heroA);
+    expect('Anonymous cannot read A draft hero', zeroRows(aRead));
+
+    // Public lifecycle: draft hidden → published visible → archived hidden
+    const pub = await anonClient.from('hero_slides').select('*').eq('id', heroA);
+    expect('Anonymous cannot see draft hero in storefront', zeroRows(pub));
+    const publish = await clientA.from('hero_slides').update({ status: 'published' }).eq('id', heroA);
+    expect('A publishes own hero', allowed(publish));
+    const pub2 = await anonClient.from('hero_slides').select('*').eq('id', heroA).single();
+    expect('Anonymous sees published hero', allowed(pub2) && pub2.data?.status === 'published');
+    const arch = await clientA.from('hero_slides').update({ status: 'archived' }).eq('id', heroA);
+    expect('A archives own hero', allowed(arch));
+    const pub3 = await anonClient.from('hero_slides').select('*').eq('id', heroA);
+    expect('Archived hero disappears from storefront', zeroRows(pub3));
+    const ownArch = await clientA.from('hero_slides').select('*').eq('id', heroA).single();
+    expect('Owner still reads own archived hero', allowed(ownArch));
+
+    // Super admin: global hero create + visibility + all-tenant management
+    const g = await clientAdm.from('hero_slides').insert({
+      distributor_id: null, image_path: '', headline_en: MARK + ' global',
+      cta_en: 'Shop', cta_destination: 'goals', sort_order: 99, status: 'published',
+    }).select('id').single();
+    expect('Super admin creates global published hero', allowed(g));
+    if (g.data?.id) createdHeroIds.push(g.data.id);
+    const gPub = await anonClient.from('hero_slides').select('*').eq('id', g.data?.id).single();
+    expect('Anonymous sees published global hero', allowed(gPub) && gPub.data?.distributor_id === null);
+    const admRead = await clientAdm.from('hero_slides').select('*').eq('id', heroA).single();
+    expect('Super admin reads any tenant hero', allowed(admRead));
+  }
+
+  console.log('\n── HERO STORAGE (hero-assets) ──');
+  {
+    // Bucket may not exist yet (0004 unapplied) — skip cleanly, never fake.
+    const probe = await clientA.storage.from('hero-assets').list('heroes');
+    if (probe.error && /not found|does not exist|Bucket/i.test(probe.error.message)) {
+      console.log('  SKIP — hero-assets bucket not found (migration 0004 not applied).');
+    } else {
+      const pathA = `heroes/${profA}/${heroA}.jpg`;
+      const blob = new Blob([new Uint8Array([137, 80, 78, 71])], { type: 'image/png' });
+
+      const up = await clientA.storage.from('hero-assets').upload(pathA, blob, { contentType: 'image/jpeg', upsert: true });
+      expect('Owner uploads own hero image', allowed(up));
+      if (allowed(up)) createdHeroStoragePaths.push(pathA);
+
+      const forged = await clientB.storage.from('hero-assets').upload(`heroes/${profA}/forged-${stamp}.jpg`, blob, { contentType: 'image/jpeg' });
+      expect('B cannot insert into A hero folder', denied(forged) || !!forged.error);
+
+      const rdB = await clientB.storage.from('hero-assets').download(pathA);
+      expect('B cannot read A hero image (draft)', !!rdB.error);
+
+      const rdAnon = await anonClient.storage.from('hero-assets').download(pathA);
+      expect('Anonymous cannot read draft hero image', !!rdAnon.error);
+
+      // Publish the hero → anon read of its image becomes allowed
+      await clientA.from('hero_slides').update({ status: 'published', image_path: pathA }).eq('id', heroA);
+      const rdAnonPub = await anonClient.storage.from('hero-assets').download(pathA);
+      expect('Anonymous reads image while hero is published', allowed(rdAnonPub));
+      await clientA.from('hero_slides').update({ status: 'draft' }).eq('id', heroA);
+
+      const delB = await clientB.storage.from('hero-assets').remove([pathA]);
+      const stillThere = await clientA.storage.from('hero-assets').list(`heroes/${profA}`);
+      expect('B cannot delete A hero image', !!(delB.error) || (stillThere.data ?? []).some((o) => o.name === `${heroA}.jpg`));
+
+      const del = await clientA.storage.from('hero-assets').remove([pathA]);
+      expect('Owner deletes own hero image', allowed(del));
+    }
   }
 
   console.log('\n── STORAGE (flyer-renders) ──');

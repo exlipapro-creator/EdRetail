@@ -8,10 +8,10 @@ import {
   Users,
   CreditCard,
   Store,
+  Image as ImageIcon,
   User,
   LogOut,
   Menu,
-  X,
   Globe,
   ExternalLink,
   HelpCircle,
@@ -51,6 +51,7 @@ const PRIMARY_NAV: Array<{ to: string; icon: typeof LayoutDashboard; label: { en
 
 const SECONDARY_NAV: Array<{ to: string; icon: typeof LayoutDashboard; label: { en: string; sw: string }; permission: Permission }> = [
   { to: '/portal/storefront', icon: Store, label: { en: 'Storefront', sw: 'Duka' }, permission: 'MANAGE_OWN_STORE' },
+  { to: '/portal/heroes', icon: ImageIcon, label: { en: 'Storefront Banners', sw: 'Mabango ya Duka' }, permission: 'MANAGE_OWN_STORE' },
   { to: '/portal/profile', icon: User, label: { en: 'Profile', sw: 'Wasifu' }, permission: 'VIEW_OWN_PROFILE' },
 ];
 
@@ -222,20 +223,26 @@ export function DistributorLayout({ children }: DistributorLayoutProps) {
 
       {/* ═══ MOBILE TOP BAR ═══ (fixed so content padding is exact — a sticky
           bar plus pt-14 on <main> created a double 56px gap on mobile) */}
-      <div className="md:hidden fixed top-0 inset-x-0 z-40 bg-white border-b border-gray-200 px-4 h-14 flex items-center justify-between">
+      {/* Mobile top bar: single navigation mechanism = bottom nav + its "More"
+          entry. The old duplicate hamburger is gone; the profile avatar on the
+          right edge opens the same account drawer. Logo is grid-centered. */}
+      <div className="md:hidden fixed top-0 inset-x-0 z-40 bg-white border-b border-gray-200 h-14 grid grid-cols-[1fr_auto_1fr] items-center px-4">
+        <span aria-hidden />
         <Link to="/portal/dashboard" className="flex items-center gap-2 min-w-0">
           <img src="/logo/wordmark.png" alt="ED Retail" className="h-6 w-auto" />
         </Link>
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-colors outline-none"
-            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={mobileMenuOpen}
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
-        </div>
+        <button
+          onClick={() => setMobileMenuOpen(true)}
+          className="justify-self-end p-1 rounded-full ring-1 ring-gray-200 hover:ring-gray-300 transition-shadow outline-none"
+          aria-label={lang === 'sw' ? 'Fungua menyu ya akaunti' : 'Open account menu'}
+          aria-expanded={mobileMenuOpen}
+        >
+          <img
+            src={distributor.avatarUrl || '/logo/distributor-circle.png'}
+            alt=""
+            className="w-9 h-9 rounded-full object-cover border border-gray-200 bg-white"
+          />
+        </button>
       </div>
 
       {/* ═══ MOBILE MENU SHEET ═══ */}

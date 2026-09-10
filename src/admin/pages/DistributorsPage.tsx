@@ -14,8 +14,10 @@ import {
   X,
 } from 'lucide-react';
 import { useDistributorStore, DistributorProfile } from '../../store/distributorStore';
+import { useLang } from '../../context/LangContext';
 
 export function DistributorsPage() {
+  const { lang } = useLang();
   const savedDistributors = useDistributorStore((s) => s.savedDistributors);
   const toggleDistributorVerification = useDistributorStore((s) => s.toggleDistributorVerification);
   const toggleDistributorStatus = useDistributorStore((s) => s.toggleDistributorStatus);
@@ -125,7 +127,7 @@ export function DistributorsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-gray-900">Distributors Oversight</h1>
+            <h1 className="text-xl font-bold text-gray-900">{lang === 'sw' ? 'Usimamizi wa Wasambazaji' : 'Distributors Oversight'}</h1>
             <span className="px-2.5 py-0.5 rounded-full bg-primary-50 text-primary-700 border border-primary-200 text-xs font-black">
               {savedDistributors.length} Registered
             </span>
@@ -140,7 +142,7 @@ export function DistributorsPage() {
           className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-md self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
-          <span>Add Distributor</span>
+          <span>{lang === 'sw' ? 'Ongeza Msambazaji' : 'Add Distributor'}</span>
         </button>
       </div>
 
@@ -150,7 +152,7 @@ export function DistributorsPage() {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by name, city, handle (@slug), or phone..."
+          placeholder={lang === 'sw' ? 'Tafuta kwa jina, mji, jina la mtumiaji (@slug), au simu...' : 'Search by name, city, handle (@slug), or phone...'}
           className="w-full max-w-md bg-white border border-gray-300 rounded-xl px-4 py-2.5 text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500"
         />
       </div>
@@ -221,7 +223,7 @@ export function DistributorsPage() {
               </div>
               <div className="flex items-center gap-2 text-[11px]">
                 <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400 flex-shrink-0" />
-                <span>{dist.rating} ★ ({dist.reviewCount} customer reviews)</span>
+                <span>{dist.rating} {lang === 'sw' ? `(${dist.reviewCount} maoni ya wateja)` : `(${dist.reviewCount} customer reviews)`}</span>
               </div>
             </div>
 
@@ -235,7 +237,7 @@ export function DistributorsPage() {
                       ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
                       : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
                   }`}
-                  title="Toggle verified badge"
+                  title={lang === 'sw' ? 'Badilisha beji ya uthibitisho' : 'Toggle verified badge'}
                 >
                   {dist.isVerified ? 'Verified' : 'Verify'}
                 </button>
@@ -261,7 +263,7 @@ export function DistributorsPage() {
                 <button
                   onClick={() => handleOpenEdit(dist)}
                   className="p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
-                  title="Edit details"
+                  title={lang === 'sw' ? 'Hariri maelezo' : 'Edit details'}
                 >
                   <Pencil className="w-3.5 h-3.5" />
                 </button>
@@ -273,7 +275,7 @@ export function DistributorsPage() {
                       }
                     }}
                     className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                    title="Delete distributor"
+                    title={lang === 'sw' ? 'Futa msambazaji' : 'Delete distributor'}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -344,7 +346,7 @@ export function DistributorsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Phone Number</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">{lang === 'sw' ? 'Namba ya Simu' : 'Phone Number'}</label>
                   <input
                     type="text"
                     required
@@ -379,7 +381,7 @@ export function DistributorsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Delivery Coverage</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">{lang === 'sw' ? 'Eneo la Uwasilishaji' : 'Delivery Coverage'}</label>
                   <input
                     type="text"
                     value={formData.deliveryCoverage || ''}
@@ -390,7 +392,7 @@ export function DistributorsPage() {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-gray-600 mb-1">Storefront Bio</label>
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">{lang === 'sw' ? 'Maelezo ya Duka' : 'Storefront Bio'}</label>
                   <textarea
                     rows={2}
                     value={formData.bio || ''}
@@ -417,7 +419,7 @@ export function DistributorsPage() {
                   className="flex items-center gap-2 px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors cursor-pointer"
                 >
                   <Save className="w-3.5 h-3.5" />
-                  <span>Save Distributor</span>
+                  <span>{lang === 'sw' ? 'Hifadhi Msambazaji' : 'Save Distributor'}</span>
                 </button>
               </div>
             </form>

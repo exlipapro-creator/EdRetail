@@ -17,6 +17,7 @@ import {
   Copy,
   Check,
   Truck,
+  AlertCircle,
 } from 'lucide-react';
 import { useCartStore } from '../store/cartStore';
 import {
@@ -33,16 +34,22 @@ import { ReferralShareButton } from './ReferralShare';
 import { motionTokens } from '../design/motion';
 import { supabase } from '../lib/supabase';
 import { useDistributorStore } from '../store/distributorStore';
+import { useCustomerAuth } from '../context/CustomerAuthContext';
 
 interface CheckoutSheetProps {
   isOpen: boolean;
   onClose: () => void;
+  /** Navigates to the real Products experience (empty-cart CTA). */
+  onBrowseProducts?: () => void;
+  /** Opens the customer auth modal (guest checkout hint). Checkout stays open beneath. */
+  onCheckoutSignIn?: () => void;
 }
 
-export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
+export function CheckoutSheet({ isOpen, onClose, onBrowseProducts, onCheckoutSignIn }: CheckoutSheetProps) {
   const { lang, t } = useLang();
   const { items, updateQuantity, clearCart, addItem } = useCartStore();
   const activeDistributor = useDistributorStore((s) => s.getActiveDistributor());
+  const { status: authStatus, customer } = useCustomerAuth();
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -54,12 +61,23 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [orderUrl, setOrderUrl] = useState('');
   const [showPreview, setShowPreview] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const firstInputRef = useRef<HTMLInputElement | null>(null);
   const previouslyFocusedElement = useRef<HTMLElement | null>(null);
+
+  // Authenticated customers: prefill ONLY empty fields from their real account
+  // identity — guest entry is never overwritten, and the purchase itself stays
+  // guest-first (sales rows remain anonymous per the RLS model).
+  useEffect(() => {
+    if (isOpen && authStatus === 'authenticated' && customer) {
+      setName((n) => n || customer.fullName);
+      setPhone((p) => p || customer.phone);
+    }
+  }, [isOpen, authStatus, customer]);
 
   const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -134,6 +152,16 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
     }
   }, [isOpen]);
 
+  // Escape closes the checkout surface; cart state is never discarded.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
+
   const fullLocationString = selectedZone ? `${location ? location + ', ' : ''}${selectedZone}` : location;
 
   const handleSubmit = async () => {
@@ -142,6 +170,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
     if (!validate() || items.length === 0) return;
 
     setIsSubmitting(true);
+    setSubmitError(null);
     const locWithZone = fullLocationString.trim();
     const customerPayload = {
       name,
@@ -150,8 +179,21 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
       paymentMethod,
       selectedPaymentAccount: selectedAccount,
     };
-    const url = compileWhatsAppMessage(items, customerPayload, lang);
-    setOrderUrl(url);
+
+    try {
+      const url = compileWhatsAppMessage(items, customerPayload, lang);
+      setOrderUrl(url);
+    } catch {
+      // Real failure: never claim success, never clear the cart, keep entries
+      // so the customer can simply retry.
+      setSubmitError(
+        lang === 'sw'
+          ? 'Kuna hitilafu katika kuandaa agizo lako. Tafadhali jaribu tena.'
+          : 'Something went wrong preparing your order. Please try again.'
+      );
+      setIsSubmitting(false);
+      return;
+    }
 
     // 1. Auto-record order into Distributor Store Field Ledger as Pending Web Order
     try {
@@ -254,7 +296,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
       {isOpen && (
         <>
           <motion.div
-            className="fixed inset-0 bg-stone-950/70 backdrop-blur-xs z-50"
+            className="fixed inset-0 bg-stone-950/70 backdrop-blur-xs z-[53]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -263,7 +305,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
 
           <motion.div
             id="checkout-sheet-drawer"
-            className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl max-w-xl mx-auto max-h-[94vh] overflow-y-auto shadow-2xl flex flex-col"
+            className="fixed bottom-0 left-0 right-0 z-[54] bg-white rounded-t-3xl max-w-xl mx-auto max-h-[94vh] overflow-y-auto shadow-2xl flex flex-col"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
@@ -271,7 +313,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
             onClick={(e) => e.stopPropagation()}
             aria-modal="true"
             role="dialog"
-            aria-label={lang === 'sw' ? 'Kikapu na Malipo ya WhatsApp' : 'Cart & WhatsApp Checkout'}
+            aria-label={lang === 'sw' ? 'Mkoba na Malipo ya WhatsApp' : 'Cart & WhatsApp Checkout'}
           >
             <div className="flex justify-center pt-3 pb-1">
               <div className="w-12 h-1.5 bg-stone-300 rounded-full" />
@@ -313,7 +355,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0 }}
                   >
-                    <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center">
+                    <div className="w-14 h-14 rounded-2xl bg-success-50 text-success-600 border border-success-100 flex items-center justify-center">
                       <CheckCircle2 className="w-8 h-8" />
                     </div>
 
@@ -341,7 +383,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                         </div>
                         <div className="flex items-center justify-between">
                           <div>
-                            <div className="font-mono text-xl sm:text-2xl font-black text-amber-300 tracking-wider">
+                            <div className="font-mono text-xl sm:text-2xl font-black text-gold-300 tracking-wider">
                               {selectedAccount.accountNumber}
                             </div>
                             <div className="text-xs text-stone-300 mt-0.5">
@@ -355,7 +397,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                           >
                             {copiedAccountId === 'success-box' ? (
                               <>
-                                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                <Check className="w-3.5 h-3.5 text-success-600" />
                                 <span>{lang === 'sw' ? 'Imenakiliwa' : 'Copied'}</span>
                               </>
                             ) : (
@@ -372,7 +414,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                     {/* Verification Reminder Box */}
                     <div className="w-full text-left bg-stone-50 border border-stone-200 rounded-2xl p-4 space-y-3">
                       <div className="flex items-center gap-2 text-xs font-bold text-stone-900">
-                        <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                        <ShieldCheck className="w-4 h-4 text-primary-600" />
                         <span>{lang === 'sw' ? 'Miongozo Muhimu ya Usalama wa Malipo' : 'Key Payment Verification Steps'}</span>
                       </div>
 
@@ -404,7 +446,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                     <motion.button
                       id="launch-whatsapp-success-btn"
                       onClick={handleOpenWhatsApp}
-                      className="w-full flex items-center justify-center gap-2.5 py-3.5 bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 text-white rounded-xl font-bold text-sm shadow-sm transition-all"
+                      className="w-full flex items-center justify-center gap-2.5 py-3.5 bg-success-600 hover:bg-success-700 active:bg-success-800 text-white rounded-xl font-bold text-sm shadow-sm transition-all"
                       whileTap={{ scale: 0.98 }}
                     >
                       <Send className="w-4 h-4" />
@@ -481,6 +523,18 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                           </div>
                         </div>
                       )}
+                      {onBrowseProducts && (
+                        <button
+                          id="checkout-empty-cart-browse-btn"
+                          onClick={() => {
+                            onClose();
+                            onBrowseProducts();
+                          }}
+                          className="px-5 py-2.5 bg-stone-900 text-white rounded-xl text-xs font-bold hover:bg-stone-800 transition-colors cursor-pointer"
+                        >
+                          {lang === 'sw' ? 'Vinjari Bidhaa' : 'Browse Products'}
+                        </button>
+                      )}
                     </div>
                   )}
 
@@ -492,7 +546,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                         </span>
                         <button
                           onClick={clearCart}
-                          className="text-[11px] font-semibold text-rose-700 hover:text-rose-800"
+                          className="text-[11px] font-semibold text-danger-600 hover:text-brand-red-dark"
                         >
                           {lang === 'sw' ? 'Futa Yote' : 'Clear All'}
                         </button>
@@ -550,7 +604,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                       </div>
                       <div className="flex justify-between text-xs text-stone-600">
                         <span>{lang === 'sw' ? 'Usafirishaji' : 'Delivery'}:</span>
-                        <span className="text-emerald-700 font-semibold">
+                        <span className="text-stone-600 font-semibold">
                           {lang === 'sw' ? 'Inathibitishwa na Msambazaji' : 'Confirmed with Coach'}
                         </span>
                       </div>
@@ -573,6 +627,31 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                           <User className="w-3.5 h-3.5 text-stone-700" />
                           {lang === 'sw' ? 'Taarifa za Mpokeaji & Usafirishaji' : 'Customer & Delivery Information'}
                         </h3>
+                        {authStatus === 'authenticated' && customer ? (
+                          <p className="text-[11px] text-primary-700 mt-1">
+                            {lang === 'sw'
+                              ? `Umeingia kama ${customer.email} — taarifa zako zimejaa kiotomatiki.`
+                              : `Signed in as ${customer.email} — your details are prefilled.`}
+                          </p>
+                        ) : (
+                          <p className="text-[11px] text-stone-500 mt-1">
+                            {lang === 'sw'
+                              ? 'Unaweza kuagiza bila akaunti. '
+                              : 'You can order without an account. '}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                onCheckoutSignIn?.();
+                              }}
+                              className="underline text-stone-700 hover:text-stone-900 font-semibold cursor-pointer"
+                            >
+                              {lang === 'sw' ? 'Ingia kwa akaunti' : 'Sign in'}
+                            </button>
+                            {lang === 'sw'
+                              ? ' ili kujaza taarifa kiotomatiki.'
+                              : ' to prefill your details.'}
+                          </p>
+                        )}
                       </div>
 
                       <div>
@@ -694,7 +773,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                                   : `Verified payment accounts for ${activeDistributor.name}`}
                               </p>
                             </div>
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-success-600 bg-success-50 px-2 py-0.5 rounded-full border border-success-100">
                               {lang === 'sw' ? 'Imethibitishwa' : 'Verified'}
                             </span>
                           </div>
@@ -711,23 +790,23 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                                   tag: 'Vodacom M-Pesa',
                                 },
                                 tigopesa: {
-                                  badge: 'bg-sky-600 text-white',
-                                  borderSelected: 'border-sky-600 bg-sky-50/40',
+                                  badge: 'bg-primary-500 text-white',
+                                  borderSelected: 'border-primary-500 bg-primary-50/40',
                                   tag: 'Tigo Pesa',
                                 },
                                 airtel: {
-                                  badge: 'bg-rose-600 text-white',
-                                  borderSelected: 'border-rose-600 bg-rose-50/40',
+                                  badge: 'bg-warning-600 text-white',
+                                  borderSelected: 'border-warning-600 bg-warning-50/40',
                                   tag: 'Airtel Money',
                                 },
                                 halopesa: {
-                                  badge: 'bg-amber-600 text-white',
-                                  borderSelected: 'border-amber-600 bg-amber-50/40',
+                                  badge: 'bg-warning-700 text-white',
+                                  borderSelected: 'border-warning-700 bg-warning-50/40',
                                   tag: 'Halopesa',
                                 },
                                 bank: {
-                                  badge: 'bg-emerald-700 text-white',
-                                  borderSelected: 'border-emerald-700 bg-emerald-50/40',
+                                  badge: 'bg-primary-700 text-white',
+                                  borderSelected: 'border-primary-700 bg-primary-50/40',
                                   tag: 'Benki (CRDB/NMB)',
                                 },
                                 cash: {
@@ -771,8 +850,8 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                                       >
                                         {copiedAccountId === account.id ? (
                                           <>
-                                            <Check className="w-3 h-3 text-emerald-600" />
-                                            <span className="text-emerald-700">{lang === 'sw' ? 'Imenakiliwa' : 'Copied'}</span>
+                                            <Check className="w-3 h-3 text-success-600" />
+                                            <span className="text-success-600">{lang === 'sw' ? 'Imenakiliwa' : 'Copied'}</span>
                                           </>
                                         ) : (
                                           <>
@@ -821,7 +900,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                                   <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-stone-800 text-white">
                                     {lang === 'sw' ? 'Pesa Taslimu' : 'Cash'}
                                   </span>
-                                  <span className="text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                                  <span className="text-[11px] font-semibold text-warning-700 bg-warning-50 px-2 py-0.5 rounded border border-warning-100">
                                     {lang === 'sw' ? 'Dar es Salaam Pekee' : 'Dar es Salaam Only'}
                                   </span>
                                 </div>
@@ -848,7 +927,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                   {items.length > 0 && (
                     <div className="bg-stone-50 rounded-2xl border border-stone-200 p-4 space-y-3.5">
                       <div className="flex items-center gap-2 pb-2 border-b border-stone-200">
-                        <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                        <ShieldCheck className="w-4 h-4 text-primary-600" />
                         <h4 className="text-xs font-bold text-stone-900">
                           {lang === 'sw' ? 'Utaratibu wa Uhakiki na Malipo Salama' : 'Safe Order & Payment Protocol'}
                         </h4>
@@ -946,7 +1025,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                                   onClick={handleCopyMessage}
                                   className="text-[11px] font-sans font-bold text-stone-800 hover:text-stone-950 flex items-center gap-1 bg-white border border-stone-200 px-2 py-0.5 rounded-md shadow-2xs"
                                 >
-                                  {copied ? <Check className="w-3 h-3 text-emerald-700" /> : <Copy className="w-3 h-3" />}
+                                  {copied ? <Check className="w-3 h-3 text-success-600" /> : <Copy className="w-3 h-3" />}
                                   <span>{copied ? (lang === 'sw' ? 'Imenakiliwa' : 'Copied') : (lang === 'sw' ? 'Nakili' : 'Copy Text')}</span>
                                 </button>
                               </div>
@@ -960,11 +1039,29 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                     </div>
                   )}
 
+                  {/* Submission Failure (truthful, actionable, cart & entries preserved) */}
+                  {submitError && items.length > 0 && (
+                    <div
+                      role="alert"
+                      className="flex items-start gap-2.5 p-3.5 bg-red-50 border border-red-200 rounded-2xl"
+                    >
+                      <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-red-800">{submitError}</p>
+                        <p className="text-[11px] text-red-600 mt-0.5">
+                          {lang === 'sw'
+                            ? 'Agizo lako na taarifa zako zimehifadhiwa — jaribu tena.'
+                            : 'Your order and details are preserved — you can retry safely.'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Submission Action */}
                   {items.length > 0 && (
                     <div className="space-y-2 pt-2">
                       <div className="flex items-center justify-center gap-1.5 text-xs text-stone-500">
-                        <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                        <ShieldCheck className="w-4 h-4 text-primary-600" />
                         <span>
                           {lang === 'sw' ? 'Msambazaji Mpokeaji:' : 'Recipient:'}{' '}
                           <strong className="text-stone-900">{DISTRIBUTOR_NAME}</strong> (+{TARGET_PHONE})
@@ -978,7 +1075,7 @@ export function CheckoutSheet({ isOpen, onClose }: CheckoutSheetProps) {
                         whileTap={{ scale: isValid && !isSubmitting ? 0.98 : 1 }}
                         className={`w-full py-4 px-5 rounded-2xl font-bold text-sm text-white shadow-sm transition-all flex items-center justify-center gap-2.5 ${
                           isValid && !isSubmitting
-                            ? 'bg-emerald-700 hover:bg-emerald-800 active:bg-emerald-900 cursor-pointer'
+                            ? 'bg-primary-600 hover:bg-primary-700 active:bg-primary-800 cursor-pointer'
                             : 'bg-stone-300 text-stone-500 cursor-not-allowed shadow-none'
                         }`}
                       >

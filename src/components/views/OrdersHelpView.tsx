@@ -52,9 +52,9 @@ export function OrdersHelpView() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 sm:py-8 space-y-8 animate-fadeIn">
       {/* ── HERO BANNER ── */}
-      <section className="bg-gradient-to-br from-primary-800 via-primary-700 to-indigo-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+      <section className="bg-gradient-to-br from-primary-800 via-primary-700 to-primary-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
         <div className="relative z-10 max-w-xl">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-xs font-semibold uppercase tracking-wider mb-3 text-amber-300">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/15 backdrop-blur-md rounded-full text-xs font-semibold uppercase tracking-wider mb-3 text-gold-300">
             <HelpCircle className="w-3.5 h-3.5" />
             <span>{lang === 'sw' ? 'Msaada & Muongozo wa Maagizo' : 'Orders & Assistance'}</span>
           </div>

@@ -82,7 +82,7 @@ export function ProductsView({ onSelectProduct, searchValue = '', onClearSearch 
             onClick={() => setInStockOnly(!inStockOnly)}
             className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-colors flex items-center gap-1.5 cursor-pointer ${
               inStockOnly
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                ? 'bg-primary-50 text-primary-700 border-primary-200'
                 : 'bg-neutral-50 text-neutral-600 border-neutral-200/80 hover:bg-neutral-100'
             }`}
           >
@@ -231,11 +231,11 @@ export function ProductsView({ onSelectProduct, searchValue = '', onClearSearch 
                       <button
                         onClick={() => toggleFavourite(product.id)}
                         className={`p-2.5 rounded-xl border transition-colors cursor-pointer ${
-                          isFav ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-neutral-50 text-neutral-400 border-neutral-200 hover:text-neutral-700'
+                          isFav ? 'bg-brand-red-light text-brand-red border-brand-red/20' : 'bg-neutral-50 text-neutral-400 border-neutral-200 hover:text-neutral-700'
                         }`}
                         aria-label="Favourite toggle"
                       >
-                        <Heart className={`w-4 h-4 ${isFav ? 'fill-rose-500' : ''}`} />
+                        <Heart className={`w-4 h-4 ${isFav ? 'fill-brand-red' : ''}`} />
                       </button>
 
                       {qty === 0 ? (
@@ -292,12 +292,12 @@ export function ProductsView({ onSelectProduct, searchValue = '', onClearSearch 
                     }}
                     className={`absolute top-2.5 right-2.5 p-2 rounded-xl border backdrop-blur-xs transition-colors z-10 cursor-pointer ${
                       isFav
-                        ? 'bg-rose-50 text-rose-600 border-rose-200'
+                        ? 'bg-brand-red-light text-brand-red border-brand-red/20'
                         : 'bg-white/90 text-neutral-400 hover:text-neutral-700 border-neutral-100 shadow-xs'
                     }`}
                     aria-label="Favourite toggle"
                   >
-                    <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-rose-500' : ''}`} />
+                    <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-brand-red' : ''}`} />
                   </button>
 
                   {/* Clickable Card Body */}

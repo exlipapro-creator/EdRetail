@@ -25,9 +25,11 @@ import {
 } from 'lucide-react';
 import { useDistributorStore } from '../../store/distributorStore';
 import { SponsorAd, DatabaseBackupPayload, AdNetworkMode, AdPlacement } from '../../types';
+import { useLang } from '../../context/LangContext';
 import { EdIcon } from '../../components/brand/EdIcon';
 
 export function SettingsPage() {
+  const { lang } = useLang();
   const [activeTab, setActiveTab] = useState<'backups' | 'logs' | 'ads' | 'logistics'>('backups');
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -368,7 +370,7 @@ export function SettingsPage() {
           }`}
         >
           <Download className="w-4 h-4 shrink-0" />
-          <span>Database Backups</span>
+          <span>{lang === 'sw' ? 'Hifadhi za Database' : 'Database Backups'}</span>
         </button>
 
         <button
@@ -418,7 +420,7 @@ export function SettingsPage() {
                 <div className="w-10 h-10 rounded-2xl bg-primary-50 border border-primary-100 text-primary-600 flex items-center justify-center">
                   <Download className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-black text-gray-900">Full JSON Database Backup</h3>
+                <h3 className="text-base font-black text-gray-900">{lang === 'sw' ? 'Hifadhi Kamili ya Database (JSON)' : 'Full JSON Database Backup'}</h3>
                 <p className="text-xs text-gray-500 leading-relaxed">
                   Downloads an exact snapshot of the entire application state: Catalog products, overrides, distributor registry, all sales records, debt tracker, tasks, settings, and logs.
                 </p>
@@ -441,7 +443,7 @@ export function SettingsPage() {
                 <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center">
                   <Upload className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-black text-gray-900">Restore Database Snapshot</h3>
+                <h3 className="text-base font-black text-gray-900">{lang === 'sw' ? 'Rejesha Hifadhi ya Database' : 'Restore Database Snapshot'}</h3>
                 <p className="text-xs text-gray-500 leading-relaxed">
                   Upload a previously downloaded JSON backup file to instantly restore all products, sales history, customer records, and settings.
                 </p>
@@ -450,7 +452,7 @@ export function SettingsPage() {
               <div className="pt-2">
                 <label className="w-full py-3 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 text-xs font-black rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98">
                   <Upload className="w-4 h-4 text-emerald-600" />
-                  <span>Select Backup File to Restore</span>
+                  <span>{lang === 'sw' ? 'Chagua Faili la Hifadhi Kurudisha' : 'Select Backup File to Restore'}</span>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -491,7 +493,7 @@ export function SettingsPage() {
                 <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center">
                   <RotateCcw className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-black text-gray-900">Reset Catalog Overrides</h3>
+                <h3 className="text-base font-black text-gray-900">{lang === 'sw' ? 'Rudisha Marekebisho ya Katalogi' : 'Reset Catalog Overrides'}</h3>
                 <p className="text-xs text-gray-500 leading-relaxed">
                   Reverts custom product retail price modifications back to standard factory prices. Sales records and distributor debts are completely preserved.
                 </p>
@@ -506,7 +508,7 @@ export function SettingsPage() {
                     }
                   }}className="w-full py-3 bg-white hover:bg-amber-50 text-amber-700 border border-amber-300 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer">
                   <RotateCcw className="w-4 h-4" />
-                  <span>Reset Price Overrides Only</span>
+                  <span>{lang === 'sw' ? 'Rudisha Marekebisho ya Bei Tu' : 'Reset Price Overrides Only'}</span>
                 </button>
               </div>
             </div>
@@ -536,13 +538,13 @@ export function SettingsPage() {
                 onChange={(e) => setLogCategoryFilter(e.target.value)}
                 className="px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-700 focus:outline-none cursor-pointer"
               >
-                <option value="all">All Categories</option>
-                <option value="price_change">Price Changes</option>
-                <option value="product_management">Product Management</option>
-                <option value="stock_toggle">Stock Toggles</option>
-                <option value="sale_logged">Sales Entries</option>
-                <option value="backup_export">Backup Operations</option>
-                <option value="backup_restore">Restorations</option>
+                <option value="all">{lang === 'sw' ? 'Kategoria Zote' : 'All Categories'}</option>
+                <option value="price_change">{lang === 'sw' ? 'Mabadiliko ya Bei' : 'Price Changes'}</option>
+                <option value="product_management">{lang === 'sw' ? 'Usimamizi wa Bidhaa' : 'Product Management'}</option>
+                <option value="stock_toggle">{lang === 'sw' ? 'Badiliko la Stock' : 'Stock Toggles'}</option>
+                <option value="sale_logged">{lang === 'sw' ? 'Rekodi za Mauzo' : 'Sales Entries'}</option>
+                <option value="backup_export">{lang === 'sw' ? 'Uendeshaji wa Hifadhi' : 'Backup Operations'}</option>
+                <option value="backup_restore">{lang === 'sw' ? 'Urejeshaji' : 'Restorations'}</option>
               </select>
 
               {auditLogs.length > 0 && (
@@ -556,7 +558,7 @@ export function SettingsPage() {
                   className="px-3 py-2 bg-white hover:bg-red-50 text-gray-600 hover:text-red-600 border border-gray-300 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  <span>Clear Logs</span>
+                  <span>{lang === 'sw' ? 'Futa Kumbukumbu' : 'Clear Logs'}</span>
                 </button>
               )}
             </div>
@@ -568,11 +570,11 @@ export function SettingsPage() {
               <table className="w-full text-left text-xs text-gray-700">
                 <thead className="bg-gray-50 text-gray-500 uppercase font-black tracking-wider text-[10px] border-b border-gray-200">
                   <tr>
-                    <th className="p-3.5">Timestamp</th>
-                    <th className="p-3.5">Action</th>
-                    <th className="p-3.5">Category</th>
-                    <th className="p-3.5">Details</th>
-                    <th className="p-3.5">Initiator</th>
+                    <th className="p-3.5">{lang === 'sw' ? 'Muda' : 'Timestamp'}</th>
+                    <th className="p-3.5">{lang === 'sw' ? 'Kitendo' : 'Action'}</th>
+                    <th className="p-3.5">{lang === 'sw' ? 'Kategoria' : 'Category'}</th>
+                    <th className="p-3.5">{lang === 'sw' ? 'Maelezo' : 'Details'}</th>
+                    <th className="p-3.5">{lang === 'sw' ? 'Mtendaji' : 'Initiator'}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -661,7 +663,7 @@ export function SettingsPage() {
                 className="px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-xs font-black rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer active:scale-98"
               >
                 <Plus className="w-4 h-4" />
-                <span>Add Partner Slot</span>
+                <span>{lang === 'sw' ? 'Ongeza Nafasi ya Mfadhili' : 'Add Partner Slot'}</span>
               </button>
             </div>
           </div>
@@ -670,28 +672,28 @@ export function SettingsPage() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
             <div className="bg-white border border-gray-200 rounded-2xl p-4 space-y-1">
               <div className="flex items-center justify-between text-gray-500">
-                <span className="text-[11px] font-bold uppercase tracking-wider">Direct Contract Revenue</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider">{lang === 'sw' ? 'Mapato ya Mkataba wa Moja kwa Moja' : 'Direct Contract Revenue'}</span>
                 <DollarSign className="w-4 h-4 text-emerald-600" />
               </div>
               <p className="text-xl font-black text-emerald-700">
                 TZS {totalMonthlyContractRevenue.toLocaleString()}
               </p>
-              <p className="text-[10px] text-gray-400 font-medium">Monthly recurring partner retainers</p>
+              <p className="text-[10px] text-gray-400 font-medium">{lang === 'sw' ? 'Malipo ya kila mwezi ya mfadhili' : 'Monthly recurring partner retainers'}</p>
             </div>
 
             <div className="bg-white border border-gray-200 rounded-2xl p-4 space-y-1">
               <div className="flex items-center justify-between text-gray-500">
-                <span className="text-[11px] font-bold uppercase tracking-wider">Active Ad Slots</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider">{lang === 'sw' ? 'Nafasi za Matangazo Zinazofanya Kazi' : 'Active Ad Slots'}</span>
               </div>
               <p className="text-xl font-black text-gray-900">
                 {activePartnerSlotsCount} <span className="text-xs text-gray-400 font-normal">/ {totalPartnerSlotsCount} total</span>
               </p>
-              <p className="text-[10px] text-gray-400 font-medium">Booked direct sponsor spaces</p>
+              <p className="text-[10px] text-gray-400 font-medium">{lang === 'sw' ? 'Nafasi za mfadhili zilizowekwa' : 'Booked direct sponsor spaces'}</p>
             </div>
 
             <div className="bg-white border border-gray-200 rounded-2xl p-4 space-y-1">
               <div className="flex items-center justify-between text-gray-500">
-                <span className="text-[11px] font-bold uppercase tracking-wider">Total Impressions</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider">{lang === 'sw' ? 'Jumla ya Mawasiliano' : 'Total Impressions'}</span>
                 <Eye className="w-4 h-4 text-primary-600" />
               </div>
               <p className="text-xl font-black text-gray-900">{totalAdViews.toLocaleString()}</p>
@@ -706,7 +708,7 @@ export function SettingsPage() {
               <p className="text-xl font-black text-amber-700">
                 {totalAdClicks.toLocaleString()} <span className="text-xs text-gray-400 font-normal">({averageCtr}%)</span>
               </p>
-              <p className="text-[10px] text-gray-400 font-medium">Customer leads directed to sponsors</p>
+              <p className="text-[10px] text-gray-400 font-medium">{lang === 'sw' ? 'Wateja wanaoongozwa kwa mfadhili' : 'Customer leads directed to sponsors'}</p>
             </div>
           </div>
 
@@ -715,7 +717,7 @@ export function SettingsPage() {
             <div>
               <h4 className="text-sm font-black text-gray-900 flex items-center gap-2">
                 <Globe className="w-4 h-4 text-primary-600" />
-                <span>Monetization Delivery Mode</span>
+                <span>{lang === 'sw' ? 'Njia ya Utoaji wa Mapato' : 'Monetization Delivery Mode'}</span>
               </h4>
               <p className="text-xs text-gray-500 mt-0.5">
                 Select how ads are served across the store experience:
@@ -738,9 +740,9 @@ export function SettingsPage() {
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-primary-700">Hybrid Waterfall</span>
+                    <span className="text-xs font-black text-primary-700">{lang === 'sw' ? 'Mchanganyiko (Hybrid Waterfall)' : 'Hybrid Waterfall'}</span>
                     {currentMode === 'hybrid' && (
-                      <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-indigo-500 text-white">Active</span>
+                      <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-indigo-500 text-white">{lang === 'sw' ? 'Inafanya Kazi' : 'Active'}</span>
                     )}
                   </div>
                   <h5 className="text-sm font-black text-gray-900 mt-1.5">Direct Ads + AdSense Fallback</h5>
@@ -768,12 +770,12 @@ export function SettingsPage() {
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-amber-700">Direct Partners Only</span>
+                    <span className="text-xs font-black text-amber-700">{lang === 'sw' ? 'Wafadhili wa Moja kwa Moja Tu' : 'Direct Partners Only'}</span>
                     {currentMode === 'custom_sponsors_only' && (
-                      <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-amber-500 text-stone-950">Active</span>
+                      <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-amber-500 text-stone-950">{lang === 'sw' ? 'Inafanya Kazi' : 'Active'}</span>
                     )}
                   </div>
-                  <h5 className="text-sm font-black text-gray-900 mt-1.5">Exclusive Local Sponsors</h5>
+                  <h5 className="text-sm font-black text-gray-900 mt-1.5">{lang === 'sw' ? 'Wafadhili wa Kikanda Pekee' : 'Exclusive Local Sponsors'}</h5>
                   <p className="text-[11px] text-gray-500 mt-1 leading-relaxed">
                     Exclusively renders manually created sponsor banners (e.g. gym passes, spa discounts, couriers). No third-party network ads.
                   </p>
@@ -800,10 +802,10 @@ export function SettingsPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-black text-blue-700">Google AdSense Only</span>
                     {currentMode === 'adsense_only' && (
-                      <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-blue-500 text-white">Active</span>
+                      <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-blue-500 text-white">{lang === 'sw' ? 'Inafanya Kazi' : 'Active'}</span>
                     )}
                   </div>
-                  <h5 className="text-sm font-black text-gray-900 mt-1.5">Pure Programmatic Network</h5>
+                  <h5 className="text-sm font-black text-gray-900 mt-1.5">{lang === 'sw' ? 'Mtandao wa Programmatic Pekee' : 'Pure Programmatic Network'}</h5>
                   <p className="text-[11px] text-gray-500 mt-1 leading-relaxed">
                     Uses Google AdSense client tags across all ad slots. Completely automated monetization with no need to manage local advertisers.
                   </p>
@@ -821,7 +823,7 @@ export function SettingsPage() {
               <div>
                 <h4 className="text-sm font-black text-gray-900 flex items-center gap-2">
                   <Globe className="w-4 h-4 text-blue-600" />
-                  <span>Google AdSense Integration Settings</span>
+                  <span>{lang === 'sw' ? 'Mipangilio ya Google AdSense' : 'Google AdSense Integration Settings'}</span>
                 </h4>
                 <p className="text-xs text-gray-500 mt-0.5">
                   Configure your Google AdSense Publisher Client ID and individual responsive ad unit slot codes.
@@ -952,7 +954,7 @@ export function SettingsPage() {
                 className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-black rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer active:scale-98"
               >
                 <Save className="w-4 h-4" />
-                <span>Save AdSense Settings</span>
+                <span>{lang === 'sw' ? 'Hifadhi Mipangilio ya AdSense' : 'Save AdSense Settings'}</span>
               </button>
             </div>
           </div>
@@ -972,7 +974,7 @@ export function SettingsPage() {
                 className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
-                <span>New Partner Spot</span>
+                <span>{lang === 'sw' ? 'Nafasi Mpya ya Mfadhili' : 'New Partner Spot'}</span>
               </button>
             </div>
 
@@ -1151,7 +1153,7 @@ export function SettingsPage() {
             className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer"
           >
             <Save className="w-4 h-4" />
-            <span>Save Settings</span>
+            <span>{lang === 'sw' ? 'Hifadhi Mipangilio' : 'Save Settings'}</span>
           </button>
         </div>
       )}
@@ -1245,10 +1247,10 @@ export function SettingsPage() {
                     onChange={(e) => setAdFormPlacement(e.target.value as AdPlacement)}
                     className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs text-gray-900 focus:outline-none focus:border-primary-500"
                   >
-                    <option value="storefront_hero">Storefront Hero</option>
-                    <option value="products_banner">Products Catalog Banner</option>
-                    <option value="product_detail_modal">Product Detail Modal</option>
-                    <option value="checkout_footer">Checkout Footer</option>
+                    <option value="storefront_hero">{lang === 'sw' ? 'Bango Kuu la Duka' : 'Storefront Banner'}</option>
+                    <option value="products_banner">{lang === 'sw' ? 'Bango la Katalogi ya Bidhaa' : 'Products Catalog Banner'}</option>
+                    <option value="product_detail_modal">{lang === 'sw' ? 'Dirisha la Maelezo ya Bidhaa' : 'Product Detail Modal'}</option>
+                    <option value="checkout_footer">{lang === 'sw' ? 'Sehemu ya Chini ya Checkout' : 'Checkout Footer'}</option>
                   </select>
                 </div>
                 <div>

@@ -12,20 +12,31 @@ export function FloatingChatbotTrigger({ onOpenChat }: FloatingChatbotTriggerPro
   const [showBubble, setShowBubble] = useState(false);
   const [bubbleDismissed, setBubbleDismissed] = useState(false);
 
-  // Proactive trigger popup after 4.5 seconds
+  // Proactive trigger popup after 4.5 seconds; passive welcome auto-dismisses
+  // after 3s so it never nags. Opening the assistant counts as active
+  // interaction — an active chat must never be interrupted by dismissal logic.
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const showTimer = setTimeout(() => {
       if (!bubbleDismissed) {
         setShowBubble(true);
       }
     }, 4500);
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(showTimer);
   }, [bubbleDismissed]);
+
+  useEffect(() => {
+    if (!showBubble) return;
+    const dismissTimer = setTimeout(() => {
+      setShowBubble(false);
+      setBubbleDismissed(true);
+    }, 3000);
+    return () => clearTimeout(dismissTimer);
+  }, [showBubble]);
 
   return (
     <div className="fixed bottom-20 lg:bottom-6 left-4 sm:left-6 z-40 flex items-end gap-3">
-      {/* ── PROACTIVE CUSTOMER WELLNESS BUBBLE ── */}
+      {/* ── PROACTIVE WELCOME BUBBLE ── */}
       <AnimatePresence>
         {showBubble && (
           <motion.div
@@ -46,9 +57,9 @@ export function FloatingChatbotTrigger({ onOpenChat }: FloatingChatbotTriggerPro
             </button>
 
             <div className="flex items-center gap-1.5 text-stone-900 font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-primary-600 animate-pulse" />
               <span className="font-extrabold text-xs">ED-Assistant</span>
-              <span className="px-1.5 py-0.2 bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] rounded font-semibold">
+              <span className="px-1.5 py-0.2 bg-primary-50 text-primary-800 border border-primary-200 text-[10px] rounded font-semibold">
                 {lang === 'sw' ? 'Mshauri wa Afya' : 'Health Concierge'}
               </span>
             </div>
@@ -64,7 +75,7 @@ export function FloatingChatbotTrigger({ onOpenChat }: FloatingChatbotTriggerPro
                 setShowBubble(false);
                 onOpenChat();
               }}
-              className="w-full py-1.5 bg-[#0C271E] hover:bg-[#164132] text-white font-bold rounded-xl text-center block transition-colors text-xs shadow-2xs cursor-pointer"
+              className="w-full py-1.5 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl text-center block transition-colors text-xs shadow-2xs cursor-pointer"
             >
               {lang === 'sw' ? 'Ongea na Msaidizi wa Afya' : 'Ask Wellness Assistant'}
             </button>
@@ -78,17 +89,16 @@ export function FloatingChatbotTrigger({ onOpenChat }: FloatingChatbotTriggerPro
         onClick={onOpenChat}
         whileHover={{ scale: 1.04 }}
         whileTap={{ scale: 0.96 }}
-        className="p-3 sm:px-4 sm:py-3 rounded-2xl shadow-xl flex items-center gap-2.5 font-extrabold text-xs transition-all border bg-[#0C271E] hover:bg-[#164132] text-white border-[#235844] cursor-pointer"
+        className="p-3 sm:px-4 sm:py-3 rounded-2xl shadow-xl flex items-center gap-2.5 font-extrabold text-xs transition-all border bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white border-primary-700 cursor-pointer"
       >
         <div className="relative">
-          <MessageCircle className="w-5 h-5 text-[#E5C378]" />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full animate-ping" />
-          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full" />
+          <MessageCircle className="w-5 h-5 text-white" />
+          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-brand-red rounded-full ring-2 ring-white" />
         </div>
 
         <div className="hidden sm:flex flex-col text-left leading-tight">
           <span className="text-white font-black text-xs">ED-Assistant</span>
-          <span className="text-[10px] text-[#E5C378] font-semibold">
+          <span className="text-[10px] text-primary-100 font-semibold">
             {lang === 'sw' ? 'Ushauri wa Afya' : 'Health Concierge'}
           </span>
         </div>

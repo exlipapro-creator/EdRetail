@@ -46,6 +46,9 @@ const DistributorProfilePage = lazy(() =>
 const DistributorStorefrontPage = lazy(() =>
   import('./distributor/pages/DistributorStorefrontPage').then((m) => ({ default: m.DistributorStorefrontPage }))
 );
+const DistributorHeroesPage = lazy(() =>
+  import('./distributor/pages/DistributorHeroesPage').then((m) => ({ default: m.DistributorHeroesPage }))
+);
 const DistributorResetPasswordPage = lazy(() =>
   import('./distributor/pages/DistributorResetPasswordPage').then((m) => ({ default: m.DistributorResetPasswordPage }))
 );
@@ -124,14 +127,17 @@ export function AppRouter() {
   const isAdmin = pathname.startsWith('/admin');
   const isPortal = pathname.startsWith('/portal') || pathname.startsWith('/distributor');
 
-  // 1. Super Admin Routes (AuthProvider lives inside the lazy AdminApp chunk)
+  // 1. Super Admin Routes (AuthProvider lives inside the lazy AdminApp chunk;
+  // LangProvider keeps the admin portal bilingual with the rest of the app).
   if (isAdmin) {
     return (
-      <Suspense fallback={<AdminFallback />}>
-        <Routes>
-          <Route path="/admin/*" element={<AdminApp />} />
-        </Routes>
-      </Suspense>
+      <LangProvider>
+        <Suspense fallback={<AdminFallback />}>
+          <Routes>
+            <Route path="/admin/*" element={<AdminApp />} />
+          </Routes>
+        </Suspense>
+      </LangProvider>
     );
   }
 
@@ -157,6 +163,7 @@ export function AppRouter() {
             <Route path="/portal/payments"  element={<DistributorProtected><DistributorPaymentsPage /></DistributorProtected>} />
             <Route path="/portal/profile"   element={<DistributorProtected><DistributorProfilePage /></DistributorProtected>} />
             <Route path="/portal/storefront" element={<DistributorProtected><DistributorStorefrontPage /></DistributorProtected>} />
+            <Route path="/portal/heroes" element={<DistributorProtected><DistributorHeroesPage /></DistributorProtected>} />
             <Route path="/portal/*" element={<Navigate to="/portal/dashboard" replace />} />
           </Routes>
         </Suspense>

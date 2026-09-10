@@ -1,5 +1,4 @@
-import { Link } from 'react-router-dom';
-import { ShieldCheck } from 'lucide-react';
+
 import { useLang } from '../../context/LangContext';
 import { useDistributorStore } from '../../store/distributorStore';
 import { ReferralShareButton } from '../ReferralShare';
@@ -60,47 +59,35 @@ export function StorefrontFooter({ onNavigate }: StorefrontFooterProps) {
             </h3>
             {link('help', 'Orders & Help', 'Maagizo & Msaada', 'f-help')}
             {link('delivery', 'Delivery Info', 'Uwasilishaji', 'f-delivery')}
+            {link('legal', 'Privacy & Terms', 'Faragha & Masharti', 'f-legal')}
           </div>
 
-          {/* Distributor */}
+          {/* Distributor access is intentionally hidden from the customer
+              storefront: it lives behind the deliberate 3-pull gesture on the
+              Goals screen. Authorization remains server-side (user_roles + RLS). */}
+
+          {/* Language */}
           <div className="space-y-1.5">
             <h3 className="text-[11px] font-black uppercase tracking-wider text-neutral-400 mb-2">
-              {lang === 'sw' ? 'Msambazaji' : 'Distributor'}
+              {lang === 'sw' ? 'Lugha' : 'Language'}
             </h3>
-            {link('distributor', 'Become a Distributor', 'Kuwa Msambazaji', 'f-distributor')}
-            <Link
-              to="/portal"
-              className="flex items-center gap-1.5 text-xs text-neutral-500 hover:text-[#123B6D] transition-colors py-1"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="font-semibold">
-                {lang === 'sw' ? 'Distributor Portal' : 'Distributor Portal'}
-              </span>
-            </Link>
-
-            {/* Language */}
-            <div className="pt-2 space-y-1.5">
-              <h3 className="text-[11px] font-black uppercase tracking-wider text-neutral-400">
-                {lang === 'sw' ? 'Lugha' : 'Language'}
-              </h3>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setLang('sw')}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
-                    lang === 'sw' ? 'bg-[#123B6D] text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
-                  }`}
-                >
-                  Kiswahili
-                </button>
-                <button
-                  onClick={() => setLang('en')}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
-                    lang === 'en' ? 'bg-[#123B6D] text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
-                  }`}
-                >
-                  English
-                </button>
-              </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setLang('sw')}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
+                  lang === 'sw' ? 'bg-[#123B6D] text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                }`}
+              >
+                Kiswahili
+              </button>
+              <button
+                onClick={() => setLang('en')}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer ${
+                  lang === 'en' ? 'bg-[#123B6D] text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                }`}
+              >
+                English
+              </button>
             </div>
           </div>
         </div>

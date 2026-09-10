@@ -4,6 +4,7 @@ import { formatPrice } from '../../utils/whatsappCompiler';
 import { TrendingUp, ShoppingBag, CreditCard, Package, AlertTriangle, CircleAlert } from 'lucide-react';
 import { useDistributorStore } from '../../store/distributorStore';
 import { PageHeader, Spinner, cn } from '../../components/ui';
+import { useLang } from '../../context/LangContext';
 
 interface Stats {
   totalRevenue: number;
@@ -60,6 +61,7 @@ function MetricSection({ title, children }: { title: string; children: React.Rea
 }
 
 export function DashboardPage() {
+  const { lang } = useLang();
   const [stats, setStats]   = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -136,37 +138,39 @@ export function DashboardPage() {
 
   return (
     <div className="p-4 md:p-6 max-w-5xl">
-      <PageHeader title="Dashboard" sub="Overview of your store performance" />
+      <PageHeader title={lang === 'sw' ? 'Dashibodi' : 'Dashboard'} sub={lang === 'sw' ? 'Muhtasari wa utendaji wa duka lako' : 'Overview of your store performance'} />
 
       {s.lowStockCount > 0 && (
         <div className="flex items-center gap-2.5 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-6">
           <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
           <p className="text-sm text-amber-800">
-            {s.lowStockCount} product{s.lowStockCount > 1 ? 's' : ''} running low on stock. Check the Products page.
+            {lang === 'sw'
+              ? `Bidhaa ${s.lowStockCount} zinaishia stock. Angalia ukurasa wa Bidhaa.`
+              : `${s.lowStockCount} product${s.lowStockCount > 1 ? 's' : ''} running low on stock. Check the Products page.`}
           </p>
         </div>
       )}
 
-      <MetricSection title="Revenue">
+      <MetricSection title={lang === 'sw' ? 'Mapato' : 'Revenue'}>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <StatCard label="Total Revenue"     value={`${formatPrice(s.totalRevenue)} TZS`} icon={<TrendingUp className="w-4 h-4" />} tone="success" />
-          <StatCard label="This Month"        value={`${formatPrice(s.monthRevenue)} TZS`} icon={<TrendingUp className="w-4 h-4" />} tone="primary" />
-          <StatCard label="Today"             value={`${formatPrice(s.todayRevenue)} TZS`} icon={<TrendingUp className="w-4 h-4" />} tone="neutral" />
+          <StatCard label={lang === 'sw' ? 'Jumla ya Mapato' : 'Total Revenue'}     value={`${formatPrice(s.totalRevenue)} TZS`} icon={<TrendingUp className="w-4 h-4" />} tone="success" />
+          <StatCard label={lang === 'sw' ? 'Mwezi Huu' : 'This Month'}        value={`${formatPrice(s.monthRevenue)} TZS`} icon={<TrendingUp className="w-4 h-4" />} tone="primary" />
+          <StatCard label={lang === 'sw' ? 'Leo' : 'Today'}             value={`${formatPrice(s.todayRevenue)} TZS`} icon={<TrendingUp className="w-4 h-4" />} tone="neutral" />
         </div>
       </MetricSection>
 
-      <MetricSection title="Operations">
+      <MetricSection title={lang === 'sw' ? 'Uendeshaji' : 'Operations'}>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <StatCard label="Total Sales"       value={s.totalSales.toString()}   icon={<ShoppingBag className="w-4 h-4" />} tone="neutral" />
-          <StatCard label="Pending Orders"    value={s.pendingSales.toString()} icon={<CircleAlert className="w-4 h-4" />}  tone="warning" />
-          <StatCard label="Low Stock Items"   value={s.lowStockCount.toString()} icon={<Package className="w-4 h-4" />}    tone={s.lowStockCount > 0 ? 'warning' : 'neutral'} />
+          <StatCard label={lang === 'sw' ? 'Jumla ya Mauzo' : 'Total Sales'}       value={s.totalSales.toString()}   icon={<ShoppingBag className="w-4 h-4" />} tone="neutral" />
+          <StatCard label={lang === 'sw' ? 'Maagizo Yanayosubiri' : 'Pending Orders'}    value={s.pendingSales.toString()} icon={<CircleAlert className="w-4 h-4" />}  tone="warning" />
+          <StatCard label={lang === 'sw' ? 'Bidhaa Zinazoishia' : 'Low Stock Items'}   value={s.lowStockCount.toString()} icon={<Package className="w-4 h-4" />}    tone={s.lowStockCount > 0 ? 'warning' : 'neutral'} />
         </div>
       </MetricSection>
 
-      <MetricSection title="Credit">
+      <MetricSection title={lang === 'sw' ? 'Mikopo' : 'Credit'}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <StatCard label="Outstanding Loans" value={`${formatPrice(s.outstandingLoans)} TZS`} icon={<CreditCard className="w-4 h-4" />} tone="danger" />
-          <StatCard label="Active Loans"      value={s.activeLoans.toString()}                icon={<CreditCard className="w-4 h-4" />} tone="neutral" />
+          <StatCard label={lang === 'sw' ? 'Mikopo Isiyolipwa' : 'Outstanding Loans'} value={`${formatPrice(s.outstandingLoans)} TZS`} icon={<CreditCard className="w-4 h-4" />} tone="danger" />
+          <StatCard label={lang === 'sw' ? 'Mikopo Inayoendelea' : 'Active Loans'}      value={s.activeLoans.toString()}                icon={<CreditCard className="w-4 h-4" />} tone="neutral" />
         </div>
       </MetricSection>
     </div>

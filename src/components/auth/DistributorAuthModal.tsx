@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   X,
@@ -13,27 +13,41 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { useLang } from '../../context/LangContext';
-import { useDistributorStore, DEFAULT_DISTRIBUTOR } from '../../store/distributorStore';
+import { useDistributorStore } from '../../store/distributorStore';
 import { supabase } from '../../lib/supabase';
 import { DEMO_UNLOCK_ENABLED } from '../../lib/devFlags';
 import { EdIcon } from '../brand/EdIcon';
+import { useThreePullGesture } from '../../hooks/useThreePullGesture';
 
 interface DistributorAuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  /** Hidden-escalation callback: 3-pull inside this modal → Super Admin Login. */
+  onSuperAdminAccess?: () => void;
+  /**
+   * 'overlay' (default) renders the classic centered modal. 'page' renders a
+   * dedicated full-screen Distributor Login page — no dark overlay, compact
+   * centered card, back navigation, and a bottom activation zone for the
+   * Super Admin escalation gesture.
+   */
+  variant?: 'overlay' | 'page';
+  /** Page variant: back navigation handler (e.g., return to Goals). */
+  onBack?: () => void;
 }
 
 export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
   isOpen,
   onClose,
   onSuccess,
+  onSuperAdminAccess,
+  variant = 'overlay',
+  onBack,
 }) => {
   const { lang } = useLang();
   const loginWithEmail = useDistributorStore((s) => s.loginWithEmail);
   const loginWithGoogle = useDistributorStore((s) => s.loginWithGoogle);
   const registerNewDistributor = useDistributorStore((s) => s.registerNewDistributor);
-  const savedDistributors = useDistributorStore((s) => s.savedDistributors);
   const currentProfile = useDistributorStore((s) => s.currentProfile);
   const isAdminAuthenticated = useDistributorStore((s) => s.isAdminAuthenticated);
   const logoutDistributor = useDistributorStore((s) => s.logoutDistributor);
@@ -50,6 +64,21 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  // Hidden escalation surface: the same deliberate 3-pull gesture inside the
+  // Distributor Login navigates to the Super Admin Login. In page mode the
+  // gesture is scoped to the dedicated bottom activation zone only. Discover-
+  // ability only — the /admin route still requires real super_admin
+  // credentials and the server-side role check; this gesture never
+  // authenticates anyone.
+  const escalationZoneRef = useRef<HTMLDivElement | null>(null);
+  useThreePullGesture({
+    onTrigger: () => {
+      onSuperAdminAccess?.();
+    },
+    resetKey: String(isOpen) + mode,
+    disabled: !isOpen,
+    zoneRef: variant === 'page' ? escalationZoneRef : undefined,
+  });
 
   if (!isOpen) return null;
 
@@ -140,8 +169,8 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
 
       setSuccessMessage(
         lang === 'sw'
-          ? `🎉 Hongera ${profile.name}! Duka lako la mtandaoni limeundwa: edretail.tz/@${profile.slug}`
-          : `🎉 Welcome ${profile.name}! Your distributor store is live: edretail.tz/@${profile.slug}`
+          ? `Hongera ${profile.name}! Duka lako la mtandaoni limeundwa: edretail.tz/@${profile.slug}`
+          : `Welcome ${profile.name}! Your distributor store is live: edretail.tz/@${profile.slug}`
       );
 
       setTimeout(() => {
@@ -183,8 +212,8 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
         const gProfile = loginWithGoogle();
         setSuccessMessage(
           lang === 'sw'
-            ? `✅ Umeingia kupitia Google kama ${gProfile.name}!`
-            : `✅ Connected via Google as ${gProfile.name}!`
+          ? `Umeingia kupitia Google kama ${gProfile.name}!`
+          : `Connected via Google as ${gProfile.name}!`
         );
         setTimeout(() => {
           onSuccess?.();
@@ -196,19 +225,6 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleQuickSwitch = (dist: typeof DEFAULT_DISTRIBUTOR) => {
-    // Development-only convenience for switching demo profiles.
-    if (!DEMO_UNLOCK_ENABLED) return;
-    loginWithEmail(dist.email, 'password123');
-    setSuccessMessage(
-      lang === 'sw' ? `Umeingia kama ${dist.name}` : `Switched to ${dist.name}`
-    );
-    setTimeout(() => {
-      onSuccess?.();
-      onClose();
-    }, 600);
   };
 
   const handleForgotPassword = async () => {
@@ -240,16 +256,11 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/70 backdrop-blur-sm animate-fadeIn">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 10 }}
-        className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden max-h-[92vh] flex flex-col"
-      >
+  // Shared card content (header + body) composed per variant below.
+  const cardContent = (
+    <>
         {/* ── HEADER BANNER ── */}
-        <div className="bg-gradient-to-r from-emerald-900 to-primary-900 p-5 sm:p-6 text-white relative">
+        <div className="bg-primary-600 p-5 sm:p-6 text-white relative shrink-0">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
@@ -259,11 +270,11 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
           </button>
 
           <div className="flex items-center gap-2.5 mb-1.5">
-            <div className="w-9 h-9 rounded-xl bg-amber-400 text-emerald-950 flex items-center justify-center font-bold flex-shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-white/10 border border-white/20 text-white flex items-center justify-center font-bold flex-shrink-0">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-amber-300">
+              <span className="text-[10px] font-black uppercase tracking-wider text-primary-100">
                 {lang === 'sw' ? 'Kitovu cha Wasambazaji' : 'Distributor Command Hub'}
               </span>
               <h3 className="text-lg font-extrabold text-white">
@@ -281,7 +292,7 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
               </h3>
             </div>
           </div>
-          <p className="text-xs text-emerald-200/90 mt-1">
+          <p className="text-xs text-primary-100/90 mt-1">
             {lang === 'sw'
               ? 'Tengeneza duka lako la kipekee (edretail.tz/@jina), tengeneza picha za WhatsApp Status, na simamia mauzo.'
               : 'Launch your personalized shop, generate 1-tap WhatsApp flyers, and track retail profits.'}
@@ -310,13 +321,13 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
 
               <div className="pt-2 border-t border-emerald-200/80 text-xs text-neutral-700 space-y-1">
                 <div>
-                  <strong>Link Yako:</strong>{' '}
+                  <strong>{lang === 'sw' ? 'Kiungo Chako:' : 'Your Link:'}</strong>{' '}
                   <span className="text-primary-700 font-mono">
                     edretail.tz/@{currentProfile.slug}
                   </span>
                 </div>
                 <div>
-                  <strong>WhatsApp Orders:</strong> {currentProfile.phone}
+                  <strong>{lang === 'sw' ? 'Maagizo ya WhatsApp:' : 'WhatsApp Orders:'}</strong> {currentProfile.phone}
                 </div>
               </div>
 
@@ -411,7 +422,7 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
                       : 'text-neutral-500 hover:text-neutral-900'
                   }`}
                 >
-                  {lang === 'sw' ? 'Ingia (Login)' : 'Sign In'}
+                  {lang === 'sw' ? 'Ingia' : 'Sign In'}
                 </button>
                 {DEMO_UNLOCK_ENABLED && (
                   <button
@@ -426,7 +437,7 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
                         : 'text-neutral-500 hover:text-neutral-900'
                     }`}
                   >
-                    {lang === 'sw' ? 'Msambazaji Mpya (Register)' : 'New Distributor'}
+                    {lang === 'sw' ? 'Msambazaji Mpya' : 'New Distributor'}
                   </button>
                 )}
               </div>
@@ -734,30 +745,56 @@ export const DistributorAuthModal: React.FC<DistributorAuthModalProps> = ({
                 </div>
               )}
 
-              {/* ── QUICK DISTRIBUTOR SWITCHER (development only) ── */}
-              {DEMO_UNLOCK_ENABLED && (
-                <div className="pt-3 border-t border-neutral-200/80">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-400 block mb-2">
-                    {lang === 'sw' ? 'Chagua Wasambazaji Waliopo (Demo Quick-Switch):' : 'Saved Accounts (Quick Switch):'}
-                  </span>
-                  <div className="grid grid-cols-2 gap-2">
-                    {savedDistributors.slice(0, 2).map((d) => (
-                      <button
-                        key={d.id}
-                        type="button"
-                        onClick={() => handleQuickSwitch(d)}
-                        className="p-2 text-left rounded-xl bg-neutral-50 hover:bg-neutral-100 border border-neutral-200/80 text-xs transition-all"
-                      >
-                        <div className="font-bold text-neutral-900 truncate">{d.name}</div>
-                        <div className="text-[10px] text-neutral-500 truncate">@{d.slug} • {d.city}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Quick-switcher (dev-only demo credentials) removed — raw
+                  credential literals must never ship, even inert. */}
             </>
           )}
         </div>
+    </>
+  );
+
+  // ── PAGE VARIANT: dedicated full-screen Distributor Login (no dark overlay).
+  if (variant === 'page') {
+    return (
+      <div className="min-h-[75vh] max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-10 animate-fadeIn">
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <button
+            type="button"
+            onClick={onBack}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 border border-transparent hover:border-neutral-200 transition-colors cursor-pointer"
+          >
+            <ArrowRight className="w-3.5 h-3.5 rotate-180" />
+            {lang === 'sw' ? 'Rudi Malengo' : 'Back to Goals'}
+          </button>
+          <img src="/logo/wordmark.png" alt="ED Retail Tanzania" className="h-6 w-auto object-contain" />
+        </div>
+
+        <div className="bg-white w-full max-w-md mx-auto rounded-2xl sm:rounded-3xl shadow-xl border border-neutral-200 overflow-hidden max-h-[80vh] flex flex-col">
+          {cardContent}
+        </div>
+
+        {/* Hidden Super-Admin escalation activation zone — deliberate 3-pull
+            gesture only, never ordinary scrolling. Not a security boundary. */}
+        <div
+          ref={escalationZoneRef}
+          data-hidden-access-zone="distributor-login"
+          aria-hidden
+          className="h-16 sm:h-20 w-full mt-4"
+        />
+      </div>
+    );
+  }
+
+  // ── OVERLAY VARIANT: compact centered modal (legacy path).
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/70 backdrop-blur-sm animate-fadeIn">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        className="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-neutral-200 overflow-hidden max-h-[92vh] flex flex-col"
+      >
+        {cardContent}
       </motion.div>
     </div>
   );

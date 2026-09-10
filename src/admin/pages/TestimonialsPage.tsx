@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Loader2, Save, Star } from 'lucide-react';
 import testimonialsData from '../../data/testimonials.json';
+import { useLang } from '../../context/LangContext';
 import {
   PageHeader, Modal, Field, inputClasses, buttonClasses,
   Badge, EmptyState, Spinner, cn,
@@ -23,6 +24,7 @@ const EMPTY: Omit<DBTestimonial, 'id' | 'created_at'> = {
 };
 
 export function TestimonialsPage() {
+  const { lang } = useLang();
   const [items, setItems]     = useState<DBTestimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<DBTestimonial> | null>(null);
@@ -110,7 +112,7 @@ export function TestimonialsPage() {
   return (
     <div className="p-4 md:p-6 max-w-5xl">
       <PageHeader
-        title="Testimonials"
+        title={lang === 'sw' ? 'Maoni' : 'Testimonials'}
         sub={`${items.filter(t => t.visible).length} visible · ${items.length} total`}
         actions={
           <button onClick={openNew} className={buttonClasses('primary')}>
@@ -125,7 +127,7 @@ export function TestimonialsPage() {
         <div className="bg-white border border-gray-200 rounded-xl">
           <EmptyState
             icon={<Star className="w-5 h-5 text-gray-400" />}
-            title="No testimonials yet"
+            title={lang === 'sw' ? 'Hakuna maoni bado' : 'No testimonials yet'}
             sub="Add the first customer review — it will appear on the storefront once visible."
             action={
               <button onClick={openNew} className={buttonClasses('primary')}>
@@ -142,7 +144,7 @@ export function TestimonialsPage() {
               className="bg-white border border-gray-200 rounded-lg px-4 py-3 flex flex-col sm:flex-row sm:items-start gap-3"
             >
               {/* Stars */}
-              <div className="flex gap-0.5 flex-shrink-0" aria-label="Rated 5 out of 5">
+              <div className="flex gap-0.5 flex-shrink-0" aria-label={lang === 'sw' ? 'Alipima 5 kati ya 5' : 'Rated 5 out of 5'}>
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-3 h-3 fill-gold-400 text-gold-400" />
                 ))}
@@ -153,7 +155,7 @@ export function TestimonialsPage() {
                   <span className="text-sm font-semibold text-gray-900">{t.name}</span>
                   {t.location && <span className="text-xs text-gray-500">{t.location}</span>}
                   {t.result && <Badge tone="success">{t.result}</Badge>}
-                  {!t.visible && <Badge tone="neutral">Hidden</Badge>}
+                  {!t.visible && <Badge tone="neutral">{lang === 'sw' ? 'Imefichwa' : 'Hidden'}</Badge>}
                 </div>
                 {t.product && <p className="text-[10px] text-gray-500 mb-1">{t.product}</p>}
                 <p className="text-xs text-gray-500 leading-relaxed line-clamp-2 italic">"{t.text}"</p>
@@ -197,7 +199,7 @@ export function TestimonialsPage() {
         title={editing?.id ? 'Edit Review' : 'Add Review'}
         footer={
           <>
-            <button onClick={close} className={buttonClasses('secondary', 'flex-1')}>Cancel</button>
+            <button onClick={close} className={buttonClasses('secondary', 'flex-1')}>{lang === 'sw' ? 'Ghairi' : 'Cancel'}</button>
             <button onClick={handleSave} disabled={saving} className={buttonClasses('primary', 'flex-1')}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4" /> Save</>}
             </button>
@@ -206,17 +208,17 @@ export function TestimonialsPage() {
       >
         {editing && (
           <div className="space-y-3">
-            <Field label="Customer Name *">
+            <Field label={lang === 'sw' ? 'Jina la Mteja *' : 'Customer Name *'}>
               <input
                 value={editing.name ?? ''}
                 onChange={e => setEditing(v => ({ ...v, name: e.target.value }))}
                 className={inputClasses}
-                placeholder="e.g. Amina J."
+                placeholder={lang === 'sw' ? 'mf. Amina J.' : 'e.g. Amina J.'}
               />
             </Field>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Field label="Location">
+              <Field label={lang === 'sw' ? 'Eneo' : 'Location'}>
                 <input
                   value={editing.location ?? ''}
                   onChange={e => setEditing(v => ({ ...v, location: e.target.value }))}
@@ -224,7 +226,7 @@ export function TestimonialsPage() {
                   placeholder="e.g. Dar es Salaam"
                 />
               </Field>
-              <Field label="Product Used">
+              <Field label={lang === 'sw' ? 'Bidhaa Iliyotumika' : 'Product Used'}>
                 <input
                   value={editing.product ?? ''}
                   onChange={e => setEditing(v => ({ ...v, product: e.target.value }))}
@@ -234,7 +236,7 @@ export function TestimonialsPage() {
               </Field>
             </div>
 
-            <Field label="Result Badge">
+            <Field label={lang === 'sw' ? 'Beji ya Matokeo' : 'Result Badge'}>
               <input
                 value={editing.result ?? ''}
                 onChange={e => setEditing(v => ({ ...v, result: e.target.value }))}
@@ -243,18 +245,18 @@ export function TestimonialsPage() {
               />
             </Field>
 
-            <Field label="Review Text *">
+            <Field label={lang === 'sw' ? 'Maandishi ya Maoni *' : 'Review Text *'}>
               <textarea
                 rows={4}
                 value={editing.text ?? ''}
                 onChange={e => setEditing(v => ({ ...v, text: e.target.value }))}
                 className={cn(inputClasses, 'resize-none')}
-                placeholder="Write what the customer said..."
+                placeholder={lang === 'sw' ? 'Andika kile mteja alichosema...' : 'Write what the customer said...'}
               />
             </Field>
 
             <div className="flex items-center gap-3 border-t border-gray-100 pt-3">
-              <label className="text-xs font-semibold text-gray-500">Visible on storefront</label>
+              <label className="text-xs font-semibold text-gray-500">{lang === 'sw' ? 'Inaonekana dukani' : 'Visible on storefront'}</label>
               <button
                 type="button"
                 onClick={() => setEditing(v => ({ ...v, visible: !v?.visible }))}

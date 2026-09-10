@@ -4,6 +4,7 @@ import { formatPrice } from '../../utils/whatsappCompiler';
 import { Sale, SaleChannel, SaleStatus, SaleItem } from '../types';
 import { Plus, X, Save, Loader2, ChevronDown, CheckCircle2, Truck, Clock, XCircle, Phone, MapPin } from 'lucide-react';
 import { useDistributorStore } from '../../store/distributorStore';
+import { useLang } from '../../context/LangContext';
 import {
   PageHeader, Modal, Field, inputClasses, buttonClasses,
   FilterPills, Badge, EmptyState, Spinner, cn,
@@ -17,6 +18,7 @@ const STATUS_CONFIG: Record<SaleStatus, { label: string; tone: 'warning' | 'prim
 };
 
 export function SalesPage() {
+  const { lang } = useLang();
   const [sales, setSales]     = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter]   = useState<SaleChannel | 'all'>('all');
@@ -172,7 +174,7 @@ export function SalesPage() {
   return (
     <div className="p-4 md:p-6 max-w-5xl">
       <PageHeader
-        title="Sales"
+        title={lang === 'sw' ? 'Mauzo' : 'Sales'}
         sub={`${sales.length} total sales`}
         actions={
           <button onClick={() => setShowForm(true)} className={buttonClasses('primary')}>
@@ -199,7 +201,7 @@ export function SalesPage() {
         <div className="bg-white border border-gray-200 rounded-xl">
           <EmptyState
             icon={<Plus className="w-5 h-5 text-gray-400" />}
-            title="No sales recorded yet"
+            title={lang === 'sw' ? 'Hakuna mauzo bado' : 'No sales recorded yet'}
             sub={filter === 'all'
               ? 'Record your first sale to see it here.'
               : 'No sales in this channel yet.'}
@@ -251,11 +253,11 @@ export function SalesPage() {
                         </div>
                       ))}
                       <div className="flex justify-between text-sm font-bold text-gray-900 border-t border-gray-100 pt-2 mt-1 tabular-nums">
-                        <span>Total</span><span>{formatPrice(sale.subtotal)} TZS</span>
+                        <span>{lang === 'sw' ? 'Jumla' : 'Total'}</span><span>{formatPrice(sale.subtotal)} TZS</span>
                       </div>
                       {sale.amount_paid < sale.subtotal && (
                         <div className="flex justify-between text-xs text-red-600 tabular-nums">
-                          <span>Paid</span><span>{formatPrice(sale.amount_paid)} TZS</span>
+                          <span>{lang === 'sw' ? 'Imelipwa' : 'Paid'}</span><span>{formatPrice(sale.amount_paid)} TZS</span>
                         </div>
                       )}
                     </div>
@@ -283,10 +285,10 @@ export function SalesPage() {
       <Modal
         open={showForm}
         onClose={() => setShowForm(false)}
-        title="Record Sale"
+        title={lang === 'sw' ? 'Rekodi Mauzo' : 'Record Sale'}
         footer={
           <>
-            <button onClick={() => setShowForm(false)} className={buttonClasses('secondary', 'flex-1')}>Cancel</button>
+            <button onClick={() => setShowForm(false)} className={buttonClasses('secondary', 'flex-1')}>{lang === 'sw' ? 'Ghairi' : 'Cancel'}</button>
             <button
               onClick={handleSave}
               disabled={saving || !form.customer_name || form.items.length === 0}
@@ -299,7 +301,7 @@ export function SalesPage() {
       >
         <div className="space-y-4">
           {/* Channel */}
-          <Field label="Channel">
+          <Field label={lang === 'sw' ? 'Njia' : 'Channel'}>
             <div className="flex gap-2">
               {(['cash','app','loan'] as SaleChannel[]).map(ch => (
                 <button
@@ -321,7 +323,7 @@ export function SalesPage() {
           </Field>
 
           {/* Customer */}
-          <Field label="Customer Name *">
+          <Field label={lang === 'sw' ? 'Jina la Mteja *' : 'Customer Name *'}>
             <input
               value={form.customer_name}
               onChange={e => setForm(v => ({ ...v, customer_name: e.target.value }))}
@@ -329,14 +331,14 @@ export function SalesPage() {
             />
           </Field>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Field label="Phone">
+            <Field label={lang === 'sw' ? 'Simu' : 'Phone'}>
               <input
                 value={form.customer_phone}
                 onChange={e => setForm(v => ({ ...v, customer_phone: e.target.value }))}
                 className={inputClasses}
               />
             </Field>
-            <Field label="Location">
+            <Field label={lang === 'sw' ? 'Eneo' : 'Location'}>
               <input
                 value={form.customer_location}
                 onChange={e => setForm(v => ({ ...v, customer_location: e.target.value }))}
@@ -348,7 +350,7 @@ export function SalesPage() {
           {/* Items */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-semibold text-gray-500">Items</label>
+              <label className="text-xs font-semibold text-gray-500">{lang === 'sw' ? 'Bidhaa' : 'Items'}</label>
               <button
                 type="button"
                 onClick={addItem}
@@ -372,7 +374,7 @@ export function SalesPage() {
                     min={1}
                     value={item.quantity}
                     onChange={e => updateItem(i, 'quantity', +e.target.value)}
-                    aria-label="Quantity"
+                    aria-label={lang === 'sw' ? 'Kiasi' : 'Quantity'}
                     className={cn(inputClasses, 'w-14 py-1.5 text-xs text-center tabular-nums')}
                   />
                   <span className="text-xs text-gray-500 w-20 text-right tabular-nums">{formatPrice(item.total)}</span>
@@ -380,7 +382,7 @@ export function SalesPage() {
                     type="button"
                     onClick={() => removeItem(i)}
                     className="text-gray-400 hover:text-red-600 transition-colors outline-none p-1"
-                    aria-label="Remove item"
+                    aria-label={lang === 'sw' ? 'Ondoa bidhaa' : 'Remove item'}
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -389,13 +391,13 @@ export function SalesPage() {
             </div>
             {form.items.length > 0 && (
               <div className="flex justify-between text-sm font-bold text-gray-900 mt-2 pt-2 border-t border-gray-100 tabular-nums">
-                <span>Subtotal</span><span>{formatPrice(subtotal)} TZS</span>
+                <span>{lang === 'sw' ? 'Jumla ndogo' : 'Subtotal'}</span><span>{formatPrice(subtotal)} TZS</span>
               </div>
             )}
           </div>
 
           {form.channel === 'loan' && (
-            <Field label="Amount Paid Now (TZS)">
+            <Field label={lang === 'sw' ? 'Kiasi Kilicholipwa Sasa (TZS)' : 'Amount Paid Now (TZS)'}>
               <input
                 type="number"
                 value={form.amount_paid}
@@ -408,7 +410,7 @@ export function SalesPage() {
             </Field>
           )}
 
-          <Field label="Notes">
+          <Field label={lang === 'sw' ? 'Maelezo' : 'Notes'}>
             <textarea
               rows={2}
               value={form.notes}

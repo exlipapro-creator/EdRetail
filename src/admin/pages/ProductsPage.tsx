@@ -4,6 +4,7 @@ import { formatPrice } from '../../utils/whatsappCompiler';
 import { AdminProduct } from '../types';
 import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Loader2, Save } from 'lucide-react';
 import { useDistributorStore } from '../../store/distributorStore';
+import { useLang } from '../../context/LangContext';
 import { PRODUCTS } from '../../types';
 import {
   PageHeader, Modal, Field, inputClasses, buttonClasses,
@@ -17,6 +18,7 @@ const EMPTY: Omit<AdminProduct, 'created_at' | 'updated_at'> = {
 };
 
 export function ProductsPage() {
+  const { lang } = useLang();
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [loading, setLoading]   = useState(true);
   const [editing, setEditing]   = useState<Partial<AdminProduct> | null>(null);
@@ -130,11 +132,11 @@ export function ProductsPage() {
   return (
     <div className="p-4 md:p-6 max-w-5xl">
       <PageHeader
-        title="Products"
-        sub={`${products.length} products in catalogue`}
+        title={lang === 'sw' ? 'Bidhaa' : 'Products'}
+        sub={lang === 'sw' ? `Bidhaa ${products.length} kwenye katalogi` : `${products.length} products in catalogue`}
         actions={
           <button onClick={openNew} className={buttonClasses('primary')}>
-            <Plus className="w-4 h-4" /> Add Product
+            <Plus className="w-4 h-4" /> {lang === 'sw' ? 'Ongeza Bidhaa' : 'Add Product'}
           </button>
         }
       />
@@ -145,11 +147,11 @@ export function ProductsPage() {
         <div className="bg-white border border-gray-200 rounded-xl">
           <EmptyState
             icon={<Plus className="w-5 h-5 text-gray-400" />}
-            title="No products yet"
-            sub="Add your first product to start selling on the storefront."
+            title={lang === 'sw' ? 'Hakuna bidhaa bado' : 'No products yet'}
+            sub={lang === 'sw' ? 'Ongeza bidhaa yako ya kwanza ili kuanza kuuza dukani.' : 'Add your first product to start selling on the storefront.'}
             action={
               <button onClick={openNew} className={buttonClasses('primary')}>
-                <Plus className="w-4 h-4" /> Add Product
+                <Plus className="w-4 h-4" /> {lang === 'sw' ? 'Ongeza Bidhaa' : 'Add Product'}
               </button>
             }
           />
@@ -171,8 +173,8 @@ export function ProductsPage() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <p className="text-sm font-semibold text-gray-900 truncate">{p.name_en}</p>
                   {p.badge && <Badge tone="primary">{p.badge}</Badge>}
-                  {p.stock_qty <= 5 && p.in_stock && <Badge tone="warning">Low stock</Badge>}
-                  {!p.in_stock && <Badge tone="danger">Out of stock</Badge>}
+                  {p.stock_qty <= 5 && p.in_stock && <Badge tone="warning">{lang === 'sw' ? 'Stock Ndogo' : 'Low stock'}</Badge>}
+                  {!p.in_stock && <Badge tone="danger">{lang === 'sw' ? 'Imeisha' : 'Out of stock'}</Badge>}
                 </div>
                 <p className="text-xs text-gray-500 mt-0.5">
                   {p.category} · {formatPrice(p.price)} TZS · Stock: {p.stock_qty}
@@ -211,12 +213,12 @@ export function ProductsPage() {
       <Modal
         open={Boolean(editing)}
         onClose={close}
-        title={isEditing ? 'Edit Product' : 'New Product'}
+        title={isEditing ? (lang === 'sw' ? 'Hariri Bidhaa' : 'Edit Product') : (lang === 'sw' ? 'Bidhaa Mpya' : 'New Product')}
         footer={
           <>
-            <button onClick={close} className={buttonClasses('secondary', 'flex-1')}>Cancel</button>
+            <button onClick={close} className={buttonClasses('secondary', 'flex-1')}>{lang === 'sw' ? 'Ghairi' : 'Cancel'}</button>
             <button onClick={handleSave} disabled={saving} className={buttonClasses('primary', 'flex-1')}>
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4" /> Save</>}
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4" /> {lang === 'sw' ? 'Hifadhi' : 'Save'}</>}
             </button>
           </>
         }
@@ -224,14 +226,14 @@ export function ProductsPage() {
         {editing && (
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Field label="Name (English)">
+              <Field label={lang === 'sw' ? 'Jina (Kiingereza)' : 'Name (English)'}>
                 <input
                   value={editing.name_en ?? ''}
                   onChange={e => setEditing(v => ({ ...v, name_en: e.target.value }))}
                   className={inputClasses}
                 />
               </Field>
-              <Field label="Name (Swahili)">
+              <Field label={lang === 'sw' ? 'Jina (Kiswahili)' : 'Name (Swahili)'}>
                 <input
                   value={editing.name_sw ?? ''}
                   onChange={e => setEditing(v => ({ ...v, name_sw: e.target.value }))}
@@ -241,7 +243,7 @@ export function ProductsPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Price (TZS)">
+              <Field label={lang === 'sw' ? 'Bei (TZS)' : 'Price (TZS)'}>
                 <input
                   type="number"
                   value={editing.price ?? 0}
@@ -249,7 +251,7 @@ export function ProductsPage() {
                   className={cn(inputClasses, 'tabular-nums')}
                 />
               </Field>
-              <Field label="Stock Qty">
+              <Field label={lang === 'sw' ? 'Kiasi cha Stock' : 'Stock Qty'}>
                 <input
                   type="number"
                   value={editing.stock_qty ?? 0}
@@ -260,7 +262,7 @@ export function ProductsPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Field label="Category">
+              <Field label={lang === 'sw' ? 'Kategoria' : 'Category'}>
                 <select
                   value={editing.category ?? 'health-wellness'}
                   onChange={e => setEditing(v => ({ ...v, category: e.target.value as AdminProduct['category'] }))}
@@ -269,17 +271,17 @@ export function ProductsPage() {
                   {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </Field>
-              <Field label="Badge (optional)">
+              <Field label={lang === 'sw' ? 'Beji (hiari)' : 'Badge (optional)'}>
                 <input
                   value={editing.badge ?? ''}
                   onChange={e => setEditing(v => ({ ...v, badge: e.target.value || null }))}
                   className={inputClasses}
-                  placeholder="e.g. Bestseller"
+                  placeholder={lang === 'sw' ? 'mf. Bestseller' : 'e.g. Bestseller'}
                 />
               </Field>
             </div>
 
-            <Field label="Image path">
+            <Field label={lang === 'sw' ? 'Njia ya Picha' : 'Image path'}>
               <input
                 value={editing.image ?? ''}
                 onChange={e => setEditing(v => ({ ...v, image: e.target.value }))}
@@ -289,7 +291,7 @@ export function ProductsPage() {
             </Field>
 
             <div className="border-t border-gray-100 pt-3 space-y-3">
-              <Field label="Description (English)">
+              <Field label={lang === 'sw' ? 'Maelezo (Kiingereza)' : 'Description (English)'}>
                 <textarea
                   rows={2}
                   value={editing.description_en ?? ''}
@@ -297,7 +299,7 @@ export function ProductsPage() {
                   className={cn(inputClasses, 'resize-none')}
                 />
               </Field>
-              <Field label="Description (Swahili)">
+              <Field label={lang === 'sw' ? 'Maelezo (Kiswahili)' : 'Description (Swahili)'}>
                 <textarea
                   rows={2}
                   value={editing.description_sw ?? ''}
@@ -305,7 +307,7 @@ export function ProductsPage() {
                   className={cn(inputClasses, 'resize-none')}
                 />
               </Field>
-              <Field label="Usage (English)">
+              <Field label={lang === 'sw' ? 'Matumizi (Kiingereza)' : 'Usage (English)'}>
                 <textarea
                   rows={2}
                   value={editing.usage_en ?? ''}
@@ -313,7 +315,7 @@ export function ProductsPage() {
                   className={cn(inputClasses, 'resize-none')}
                 />
               </Field>
-              <Field label="Usage (Swahili)">
+              <Field label={lang === 'sw' ? 'Matumizi (Kiswahili)' : 'Usage (Swahili)'}>
                 <textarea
                   rows={2}
                   value={editing.usage_sw ?? ''}
@@ -324,7 +326,7 @@ export function ProductsPage() {
             </div>
 
             <div className="flex items-center gap-3 border-t border-gray-100 pt-3">
-              <label className="text-xs font-semibold text-gray-500">In Stock</label>
+              <label className="text-xs font-semibold text-gray-500">{lang === 'sw' ? 'Iko Stock' : 'In Stock'}</label>
               <button
                 type="button"
                 onClick={() => setEditing(v => ({ ...v, in_stock: !v?.in_stock }))}

@@ -47,6 +47,28 @@ export function SmartAssistantModal({
     }
   }, [lang]);
 
+  // Escape closes the assistant.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
+
+  // While the assistant is open the page behind it must not scroll.
+  // Locking the body keeps the storefront still; the conversation area
+  // scrolls independently (flex-1 + min-h-0 + overscroll-contain).
+  useEffect(() => {
+    if (!isOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isOpen]);
+
   // Auto-scroll to bottom
   useEffect(() => {
     if (isOpen) {
@@ -170,11 +192,11 @@ export function SmartAssistantModal({
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         text:
           lang === 'sw'
-            ? `✅ ${t(liveProduct.name)} imewekwa kwenye mkoba wako wa ununuzi.\n\nUngependa kuendelea kukamilisha oda yako WhatsApp au kuangalia bidhaa nyingine?`
-            : `✅ ${t(liveProduct.name)} has been added to your shopping cart.\n\nWould you like to complete your order on WhatsApp or browse more products?`,
+            ? `${t(liveProduct.name)} imewekwa kwenye mkoba wako wa ununuzi.\n\nUngependa kuendelea kukamilisha oda yako WhatsApp au kuangalia bidhaa nyingine?`
+            : `${t(liveProduct.name)} has been added to your shopping cart.\n\nWould you like to complete your order on WhatsApp or browse more products?`,
         options: [
-          { label: lang === 'sw' ? '🛒 Angalia Mkoba & Agiza WhatsApp' : '🛒 View Cart & Order on WhatsApp', action: 'checkout_now' },
-          { label: lang === 'sw' ? '🔍 Tazama Maelezo ya Bidhaa Hii' : '🔍 View Product Details', action: 'inspect_product', payload: liveProduct },
+          { label: lang === 'sw' ? 'Angalia Mkoba & Agiza WhatsApp' : 'View Cart & Order on WhatsApp', action: 'checkout_now' },
+          { label: lang === 'sw' ? 'Tazama Maelezo ya Bidhaa Hii' : 'View Product Details', action: 'inspect_product', payload: liveProduct },
           { label: lang === 'sw' ? 'Angalia Bidhaa Nyingine' : 'Explore More Solutions', action: 'Kupunguza Kitambi & Uzito' },
         ],
       };
@@ -197,11 +219,11 @@ export function SmartAssistantModal({
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           text:
             lang === 'sw'
-              ? `🎉 Pakiti Kamili ya P4 Slimming (Shake Off + MRT) imewekwa kwenye mkoba wako na punguzo la 10%!\n\nJe, uko tayari kukamilisha agizo lako moja kwa moja WhatsApp?`
-              : `🎉 Complete P4 Slimming Bundle (Shake Off + MRT) added to cart with 10% bundle discount!\n\nReady to complete your WhatsApp order?`,
+              ? `Pakiti Kamili ya P4 Slimming (Shake Off + MRT) imewekwa kwenye mkoba wako na punguzo la 10%!\n\nJe, uko tayari kukamilisha agizo lako moja kwa moja WhatsApp?`
+              : `Complete P4 Slimming Bundle (Shake Off + MRT) added to cart with 10% bundle discount!\n\nReady to complete your WhatsApp order?`,
           options: [
-            { label: lang === 'sw' ? '🚀 Agiza Moja kwa Moja WhatsApp' : '🚀 Order on WhatsApp Now', action: 'checkout_now' },
-            { label: lang === 'sw' ? '📋 Ratiba ya Dozi ya P4' : '📋 P4 Dosage Schedule', action: 'show_p4_schedule' },
+            { label: lang === 'sw' ? 'Agiza Moja kwa Moja WhatsApp' : 'Order on WhatsApp Now', action: 'checkout_now' },
+            { label: lang === 'sw' ? 'Ratiba ya Dozi ya P4' : 'P4 Dosage Schedule', action: 'show_p4_schedule' },
           ],
         };
         setMessages((prev) => [...prev, confirmationMsg]);
@@ -232,29 +254,29 @@ export function SmartAssistantModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-stone-950/70 backdrop-blur-xs">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-stone-950/60 backdrop-blur-xs">
       <motion.div
-        initial={{ opacity: 0, y: 80, scale: 0.96 }}
+        initial={{ opacity: 0, y: 60, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 80, scale: 0.96 }}
-        className="w-full sm:max-w-xl h-[92vh] sm:h-[680px] bg-stone-50 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-stone-200"
+        exit={{ opacity: 0, y: 60, scale: 0.98 }}
+        className="w-full h-[min(70dvh,620px)] max-h-[calc(100dvh-72px)] sm:w-[460px] sm:max-w-[480px] sm:h-[min(580px,calc(100dvh-96px))] sm:max-h-[620px] bg-stone-50 rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-stone-200"
       >
-        {/* ── HEADER ── */}
-        <div className="px-4 py-3.5 bg-[#0C271E] text-stone-100 flex items-center justify-between border-b border-[#1A3D31]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#164132] border border-[#235844] flex items-center justify-center text-[#E5C378] shadow-xs">
+        {/* ── HEADER — EdRetail navy, not a generic wellness green ── */}
+        <div className="px-4 py-3 sm:py-3.5 bg-primary-600 text-white flex items-center justify-between border-b border-primary-700">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-white shadow-xs shrink-0">
               <MessageCircle className="w-5 h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h3 className="font-extrabold text-sm sm:text-base text-white tracking-tight">
+                <h3 className="font-extrabold text-sm sm:text-base text-white tracking-tight whitespace-nowrap">
                   ED-Assistant
                 </h3>
-                <span className="px-2 py-0.5 bg-[#C5A059]/20 border border-[#C5A059]/40 text-[#E5C378] text-[10px] font-black rounded-md uppercase">
+                <span className="px-2 py-0.5 bg-white/15 border border-white/25 text-white text-[10px] font-black rounded-md uppercase whitespace-nowrap">
                   {lang === 'sw' ? 'Ushauri wa Afya' : 'Health Concierge'}
                 </span>
               </div>
-              <p className="text-[11px] text-stone-300 font-normal">
+              <p className="text-[11px] text-primary-100 font-normal truncate">
                 {lang === 'sw'
                   ? `Mshauri wa Afya • Bidhaa Asilia za Edmark & Mwongozo wa Dozi`
                   : `Wellness Consultant • 100% Genuine Edmark Guidance`}
@@ -265,11 +287,13 @@ export function SmartAssistantModal({
           <div className="flex items-center gap-2">
             <a
               href={`${WHATSAPP_LINK}?text=${encodeURIComponent(
-                'Habari, ninaomba ushauri wa bidhaa za Edmark na ratiba ya matumizi:'
+                lang === 'sw'
+                  ? 'Habari, ninaomba ushauri wa bidhaa za Edmark na ratiba ya matumizi:'
+                  : 'Hello, I would like Edmark product guidance and a usage schedule:'
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 rounded-xl bg-emerald-600/80 hover:bg-emerald-600 text-white transition-colors flex items-center gap-1.5 text-xs font-bold"
+              className="p-2 rounded-xl bg-success-600 hover:bg-success-700 text-white transition-colors flex items-center gap-1.5 text-xs font-bold"
               title={lang === 'sw' ? 'Ongea na Mtaalamu WhatsApp' : 'WhatsApp Consultation'}
             >
               <Phone className="w-3.5 h-3.5" />
@@ -286,22 +310,22 @@ export function SmartAssistantModal({
         </div>
 
         {/* ── QUICK HEALTH TOPIC PILLS ── */}
-        <div className="px-3.5 py-2 bg-stone-100/90 border-b border-stone-200/80 flex items-center gap-1.5 overflow-x-auto text-[11px]">
-          <span className="font-bold text-stone-500 whitespace-nowrap px-1">
+        <div className="px-3.5 py-2 bg-stone-100/90 border-b border-stone-200/80 flex items-center gap-1.5 overflow-x-auto scrollbar-hide text-[11px]">
+          <span className="font-bold text-stone-500 whitespace-nowrap px-1 shrink-0">
             {lang === 'sw' ? 'Mada Maarufu:' : 'Popular Topics:'}
           </span>
 
           {[
             { label: lang === 'sw' ? 'Kupunguza Kitambi' : 'Weight Loss', query: 'Kupunguza Kitambi & Uzito' },
-            { label: lang === 'sw' ? '🩺 Vidonda vya Tumbo' : '🩺 Ulcers Relief', query: 'Vidonda vya Tumbo' },
-            { label: lang === 'sw' ? '🍃 Kusafisha Utumbo' : '🍃 Detox / Shake Off', query: 'Kusafisha Utumbo & Gesi' },
-            { label: lang === 'sw' ? '⚡ Nguvu & Stamina' : '⚡ Energy / Stamina', query: 'Kuongeza Nguvu & Stamina' },
-            { label: lang === 'sw' ? '📋 Mwongozo wa Dozi' : '📋 Dosage Schedules', query: 'Mwongozo wa Dozi' },
+            { label: lang === 'sw' ? 'Vidonda vya Tumbo' : 'Ulcers Relief', query: 'Vidonda vya Tumbo' },
+            { label: lang === 'sw' ? 'Kusafisha Utumbo' : 'Detox / Shake Off', query: 'Kusafisha Utumbo & Gesi' },
+            { label: lang === 'sw' ? 'Nguvu & Stamina' : 'Energy / Stamina', query: 'Kuongeza Nguvu & Stamina' },
+            { label: lang === 'sw' ? 'Mwongozo wa Dozi' : 'Dosage Schedules', query: 'Mwongozo wa Dozi' },
           ].map((pill, idx) => (
             <button
               key={idx}
               onClick={() => handleSendMessage(pill.query, pill.label)}
-              className="px-2.5 py-1 rounded-lg bg-white hover:bg-emerald-50 hover:text-emerald-950 text-stone-700 font-bold border border-stone-200/80 whitespace-nowrap transition-colors shadow-2xs"
+              className="px-2.5 py-1 rounded-lg bg-white hover:bg-primary-50 hover:text-primary-800 text-stone-700 font-bold border border-stone-200/80 whitespace-nowrap transition-colors shadow-2xs"
             >
               {pill.label}
             </button>
@@ -309,7 +333,7 @@ export function SmartAssistantModal({
         </div>
 
         {/* ── CHAT MESSAGES BODY ── */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-stone-50">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 space-y-4 bg-stone-50">
           {messages.map((msg) => {
             const isUser = msg.sender === 'user';
 
@@ -321,9 +345,9 @@ export function SmartAssistantModal({
                 className={`flex flex-col ${isUser ? 'items-end' : 'items-start'}`}
               >
                 <div
-                  className={`max-w-[88%] sm:max-w-[82%] rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap ${
+                  className={`max-w-[88%] sm:max-w-[82%] rounded-2xl p-3.5 sm:p-4 text-[13px] sm:text-sm leading-relaxed whitespace-pre-wrap ${
                     isUser
-                      ? 'bg-[#0E2E23] text-stone-100 rounded-br-xs shadow-xs font-medium'
+                      ? 'bg-primary-600 text-white rounded-br-xs shadow-xs font-medium'
                       : 'bg-white text-stone-900 rounded-bl-xs shadow-xs border border-stone-200/90 font-normal'
                   }`}
                 >
@@ -338,9 +362,11 @@ export function SmartAssistantModal({
                         key={idx}
                         onClick={() => handleOptionClick(opt)}
                         className={`text-xs px-3 py-1.5 rounded-xl font-bold border transition-all text-left flex items-center gap-1.5 shadow-2xs ${
-                          opt.action === 'checkout_now' || opt.action.includes('whatsapp')
-                            ? 'bg-emerald-50 text-emerald-950 border-emerald-300 hover:bg-emerald-100'
-                            : 'bg-white text-stone-800 border-stone-300 hover:bg-stone-100 hover:text-stone-950'
+                          opt.action.includes('whatsapp')
+                            ? 'bg-success-50 text-success-600 border-success-100 hover:bg-success-100'
+                            : opt.action === 'checkout_now'
+                              ? 'bg-primary-600 text-white border-primary-700 hover:bg-primary-700'
+                              : 'bg-white text-stone-800 border-stone-300 hover:bg-stone-100 hover:text-stone-950'
                         }`}
                       >
                         <span>{opt.label}</span>
@@ -360,9 +386,9 @@ export function SmartAssistantModal({
               animate={{ opacity: 1 }}
               className="flex items-center gap-1.5 bg-white p-3 rounded-2xl rounded-bl-xs border border-stone-200 shadow-xs w-20"
             >
-              <div className="w-2 h-2 rounded-full bg-emerald-700 animate-bounce" />
-              <div className="w-2 h-2 rounded-full bg-emerald-700 animate-bounce [animation-delay:0.2s]" />
-              <div className="w-2 h-2 rounded-full bg-emerald-700 animate-bounce [animation-delay:0.4s]" />
+              <div className="w-2 h-2 rounded-full bg-primary-500 animate-bounce" />
+              <div className="w-2 h-2 rounded-full bg-primary-500 animate-bounce [animation-delay:0.2s]" />
+              <div className="w-2 h-2 rounded-full bg-primary-500 animate-bounce [animation-delay:0.4s]" />
             </motion.div>
           )}
 
@@ -370,7 +396,7 @@ export function SmartAssistantModal({
         </div>
 
         {/* ── INPUT FOOTER ── */}
-        <div className="p-3 sm:p-4 bg-white border-t border-stone-200 flex items-center gap-2">
+        <div className="p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-4 bg-white border-t border-stone-200 flex items-center gap-2">
           <input
             type="text"
             value={inputVal}
@@ -383,16 +409,16 @@ export function SmartAssistantModal({
                 ? 'Uliza kuhusu kupunguza kitambi, vidonda vya tumbo, nguvu, bei...'
                 : 'Ask about weight loss, ulcers, detox, stamina, prices, dosage...'
             }
-            className="flex-1 bg-stone-100 border border-stone-200 rounded-2xl px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition-all"
+            className="flex-1 bg-stone-100 border border-stone-200 rounded-2xl px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-primary-600/20 focus:border-primary-600 transition-all"
           />
 
           <button
             id="chat-send-btn"
             onClick={() => handleSendMessage()}
             disabled={!inputVal.trim()}
-            className="p-2.5 sm:p-3 bg-[#0C271E] hover:bg-[#164132] disabled:opacity-40 disabled:hover:bg-[#0C271E] text-white rounded-2xl transition-transform active:scale-95 shadow-sm"
+            className="p-2.5 sm:p-3 bg-primary-600 hover:bg-primary-700 disabled:opacity-40 disabled:hover:bg-primary-600 text-white rounded-2xl transition-transform active:scale-95 shadow-sm"
           >
-            <Send className="w-4 h-4 sm:w-5 sm:h-5 text-[#E5C378]" />
+            <Send className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
           </button>
         </div>
       </motion.div>

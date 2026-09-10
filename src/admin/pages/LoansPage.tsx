@@ -4,6 +4,7 @@ import { formatPrice, WHATSAPP_LINK } from '../../utils/whatsappCompiler';
 import { LoanRecord, SaleItem } from '../types';
 import { Plus, Save, Loader2, ChevronDown, MessageCircle, CheckCircle2, Phone, MapPin, CalendarDays } from 'lucide-react';
 import { useDistributorStore } from '../../store/distributorStore';
+import { useLang } from '../../context/LangContext';
 import {
   PageHeader, Modal, Field, inputClasses, buttonClasses,
   FilterPills, Badge, EmptyState, Spinner, cn,
@@ -16,6 +17,7 @@ const STATUS_TONE = {
 };
 
 export function LoansPage() {
+  const { lang } = useLang();
   const [loans, setLoans]     = useState<LoanRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter]   = useState<'all' | 'active' | 'partial' | 'cleared'>('all');
@@ -114,7 +116,7 @@ export function LoansPage() {
   return (
     <div className="p-4 md:p-6 max-w-5xl">
       <PageHeader
-        title="Loans & Credit"
+        title={lang === 'sw' ? 'Mikopo na Malipo ya Awamu' : 'Loans & Credit'}
         sub={
           <>
             {loans.filter(l => l.status !== 'cleared').length} active ·{' '}
@@ -143,7 +145,7 @@ export function LoansPage() {
         <div className="bg-white border border-gray-200 rounded-xl">
           <EmptyState
             icon={<CheckCircle2 className="w-5 h-5 text-gray-400" />}
-            title="No loan records"
+            title={lang === 'sw' ? 'Hakuna rekodi za mikopo' : 'No loan records'}
             sub={filter === 'all'
               ? 'Loans created from the Sales page will appear here.'
               : 'No loans with this status.'}
@@ -174,7 +176,7 @@ export function LoansPage() {
                       <button
                         onClick={e => { e.stopPropagation(); sendWhatsAppReminder(loan); }}
                         className="p-2 rounded-md text-green-600 hover:text-green-700 hover:bg-green-50 transition-colors outline-none"
-                        title="Send WhatsApp reminder"
+                        title={lang === 'sw' ? 'Tuma ukumbusho wa WhatsApp' : 'Send WhatsApp reminder'}
                         aria-label={`Send WhatsApp reminder to ${loan.customer_name}`}
                       >
                         <MessageCircle className="w-4 h-4" />
@@ -182,7 +184,7 @@ export function LoansPage() {
                       <button
                         onClick={e => { e.stopPropagation(); setPayModal({ loan }); setPayAmount(''); setPayNote(''); }}
                         className="p-2 rounded-md text-primary-600 hover:text-primary-700 hover:bg-primary-50 transition-colors outline-none"
-                        title="Record payment"
+                        title={lang === 'sw' ? 'Rekodi malipo' : 'Record payment'}
                         aria-label={`Record payment for ${loan.customer_name}`}
                       >
                         <Plus className="w-4 h-4" />
@@ -244,11 +246,11 @@ export function LoansPage() {
       <Modal
         open={Boolean(payModal)}
         onClose={() => setPayModal(null)}
-        title="Record Payment"
+        title={lang === 'sw' ? 'Rekodi Malipo' : 'Record Payment'}
         size="sm"
         footer={
           <>
-            <button onClick={() => setPayModal(null)} className={buttonClasses('secondary', 'flex-1')}>Cancel</button>
+            <button onClick={() => setPayModal(null)} className={buttonClasses('secondary', 'flex-1')}>{lang === 'sw' ? 'Ghairi' : 'Cancel'}</button>
             <button
               onClick={recordPayment}
               disabled={saving || !payAmount}
@@ -265,7 +267,7 @@ export function LoansPage() {
               Balance for <span className="text-gray-900 font-semibold">{payModal.loan.customer_name}</span>:
               <span className="text-red-600 font-bold ml-1 tabular-nums">{formatPrice(payModal.loan.balance)} TZS</span>
             </p>
-            <Field label="Amount Paid (TZS)">
+            <Field label={lang === 'sw' ? 'Kiasi Kilicholipwa (TZS)' : 'Amount Paid (TZS)'}>
               <input
                 type="number"
                 value={payAmount}
@@ -273,7 +275,7 @@ export function LoansPage() {
                 className={cn(inputClasses, 'tabular-nums')}
               />
             </Field>
-            <Field label="Notes (optional)">
+            <Field label={lang === 'sw' ? 'Maelezo (hiari)' : 'Notes (optional)'}>
               <input
                 value={payNote}
                 onChange={e => setPayNote(e.target.value)}

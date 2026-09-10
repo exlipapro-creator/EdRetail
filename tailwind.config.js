@@ -7,32 +7,36 @@ export default {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
       colors: {
-        // EDRetail Brand Identity Core
+        // EDRetail Brand Identity Core — values sampled from the canonical
+        // logo assets (public/logo/wordmark.png, apple-touch-icon.png):
+        //   navy ≈ #002958 ("EDR Navy"), red ≈ #9B0504 ("EDR Red").
+        // Corroborated by manifest theme_color (#002858) and the animated
+        // splash logo constants. Do not drift from these without re-sampling.
         brand: {
-          navy: '#123B6D',
-          'navy-dark': '#0A2747',
-          'navy-deep': '#0D315D',
-          'navy-light': '#E8EEF5',
-          red: '#D9252A',
-          'red-dark': '#B71C1C',
-          'red-light': '#FCE8E8',
+          navy: '#002958',
+          'navy-dark': '#001F42',
+          'navy-deep': '#00142B',
+          'navy-light': '#E8EEF6',
+          red: '#9B0504',
+          'red-dark': '#7A0403',
+          'red-light': '#FBECEC',
         },
 
-        // Master Design System Primary -> Mapped directly to EDR Navy
+        // Master Design System Primary -> Mapped directly to EDR Navy (logo #002958)
         primary: {
-          50: '#F0F4F9',
-          100: '#E1E9F3',
-          200: '#C3D3E7',
-          300: '#94B2D5',
-          400: '#5F8DC0',
-          500: '#123B6D', // EDR Navy Brand Primary
-          600: '#123B6D', // EDR Navy
-          700: '#0D315D', // EDR Navy Dark Pressed
-          800: '#0A2747', // EDR Navy Deep
-          900: '#06192E',
-          DEFAULT: '#123B6D',
-          dark: '#0A2747',
-          light: '#F0F4F9',
+          50: '#EDF2F8',
+          100: '#D9E4F0',
+          200: '#B3C9E1',
+          300: '#7FA3C9',
+          400: '#4A77A8',
+          500: '#093A6E',
+          600: '#002958', // EDR Navy Brand Primary (logo)
+          700: '#001F42', // EDR Navy Dark Pressed
+          800: '#00152D', // EDR Navy Deep
+          900: '#000B18',
+          DEFAULT: '#002958',
+          dark: '#001F42',
+          light: '#EDF2F8',
         },
 
         // Wellness Experience Layer
@@ -80,11 +84,13 @@ export default {
           900: '#0E1722',
         },
 
-        // Semantic states — status only, never decoration
-        success: { DEFAULT: '#0E6B52', 50: '#E7F4EE', 100: '#CDE9DE', 600: '#0E6B52' },
-        warning: { DEFAULT: '#C89D4D', 50: '#F8EFD9', 100: '#FEF3C7', 600: '#B4883A' },
-        danger:  { DEFAULT: '#D9252A', 50: '#FCE8E8', 100: '#FEE2E2', 600: '#D9252A' },
-        info:    { DEFAULT: '#123B6D', 50: '#F0F4F9', 100: '#E1E9F3', 600: '#123B6D' },
+        // Semantic states — status only, never decoration.
+        // They intentionally share the brand red/navy/gold families so the
+        // product has ONE coherent set of hues; role comes from context.
+        success: { DEFAULT: '#0E6B52', 50: '#E7F4EE', 100: '#CDE9DE', 600: '#0E6B52', 700: '#0A5944', 800: '#07402F' },
+        warning: { DEFAULT: '#B08A3E', 50: '#F8EFD9', 100: '#F3E7CC', 600: '#96702E' },
+        danger:  { DEFAULT: '#9B0504', 50: '#FBECEC', 100: '#F5D5D5', 600: '#9B0504' },
+        info:    { DEFAULT: '#002958', 50: '#EDF2F8', 100: '#D9E4F0', 600: '#002958' },
       },
 
       // Border-radius scale — intentional radii, not everything-is-a-pill.

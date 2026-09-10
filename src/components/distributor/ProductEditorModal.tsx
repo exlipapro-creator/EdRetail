@@ -459,7 +459,7 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                         }}
                       />
                     ) : (
-                      <span className="text-[11px] text-gray-400">Hakuna Picha</span>
+                      <span className="text-[11px] text-gray-400">{lang === 'sw' ? 'Hakuna Picha' : 'No Image'}</span>
                     )}
                   </div>
 
@@ -546,7 +546,7 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                 <div className="flex items-center gap-1 bg-white p-1.5 rounded-md border border-gray-200 flex-wrap text-xs">
                   <button
                     type="button"
-                    onClick={() => insertFormatting('desc', '✅ Faida: ')}
+                    onClick={() => insertFormatting('desc', 'Faida: ')}
                     className="px-2 py-1 bg-gray-50 hover:bg-gray-100 text-green-700 rounded font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
                   >
                     <CheckCircle2 className="w-3 h-3" />
@@ -562,7 +562,7 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                   </button>
                   <button
                     type="button"
-                    onClick={() => insertFormatting('desc', '⭐ Muhimu: ')}
+                    onClick={() => insertFormatting('desc', 'Muhimu: ')}
                     className="px-2 py-1 bg-gray-50 hover:bg-gray-100 text-amber-700 rounded font-semibold text-[11px] flex items-center gap-1 cursor-pointer"
                   >
                     <Star className="w-3 h-3" />
@@ -666,7 +666,7 @@ export const ProductEditorModal: React.FC<ProductEditorModalProps> = ({
                   type="button"
                   className="w-full py-2.5 bg-primary-600 text-white font-semibold rounded-md text-xs shadow-md"
                 >
-                  {lang === 'sw' ? 'Weka Kwenye Kikapu 🛒' : 'Add to Cart 🛒'}
+                  {lang === 'sw' ? 'Weka Kwenye Mkoba' : 'Add to Cart'}
                 </button>
               </div>
             </div>

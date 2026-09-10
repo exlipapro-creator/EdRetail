@@ -1,23 +1,23 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   CheckCircle2,
   Plus,
   ShoppingBag,
-  Target,
-  Package,
   Calculator,
   MessageCircle,
 } from 'lucide-react';
 import { Bundle, Product } from '../../types';
 import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
-import { formatPrice, formatUsd, WHATSAPP_LINK } from '../../utils/whatsappCompiler';
+import { formatPrice, formatUsd, getActiveWhatsAppLink } from '../../utils/whatsappCompiler';
 import { useLang } from '../../context/LangContext';
-import { EdIcon } from '../brand/EdIcon';
 import { BmiHealthCalculator } from '../calculator/BmiHealthCalculator';
+import { useThreePullGesture } from '../../hooks/useThreePullGesture';
 
 interface GoalsBundlesViewProps {
   onSelectProduct: (product: Product) => void;
+  /** Opens the hidden Distributor Login (3 deliberate upward pulls). */
+  onHiddenAccess?: () => void;
 }
 
 interface GoalOption {
@@ -69,7 +69,7 @@ const GOALS: GoalOption[] = [
   },
 ];
 
-export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
+export function GoalsBundlesView({ onSelectProduct, onHiddenAccess }: GoalsBundlesViewProps) {
   const { lang, t } = useLang();
   const [activeTab, setActiveTab] = useState<'matcher' | 'assessment'>('matcher');
   const [selectedGoalId, setSelectedGoalId] = useState<string>('weight-loss');
@@ -80,6 +80,18 @@ export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
   const getEffectiveProduct = useDistributorStore((s) => s.getEffectiveProduct);
 
   const liveBundles = getEffectiveBundles();
+
+  // Hidden internal access: three deliberate upward pulls in the designated
+  // bottom activation zone only (never ordinary scrolling elsewhere on the
+  // page). Not a security boundary — server-side roles decide who gets in.
+  const activationZoneRef = useRef<HTMLDivElement | null>(null);
+  const triggerGesture = useRef(onHiddenAccess);
+  triggerGesture.current = onHiddenAccess;
+  useThreePullGesture({
+    onTrigger: () => triggerGesture.current?.(),
+    resetKey: selectedGoalId + activeTab,
+    zoneRef: activationZoneRef,
+  });
 
   const getBundleMetrics = (bundle: Bundle) => {
     const originalPrice = bundle.productIds.reduce((sum, pId) => {
@@ -114,58 +126,50 @@ export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-5 animate-fadeIn">
-      {/* ── HEADER BANNER & TAB TOGGLE (MINIMAL & SLEEK) ── */}
-      <div className="bg-[#0C271E] border border-[#1A3D31] rounded-2xl p-4 sm:p-5 text-stone-100 shadow-xs relative overflow-hidden space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-white/10 rounded-full text-[11px] font-semibold uppercase tracking-wider text-[#E5C378]">
-              <EdIcon name="growth" className="w-3 h-3" />
-              <span>{lang === 'sw' ? 'Mwelekeo wa Afya & Pakiti' : 'Goal Matcher & Bundles'}</span>
-            </div>
-            <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white">
-              {lang === 'sw'
-                ? 'Pata Pakiti na Mwongozo Sahihi wa Afya Yako'
-                : 'Targeted Solutions for Your Health Goals'}
-            </h1>
-            <p className="text-xs text-stone-300 max-w-lg leading-relaxed">
-              {lang === 'sw'
-                ? 'Chagua lengo au pima BMI kupata mchanganyiko wa bidhaa zenye punguzo na ratiba ya matumizi.'
-                : 'Choose a goal or assess your BMI for synergistic product stacks, savings, and dosage schedules.'}
-            </p>
-          </div>
+    <div className="max-w-5xl mx-auto px-3 sm:px-4 pb-8 sm:pb-10 space-y-8 sm:space-y-10 animate-fadeIn">
+      {/* ── EDITORIAL HEADER ── */}
+      <header className="pt-4 sm:pt-6">
+        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-primary-700">
+          {lang === 'sw' ? 'Mwelekeo wa Afya' : 'Wellness Guidance'}
+        </p>
+        <h1 className="mt-1.5 text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-900 leading-tight">
+          {lang === 'sw'
+            ? 'Pata pakiti inayolingana na lengo lako'
+            : 'Find the program that matches your goal'}
+        </h1>
+        <p className="mt-2 text-sm text-neutral-500 max-w-xl leading-relaxed">
+          {lang === 'sw'
+            ? 'Chagua lengo, pima BMI, au vinjari pakiti zetu — kila kifurushi kimeundwa na bidhaa halisi za Edmark.'
+            : 'Choose a goal, check your BMI, or browse the full range — every bundle is built from genuine Edmark products.'}
+        </p>
 
-          {/* Minimal Tab Switcher */}
-          <div className="flex items-center gap-1.5 bg-black/30 p-1 rounded-xl border border-white/10 shrink-0">
-            <button
-              onClick={() => setActiveTab('matcher')}
-              className={`px-3 py-1.5 rounded-lg font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer ${
-                activeTab === 'matcher'
-                  ? 'bg-[#C5A059] text-stone-950 shadow-xs'
-                  : 'text-stone-300 hover:text-white'
-              }`}
-            >
-              <Target className="w-3.5 h-3.5" />
-              <span>{lang === 'sw' ? 'Malengo (Goals)' : 'Goal Matcher'}</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('assessment')}
-              className={`px-3 py-1.5 rounded-lg font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer ${
-                activeTab === 'assessment'
-                  ? 'bg-[#C5A059] text-stone-950 shadow-xs'
-                  : 'text-stone-300 hover:text-white'
-              }`}
-            >
-              <Calculator className="w-3.5 h-3.5" />
-              <span>{lang === 'sw' ? 'Kikokotoo cha BMI' : 'BMI Check'}</span>
-            </button>
-          </div>
+        <div className="mt-4 inline-flex items-center gap-1 bg-neutral-100 p-1 rounded-xl border border-neutral-200/80">
+          <button
+            onClick={() => setActiveTab('matcher')}
+            className={`px-4 py-1.5 rounded-lg font-bold text-xs transition-all cursor-pointer ${
+              activeTab === 'matcher'
+                ? 'bg-white text-neutral-900 shadow-2xs'
+                : 'text-neutral-500 hover:text-neutral-800'
+            }`}
+          >
+            {lang === 'sw' ? 'Malengo' : 'Goals'}
+          </button>
+          <button
+            onClick={() => setActiveTab('assessment')}
+            className={`px-4 py-1.5 rounded-lg font-bold text-xs transition-all flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'assessment'
+                ? 'bg-white text-neutral-900 shadow-2xs'
+                : 'text-neutral-500 hover:text-neutral-800'
+            }`}
+          >
+            <Calculator className="w-3.5 h-3.5" />
+            <span>{lang === 'sw' ? 'Kikokotoo cha BMI' : 'BMI Check'}</span>
+          </button>
         </div>
-      </div>
+      </header>
 
       {activeTab === 'assessment' ? (
-        <section className="space-y-4">
+        <section>
           <BmiHealthCalculator
             onSelectProduct={onSelectProduct}
             onOpenGoalFinder={() => setActiveTab('matcher')}
@@ -173,158 +177,150 @@ export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
         </section>
       ) : (
         <>
-          {/* ── STEP 1: SELECT GOAL (MINIMAL & COMPACT) ── */}
-          <section className="space-y-2.5">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
-                  {lang === 'sw' ? 'Hatua 1' : 'Step 1'}
-                </span>
-                <h2 className="text-sm sm:text-base font-bold text-neutral-900">
-                  {lang === 'sw' ? 'Lengo Lako Kuu ni Nini?' : 'What is your primary wellness goal?'}
-                </h2>
-              </div>
+          {/* ── STEP 1 · GOAL SELECTION — editorial list, not a card grid ── */}
+          <section>
+            <div className="flex items-baseline justify-between mb-3">
+              <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-neutral-400">
+                {lang === 'sw' ? 'Hatua 1 · Lengo lako' : 'Step 1 · Your goal'}
+              </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-              {GOALS.map((goal) => {
+            <div role="radiogroup" aria-label={lang === 'sw' ? 'Chagua lengo' : 'Choose your goal'} className="divide-y divide-neutral-100 border-y border-neutral-100">
+              {GOALS.map((goal, idx) => {
                 const isSelected = goal.id === selectedGoalId;
-
                 return (
                   <button
                     key={goal.id}
                     id={`goal-btn-${goal.id}`}
                     onClick={() => setSelectedGoalId(goal.id)}
-                    className={`p-3 rounded-xl text-left border transition-all cursor-pointer flex flex-col justify-between gap-1.5 ${
-                      isSelected
-                        ? 'bg-emerald-50/90 border-emerald-600 shadow-xs ring-1 ring-emerald-600'
-                        : 'bg-white border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50/50'
+                    role="radio"
+                    aria-checked={isSelected}
+                    className={`w-full flex items-center gap-4 py-4 text-left transition-colors cursor-pointer group ${
+                      isSelected ? 'bg-primary-50/60' : 'hover:bg-neutral-50/60'
                     }`}
                   >
-                    <div>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs ${
-                            isSelected ? 'bg-emerald-700 text-white' : 'bg-neutral-100 text-neutral-600'
-                          }`}
-                        >
-                          <Target className="w-3.5 h-3.5" />
-                        </span>
-                        {isSelected && (
-                          <span className="px-1.5 py-0.5 bg-emerald-700 text-white text-[9px] font-black rounded-md uppercase">
-                            {lang === 'sw' ? 'Limechaguliwa' : 'Selected'}
-                          </span>
-                        )}
-                      </div>
-
-                      <h3 className="font-bold text-xs sm:text-sm text-neutral-900 leading-snug">
+                    <span
+                      className={`pl-4 text-[11px] font-black tabular-nums w-6 shrink-0 ${
+                        isSelected ? 'text-primary-700' : 'text-neutral-300'
+                      }`}
+                    >
+                      {String(idx + 1).padStart(2, '0')}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className={`block font-bold text-sm sm:text-base leading-snug ${isSelected ? 'text-neutral-900' : 'text-neutral-800'}`}>
                         {lang === 'sw' ? goal.titleSw : goal.titleEn}
-                      </h3>
-                      <p className="text-[11px] text-neutral-500 mt-0.5 leading-relaxed line-clamp-2">
+                      </span>
+                      <span className="block text-xs text-neutral-500 mt-0.5 leading-relaxed">
                         {lang === 'sw' ? goal.descSw : goal.descEn}
-                      </p>
-                    </div>
+                      </span>
+                    </span>
+                    <span
+                      className={`mr-4 w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
+                        isSelected
+                          ? 'border-primary-600 bg-primary-600'
+                          : 'border-neutral-300 bg-white group-hover:border-neutral-400'
+                      }`}
+                      aria-hidden
+                    >
+                      {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                    </span>
                   </button>
                 );
               })}
             </div>
           </section>
 
-          {/* ── STEP 2: RECOMMENDED BUNDLE SPOTLIGHT (COMPACT & BALANCED) ── */}
+          {/* ── STEP 2 · MATCHED RECOMMENDATION — product-first spotlight ── */}
           {recommendedBundle && recMetrics && (
-            <section className="space-y-2.5">
-              <div>
-                <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">
-                  {lang === 'sw' ? 'Hatua 2 · Pendekezo Maalum' : 'Step 2 · Matched Recommendation'}
+            <section>
+              <div className="flex items-baseline justify-between mb-3">
+                <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-neutral-400">
+                  {lang === 'sw' ? 'Hatua 2 · Pendekezo' : 'Step 2 · Matched for you'}
                 </span>
-                <h2 className="text-sm sm:text-base font-bold text-neutral-900">
-                  {lang === 'sw' ? 'Pakiti Inayokufaa Zaidi' : 'Recommended Bundle for You'}
-                </h2>
+                <span className="text-[11px] font-bold text-brand-red">
+                  {lang === 'sw' ? `Okoa ${recommendedBundle.discountPercent}%` : `Save ${recommendedBundle.discountPercent}%`}
+                </span>
               </div>
 
-              <div className="bg-white rounded-2xl border border-emerald-300 p-4 sm:p-5 shadow-xs relative overflow-hidden">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="space-y-2 max-w-xl">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 font-extrabold text-[10px] rounded-md uppercase">
-                        {lang === 'sw' ? `Okoa ${recommendedBundle.discountPercent}%` : `Save ${recommendedBundle.discountPercent}%`}
-                      </span>
-                      <span className="text-[11px] font-medium text-neutral-400">
-                        {lang === 'sw' ? 'Mpango wa Siku 14-30' : '14-30 Day Regimen'}
-                      </span>
-                    </div>
+              <div className="bg-white rounded-2xl border border-neutral-200/80 shadow-xs overflow-hidden">
+                {/* Product imagery strip — the real products lead the composition */}
+                <div className="flex items-end justify-center gap-3 px-6 pt-6 pb-4 bg-gradient-to-b from-neutral-50 to-white">
+                  {recommendedBundle.productIds.map((pId) => {
+                    const prod = getEffectiveProduct(pId);
+                    if (!prod) return null;
+                    return (
+                      <button
+                        key={pId}
+                        onClick={() => onSelectProduct(prod)}
+                        className="group cursor-pointer"
+                        aria-label={t(prod.name)}
+                      >
+                        <img
+                          src={prod.image}
+                          alt={t(prod.name)}
+                          className="h-24 sm:h-28 w-auto object-contain drop-shadow-sm transition-transform group-hover:scale-105"
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
 
-                    <h3 className="text-base sm:text-lg font-extrabold text-neutral-900">
-                      {t(recommendedBundle.name)}
-                    </h3>
-                    <p className="text-xs text-neutral-600 leading-relaxed">
-                      {t(recommendedBundle.description)}
-                    </p>
+                <div className="px-5 sm:px-6 pb-5">
+                  <h3 className="text-lg sm:text-xl font-extrabold text-neutral-900 tracking-tight">
+                    {t(recommendedBundle.name)}
+                  </h3>
+                  <p className="text-sm text-neutral-600 mt-1 leading-relaxed">
+                    {t(recommendedBundle.description)}
+                  </p>
 
-                    {/* Items included */}
-                    <div className="pt-1">
-                      <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1.5">
-                        {lang === 'sw' ? 'Bidhaa Zilizomo:' : 'Products Included:'}
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {recommendedBundle.productIds.map((pId) => {
-                          const prod = getEffectiveProduct(pId);
-                          if (!prod) return null;
-                          return (
-                            <button
-                              key={pId}
-                              onClick={() => onSelectProduct(prod)}
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-neutral-100 hover:bg-neutral-200 border border-neutral-200/80 rounded-lg text-xs font-medium text-neutral-800 transition-colors cursor-pointer"
-                            >
-                              <img src={prod.image} alt={t(prod.name)} className="w-4 h-4 object-contain" />
-                              <span>{t(prod.name)}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
+                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+                    {recommendedBundle.productIds.map((pId) => {
+                      const prod = getEffectiveProduct(pId);
+                      if (!prod) return null;
+                      return (
+                        <button
+                          key={pId}
+                          onClick={() => onSelectProduct(prod)}
+                          className="text-xs font-semibold text-primary-700 hover:text-primary-900 underline-offset-2 hover:underline cursor-pointer"
+                        >
+                          {t(prod.name)}
+                        </button>
+                      );
+                    })}
                   </div>
 
-                  {/* Price & Add Action */}
-                  <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-200/80 w-full md:w-64 flex flex-col justify-between gap-3 shrink-0">
+                  <div className="mt-5 pt-4 border-t border-neutral-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                      <span className="text-[11px] text-neutral-500 block">
-                        {lang === 'sw' ? 'Bei ya Pakiti Kamili' : 'Bundle Price'}
-                      </span>
-                      <div className="flex items-baseline gap-1.5 mt-0.5">
-                        <span className="text-xl font-black text-neutral-900">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl font-black text-neutral-900 tracking-tight">
                           {formatPrice(recMetrics.bundlePrice)}
                         </span>
-                        <span className="text-xs font-bold text-neutral-600">TZS</span>
-                      </div>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[11px] text-neutral-400 line-through">
+                        <span className="text-sm font-bold text-neutral-600">TZS</span>
+                        <span className="text-xs text-neutral-400 line-through">
                           {formatPrice(recMetrics.originalPrice)} TZS
                         </span>
-                        <span className="text-[10px] text-neutral-400">
-                          ({formatUsd(recMetrics.priceUsd)})
-                        </span>
+                        <span className="text-[11px] text-neutral-400">({formatUsd(recMetrics.priceUsd)})</span>
                       </div>
                     </div>
 
                     <button
                       id="bundle-add-to-cart-btn"
                       onClick={() => handleAddBundleToCart(recommendedBundle)}
-                      className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-bold text-white shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98 ${
+                      className={`w-full sm:w-auto py-3 px-6 rounded-xl text-sm font-bold text-white shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98] ${
                         addedBundleId === recommendedBundle.id
-                          ? 'bg-emerald-600'
-                          : 'bg-[#0E6B52] hover:bg-[#082F28]'
+                          ? 'bg-success-600'
+                          : 'bg-primary-600 hover:bg-primary-700'
                       }`}
                     >
                       {addedBundleId === recommendedBundle.id ? (
                         <>
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>{lang === 'sw' ? 'Imeongezwa!' : 'Added!'}</span>
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>{lang === 'sw' ? 'Imeongezwa kwenye Mkoba' : 'Added to Cart'}</span>
                         </>
                       ) : (
                         <>
-                          <ShoppingBag className="w-3.5 h-3.5" />
-                          <span>{lang === 'sw' ? 'Weka Mkobani' : 'Add Bundle to Cart'}</span>
+                          <ShoppingBag className="w-4 h-4" />
+                          <span>{lang === 'sw' ? 'Weka Pakiti Mkobani' : 'Add Bundle to Cart'}</span>
                         </>
                       )}
                     </button>
@@ -334,122 +330,124 @@ export function GoalsBundlesView({ onSelectProduct }: GoalsBundlesViewProps) {
             </section>
           )}
 
-          {/* ── ALL BUNDLES CATALOG (MINIMAL CARDS) ── */}
-          <section className="space-y-2.5 pt-2 border-t border-neutral-200/80">
-            <div>
-              <h2 className="text-sm sm:text-base font-bold text-neutral-900">
-                {lang === 'sw' ? 'Pakiti Zote za Punguzo' : 'All Curated Wellness Bundles'}
+          {/* ── ALL BUNDLES — quiet editorial rows ── */}
+          <section>
+            <div className="flex items-baseline justify-between mb-3">
+              <h2 className="text-base sm:text-lg font-bold text-neutral-900">
+                {lang === 'sw' ? 'Pakiti Zote' : 'All Bundles'}
               </h2>
-              <p className="text-xs text-neutral-500">
-                {lang === 'sw' ? 'Vifurushi vilivyopangwa kitaalamu kwa matokeo ya haraka na uokoaji wa gharama' : 'Formulated stacks for synergy and bundled savings'}
-              </p>
+              <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-neutral-400">
+                {lang === 'sw' ? 'Punguzo la kila pakiti' : 'Bundled savings'}
+              </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {liveBundles.map((bundle) => {
-                const isAdded = addedBundleId === bundle.id;
-                const metrics = getBundleMetrics(bundle);
+            <div className="space-y-3">
+              {liveBundles
+                .filter((b) => b.id !== recommendedBundle?.id)
+                .map((bundle) => {
+                  const isAdded = addedBundleId === bundle.id;
+                  const metrics = getBundleMetrics(bundle);
 
-                return (
-                  <div
-                    key={bundle.id}
-                    className="bg-white rounded-xl border border-neutral-200 p-3.5 sm:p-4 shadow-xs flex flex-col justify-between gap-3 hover:border-emerald-300 transition-all"
-                  >
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 uppercase">
-                          {lang === 'sw' ? 'Pakiti ya Afya' : 'Wellness Pack'}
-                        </span>
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-black bg-emerald-50 text-emerald-700">
-                          {bundle.discountPercent}% OFF
-                        </span>
+                  return (
+                    <div
+                      key={bundle.id}
+                      className="bg-white rounded-xl border border-neutral-200/80 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center gap-4 hover:border-neutral-300 transition-all"
+                    >
+                      {/* Compact real product imagery */}
+                      <div className="flex items-center gap-1 shrink-0">
+                        {bundle.productIds.map((pId) => {
+                          const p = getEffectiveProduct(pId);
+                          if (!p) return null;
+                          return (
+                            <button key={pId} onClick={() => onSelectProduct(p)} className="cursor-pointer" aria-label={t(p.name)}>
+                              <img
+                                src={p.image}
+                                alt={t(p.name)}
+                                className="h-12 w-auto object-contain"
+                              />
+                            </button>
+                          );
+                        })}
                       </div>
 
-                      <h3 className="text-sm sm:text-base font-bold text-neutral-900">
-                        {t(bundle.name)}
-                      </h3>
-                      <p className="text-xs text-neutral-500 line-clamp-2">
-                        {t(bundle.description)}
-                      </p>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-sm font-bold text-neutral-900">{t(bundle.name)}</h3>
+                        <p className="text-xs text-neutral-500 mt-0.5 line-clamp-2 leading-relaxed">
+                          {t(bundle.description)}
+                        </p>
+                      </div>
 
-                      <div className="pt-1">
-                        <div className="flex flex-wrap gap-1">
-                          {bundle.productIds.map((pId) => {
-                            const p = getEffectiveProduct(pId);
-                            if (!p) return null;
-                            return (
-                              <button
-                                key={pId}
-                                onClick={() => onSelectProduct(p)}
-                                className="inline-flex items-center gap-1 px-2 py-0.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-md text-[10px] font-medium transition-colors cursor-pointer"
-                              >
-                                <Package className="w-2.5 h-2.5 text-neutral-400" />
-                                <span>{t(p.name)}</span>
-                              </button>
-                            );
-                          })}
+                      <div className="flex items-center justify-between sm:justify-end gap-4 shrink-0">
+                        <div className="text-right">
+                          <div className="text-base font-extrabold text-neutral-900">
+                            {formatPrice(metrics.bundlePrice)} <span className="text-[11px] font-bold text-neutral-500">TZS</span>
+                          </div>
+                          <div className="text-[11px] text-neutral-400 line-through">
+                            {formatPrice(metrics.originalPrice)} TZS
+                          </div>
                         </div>
+
+                        <button
+                          onClick={() => handleAddBundleToCart(bundle)}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer active:scale-[0.98] shrink-0 ${
+                            isAdded
+                              ? 'bg-success-600 text-white'
+                              : 'bg-neutral-900 hover:bg-neutral-800 text-white'
+                          }`}
+                        >
+                          {isAdded ? (
+                            <>
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>{lang === 'sw' ? 'Imeongezwa' : 'Added'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="w-3.5 h-3.5" />
+                              <span>{lang === 'sw' ? 'Ongeza' : 'Add'}</span>
+                            </>
+                          )}
+                        </button>
                       </div>
                     </div>
-
-                    <div className="pt-2.5 border-t border-neutral-100 flex items-center justify-between gap-2">
-                      <div>
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-sm sm:text-base font-extrabold text-neutral-900">
-                            {formatPrice(metrics.bundlePrice)} TZS
-                          </span>
-                        </div>
-                        <span className="text-[10px] text-neutral-400 line-through">
-                          {formatPrice(metrics.originalPrice)} TZS
-                        </span>
-                      </div>
-
-                      <button
-                        onClick={() => handleAddBundleToCart(bundle)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-xs cursor-pointer active:scale-98 ${
-                          isAdded
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-[#0E6B52] hover:bg-[#082F28] text-white'
-                        }`}
-                      >
-                        {isAdded ? (
-                          <>
-                            <CheckCircle2 className="w-3 h-3" />
-                            <span>{lang === 'sw' ? 'Imeongezwa' : 'Added'}</span>
-                          </>
-                        ) : (
-                          <>
-                            <Plus className="w-3 h-3" />
-                            <span>{lang === 'sw' ? 'Weka Mkobani' : 'Add Bundle'}</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
             </div>
           </section>
         </>
       )}
 
-      {/* ── DISTRIBUTOR ASSISTANCE BANNER (COMPACT) ── */}
-      <div className="p-3.5 sm:p-4 bg-neutral-100 rounded-xl border border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-neutral-800 text-xs">
-        <p className="leading-relaxed text-center sm:text-left font-medium text-neutral-700">
+      {/* ── DISTRIBUTOR ASSISTANCE — quiet closing line ── */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-neutral-100 text-xs">
+        <p className="text-neutral-500 leading-relaxed text-center sm:text-left">
           {lang === 'sw'
-            ? 'Je, unahitaji mpango uliotengenezwa mahususi kwako? Wasiliana na msambazaji wetu moja kwa moja kwa ushauri wa bure.'
-            : 'Need a customized plan tailored to your health goals? Chat directly with an authorized wellness coach.'}
+            ? 'Unahitaji mpango maalum? Wasiliana na msambazaji wetu kwa ushauri wa bure.'
+            : 'Need a personalized plan? Chat directly with an authorized wellness coach.'}
         </p>
         <a
-          href={`${WHATSAPP_LINK}?text=${encodeURIComponent('Hello ED Retail, I would like a personalized wellness recommendation:')}`}
+          href={getActiveWhatsAppLink(
+            lang === 'sw'
+              ? 'Habari ED Retail, naomba ushauri waAfya wa kibinafsi:'
+              : 'Hello ED Retail, I would like a personalized wellness recommendation:'
+          )}
           target="_blank"
           rel="noopener noreferrer"
-          className="px-4 py-2 bg-[#0E6B52] hover:bg-[#082F28] active:bg-[#06241E] text-white rounded-lg font-bold whitespace-nowrap shadow-xs transition-colors flex items-center gap-1.5 shrink-0"
+          className="px-4 py-2 bg-success-600 hover:bg-success-700 text-white rounded-lg font-bold whitespace-nowrap shadow-xs transition-colors flex items-center gap-1.5 shrink-0"
         >
-          <MessageCircle className="w-3.5 h-3.5 text-emerald-200" />
+          <MessageCircle className="w-3.5 h-3.5 text-white" />
           <span>{lang === 'sw' ? 'Ongea na Msambazaji' : 'Chat with Coach'}</span>
         </a>
       </div>
+
+      {/* Hidden internal-access activation zone — deliberately invisible, no
+          visual noise. Three deliberate upward pulls (wheel or touch) starting
+          in this bottom strip open the Distributor Login. Scrolling anywhere
+          else on the page never triggers it. Not a security boundary. */}
+      <div
+        ref={activationZoneRef}
+        data-hidden-access-zone="goals"
+        aria-hidden
+        className="h-16 sm:h-20 w-full"
+      />
     </div>
   );
 }

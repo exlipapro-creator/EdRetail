@@ -80,10 +80,10 @@ export const NativeAdBanner: React.FC<NativeAdBannerProps> = ({ placement, class
 
     return (
       <div
-        className={`relative overflow-hidden rounded-2xl sm:rounded-3xl border border-stone-800 bg-gradient-to-r from-stone-900 via-stone-900 to-stone-950 p-4 sm:p-5 text-stone-100 shadow-md ${className}`}
+        className={`relative overflow-hidden rounded-2xl sm:rounded-3xl border border-primary-800 bg-gradient-to-r from-primary-800 via-primary-800 to-primary-900 p-4 sm:p-5 text-stone-100 shadow-md ${className}`}
       >
         {/* Background Subtle Glow & Texture */}
-        <div className="absolute -right-12 -top-12 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -right-12 -top-12 w-48 h-48 bg-gold-400/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           {/* Left Side: Badge + Sponsor Info + Image */}
@@ -101,7 +101,7 @@ export const NativeAdBanner: React.FC<NativeAdBannerProps> = ({ placement, class
 
             <div className="min-w-0 flex-1 space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-amber-400/15 text-amber-300 border border-amber-500/30">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-gold-400/15 text-gold-300 border border-gold-500/30">
                   <EdIcon name="shield" className="w-2.5 h-2.5" />
                   {sponsorAd.badgeText || (lang === 'sw' ? 'MFADHILI WA AFYA' : 'SPONSORED')}
                 </span>
@@ -126,7 +126,7 @@ export const NativeAdBanner: React.FC<NativeAdBannerProps> = ({ placement, class
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => recordAdClick(sponsorAd.id)}
-            className="w-full sm:w-auto px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-stone-950 text-xs font-black rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 shrink-0 active:scale-95 cursor-pointer"
+            className="w-full sm:w-auto px-4 py-2.5 bg-gold-400 hover:bg-gold-300 text-stone-950 text-xs font-black rounded-xl transition-all shadow-sm flex items-center justify-center gap-1.5 shrink-0 active:scale-95 cursor-pointer"
           >
             <span>{ctaText || (lang === 'sw' ? 'Fungua Ofa' : 'View Offer')}</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -145,16 +145,16 @@ export const NativeAdBanner: React.FC<NativeAdBannerProps> = ({ placement, class
       // Clean, elegant AdSense Test Preview Card showing publisher details
       return (
         <div
-          className={`relative overflow-hidden rounded-2xl sm:rounded-3xl border border-blue-900/40 bg-gradient-to-r from-slate-900 via-stone-900 to-slate-950 p-4 sm:p-5 text-stone-100 shadow-sm ${className}`}
+          className={`relative overflow-hidden rounded-2xl sm:rounded-3xl border border-primary-800/60 bg-gradient-to-r from-primary-900 via-primary-800 to-primary-900 p-4 sm:p-5 text-stone-100 shadow-sm ${className}`}
         >
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3.5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-400/20 flex items-center justify-center text-blue-400 shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-primary-500/20 border border-primary-300/30 flex items-center justify-center text-primary-200 shrink-0">
                 <Globe className="w-5 h-5" />
               </div>
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-blue-400 bg-blue-500/15 px-2 py-0.5 rounded border border-blue-500/30">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-primary-200 bg-primary-500/25 px-2 py-0.5 rounded border border-primary-300/30">
                     Google AdSense Preview
                   </span>
                   <span className="text-[10px] text-stone-400 font-mono">
@@ -176,7 +176,7 @@ export const NativeAdBanner: React.FC<NativeAdBannerProps> = ({ placement, class
 
             <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
               <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                <ShieldCheck className="w-3 h-3 text-success-600" />
                 Ads by Google
               </span>
             </div>

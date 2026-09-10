@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, ArrowRight } from 'lucide-react';
 import { AppHeader, ScreenId } from './components/navigation/AppHeader';
@@ -10,6 +10,7 @@ import { HomePage } from './components/views/HomePage';
 import { ProductsView } from './components/views/ProductsView';
 import { GoalsBundlesView } from './components/views/GoalsBundlesView';
 import { DeliveryView } from './components/views/DeliveryView';
+import { LegalView } from './components/views/LegalView';
 import { FavouritesView } from './components/views/FavouritesView';
 import { OrdersHelpView } from './components/views/OrdersHelpView';
 import { ProductDetailModal } from './components/views/ProductDetailModal';
@@ -21,15 +22,12 @@ import { useCartStore } from './store/cartStore';
 import { useDistributorStore } from './store/distributorStore';
 import { formatPrice } from './utils/whatsappCompiler';
 import { useLang } from './context/LangContext';
+import { useNavigate } from 'react-router-dom';
 
 // On-demand surfaces are code-split so the storefront's initial bundle stays
-// customer-focused. The distributor screen and heavy modals download only
-// when first opened; each stays mounted after that so internal state (chat
-// history, drafts) survives close/reopen exactly as before — the isOpen prop
-// still controls visibility.
-const DistributorView = lazy(() =>
-  import('./components/views/DistributorView').then((m) => ({ default: m.DistributorView }))
-);
+// customer-focused. The heavy modals download only when first opened; each
+// stays mounted after that so internal state (chat history, drafts) survives
+// close/reopen exactly as before — the isOpen prop still controls visibility.
 const SmartAssistantModal = lazy(() =>
   import('./components/chat/SmartAssistantModal').then((m) => ({ default: m.SmartAssistantModal }))
 );
@@ -54,13 +52,17 @@ const CustomerAuthModal = lazy(() =>
 
 function App() {
   const { lang } = useLang();
+  const navigate = useNavigate();
   const [currentScreen, setCurrentScreen] = useState<ScreenId>('home');
+  // Contextual back navigation: remembers the screen a catalog search was
+  // initiated from, so header Back from Products returns the customer to
+  // Goals/Delivery/Home instead of always Home.
+  const searchOriginRef = useRef<ScreenId>('home');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isBackOfficeOpen, setIsBackOfficeOpen] = useState(false);
   const [isFlyerStudioOpen, setIsFlyerStudioOpen] = useState(false);
-  const [isDistributorAuthOpen, setIsDistributorAuthOpen] = useState(false);
   const [isStoreLinkOpen, setIsStoreLinkOpen] = useState(false);
   const [isCustomerAuthOpen, setIsCustomerAuthOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
@@ -74,14 +76,13 @@ function App() {
         ...(isChatOpen ? { chat: true } : null),
         ...(isBackOfficeOpen ? { backoffice: true } : null),
         ...(isFlyerStudioOpen ? { flyer: true } : null),
-        ...(isDistributorAuthOpen ? { auth: true } : null),
         ...(isStoreLinkOpen ? { storelink: true } : null),
         ...(isCustomerAuthOpen ? { customerauth: true } : null),
       } as Record<string, boolean>;
       const changed = Object.keys(next).some((k) => !prev[k]);
       return changed ? { ...prev, ...next } : prev;
     });
-  }, [isChatOpen, isBackOfficeOpen, isFlyerStudioOpen, isDistributorAuthOpen, isStoreLinkOpen, isCustomerAuthOpen]);
+  }, [isChatOpen, isBackOfficeOpen, isFlyerStudioOpen, isStoreLinkOpen, isCustomerAuthOpen]);
 
   const totalItems = useCartStore((s) => s.getTotalItems());
   const totalPrice = useCartStore((s) => s.getTotalPrice());
@@ -136,12 +137,20 @@ function App() {
         currentScreen={currentScreen}
         onNavigate={setCurrentScreen}
         onOpenCart={() => setIsCartOpen(true)}
-        onOpenDistributorAuth={() => setIsDistributorAuthOpen(true)}
-        onOpenBackOffice={() => setIsBackOfficeOpen(true)}
-        onOpenStoreLinkModal={() => setIsStoreLinkOpen(true)}
         onOpenCustomerAuth={() => setIsCustomerAuthOpen(true)}
         searchValue={searchValue}
         onSearchChange={setSearchValue}
+        onSearchFocus={() => {
+          // Search may begin from any screen — remember where, so Back from
+          // Products returns the customer to their origin (Goals, Delivery, Home…).
+          if (currentScreen !== 'products') searchOriginRef.current = currentScreen;
+          setCurrentScreen('products');
+        }}
+        backTarget={
+          currentScreen === 'products' && searchOriginRef.current !== 'home'
+            ? searchOriginRef.current
+            : 'home'
+        }
       />
 
       {/* ── PWA INSTALLATION BANNER (MOBILE-FIRST) ── */}
@@ -164,7 +173,6 @@ function App() {
                 onNavigate={setCurrentScreen}
                 onSelectProduct={setSelectedProduct}
                 onOpenFlyerStudio={() => setIsFlyerStudioOpen(true)}
-                onOpenDistributorAuth={() => setIsDistributorAuthOpen(true)}
               />
             </motion.div>
           )}
@@ -189,7 +197,30 @@ function App() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.2 }}
             >
-              <GoalsBundlesView onSelectProduct={setSelectedProduct} />
+              <GoalsBundlesView
+                onSelectProduct={setSelectedProduct}
+                onHiddenAccess={() => setCurrentScreen('distributor-login')}
+              />
+            </motion.div>
+          )}
+
+          {currentScreen === 'distributor-login' && (
+            <motion.div
+              key="screen-distributor-login"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Suspense fallback={null}>
+                <DistributorAuthModal
+                  isOpen
+                  variant="page"
+                  onClose={() => setCurrentScreen('goals')}
+                  onBack={() => setCurrentScreen('goals')}
+                  onSuperAdminAccess={() => navigate('/admin')}
+                />
+              </Suspense>
             </motion.div>
           )}
 
@@ -202,25 +233,6 @@ function App() {
               transition={{ duration: 0.2 }}
             >
               <DeliveryView />
-            </motion.div>
-          )}
-
-          {currentScreen === 'distributor' && (
-            <motion.div
-              key="screen-distributor"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-            >
-              <Suspense fallback={null}>
-                <DistributorView
-                  onNavigateHome={() => setCurrentScreen('home')}
-                  onNavigateProducts={() => setCurrentScreen('products')}
-                  onOpenFlyerStudio={() => setIsFlyerStudioOpen(true)}
-                  onOpenStoreLinkModal={() => setIsStoreLinkOpen(true)}
-                />
-              </Suspense>
             </motion.div>
           )}
 
@@ -262,6 +274,18 @@ function App() {
               <ViewFlyers />
             </motion.div>
           )}
+
+          {currentScreen === 'legal' && (
+            <motion.div
+              key="screen-legal"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2 }}
+            >
+              <LegalView />
+            </motion.div>
+          )}
         </AnimatePresence>
       </main>
 
@@ -273,6 +297,7 @@ function App() {
         currentScreen={currentScreen}
         onNavigate={setCurrentScreen}
         onOpenCart={() => setIsCartOpen(true)}
+        onOpenAccount={() => setIsCustomerAuthOpen(true)}
       />
 
       {/* ── FLOATING STICKY CART (DESKTOP & TABLET VIEW) ── */}
@@ -291,7 +316,7 @@ function App() {
             >
               <div className="relative">
                 <ShoppingBag className="w-5 h-5" />
-                <span className="absolute -top-2 -right-2 w-4 h-4 bg-amber-400 text-neutral-900 rounded-full text-[10px] font-extrabold flex items-center justify-center shadow-xs">
+                <span className="absolute -top-2 -right-2 w-4 h-4 bg-gold-400 text-neutral-900 rounded-full text-[10px] font-extrabold flex items-center justify-center shadow-xs">
                   {totalItems}
                 </span>
               </div>
@@ -316,6 +341,8 @@ function App() {
       <CheckoutSheet
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
+        onBrowseProducts={() => setCurrentScreen('products')}
+        onCheckoutSignIn={() => setIsCustomerAuthOpen(true)}
       />
 
       {/* ── FLOATING CHATBOT TRIGGER & PROACTIVE BUBBLE ── */}
@@ -355,16 +382,10 @@ function App() {
         </Suspense>
       )}
 
-      {/* ── DISTRIBUTOR AUTH & MULTI-PROFILE MODAL ── */}
-      {openedOnce.auth && (
-        <Suspense fallback={null}>
-          <DistributorAuthModal
-            isOpen={isDistributorAuthOpen}
-            onClose={() => setIsDistributorAuthOpen(false)}
-            onSuccess={() => setIsDistributorAuthOpen(false)}
-          />
-        </Suspense>
-      )}
+      {/* Distributor auth now lives on its own dedicated screen
+          (currentScreen === 'distributor-login'), reached only via the hidden
+          Goals activation zone. The old modal path is removed — distributor
+          access is never a popup over the customer storefront. */}
 
       {/* ── DISTRIBUTOR STOREFRONT LINK & REPLICATION MODAL ── */}
       {openedOnce.storelink && (

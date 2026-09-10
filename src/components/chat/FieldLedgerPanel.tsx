@@ -81,19 +81,19 @@ export const FieldLedgerPanel: React.FC<FieldLedgerPanelProps> = ({
       {/* ── METRICS SUMMARY CARDS ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         <div className="panel-inner p-3.5 sm:p-4 space-y-1">
-          <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Mauzo Yote</div>
+          <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">{lang === 'sw' ? 'Mauzo Yote' : 'All Sales'}</div>
           <div className="text-sm sm:text-base font-bold text-gray-900 truncate">TZS {summary.totalRevenue.toLocaleString()}</div>
         </div>
         <div className="panel-inner p-3.5 sm:p-4 space-y-1">
-          <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Cash Mkononi</div>
+          <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">{lang === 'sw' ? 'Cash Mkononi' : 'Cash on Hand'}</div>
           <div className="text-sm sm:text-base font-bold text-emerald-700 truncate">TZS {summary.cashCollected.toLocaleString()}</div>
         </div>
         <div className="panel-inner p-3.5 sm:p-4 space-y-1">
-          <div className="text-[10px] text-amber-600 font-semibold uppercase tracking-wider">Madeni Yanayodaiwa</div>
+          <div className="text-[10px] text-amber-600 font-semibold uppercase tracking-wider">{lang === 'sw' ? 'Madeni Yanayodaiwa' : 'Outstanding Debts'}</div>
           <div className="text-sm sm:text-base font-bold text-amber-700 truncate">TZS {summary.creditOutstanding.toLocaleString()}</div>
         </div>
         <div className="panel-inner p-3.5 sm:p-4 space-y-1">
-          <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Faida Halisi</div>
+          <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">{lang === 'sw' ? 'Faida Halisi' : 'Net Profit'}</div>
           <div className="text-sm sm:text-base font-bold text-gray-900 truncate">TZS {summary.estimatedNetProfit.toLocaleString()}</div>
         </div>
       </div>
@@ -187,7 +187,7 @@ export const FieldLedgerPanel: React.FC<FieldLedgerPanelProps> = ({
 
                     {(sale.customerLocation || sale.notes) && (
                       <div className="text-[11px] text-gray-400 flex items-center gap-2">
-                        {sale.customerLocation && <span>📍 {sale.customerLocation}</span>}
+                        {sale.customerLocation && <span>{sale.customerLocation}</span>}
                         {sale.notes && <span className="italic text-gray-400">"{sale.notes}"</span>}
                       </div>
                     )}

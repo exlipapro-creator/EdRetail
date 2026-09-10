@@ -329,7 +329,7 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
                 step={1}
                 value={weightKg}
                 onChange={(e) => setWeightKg(parseInt(e.target.value, 10))}
-                className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-emerald-700"
+                className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
               />
               <div className="flex justify-between text-[10px] text-stone-400 mt-1">
                 <span>40 kg</span>
@@ -356,7 +356,7 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
                 step={1}
                 value={heightCm}
                 onChange={(e) => setHeightCm(parseInt(e.target.value, 10))}
-                className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-emerald-700"
+                className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
               />
               <div className="flex justify-between text-[10px] text-stone-400 mt-1">
                 <span>130 cm</span>
@@ -383,7 +383,7 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
                 step={1}
                 value={age}
                 onChange={(e) => setAge(parseInt(e.target.value, 10))}
-                className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-emerald-700"
+                className="w-full h-1.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
               />
             </div>
           </div>
@@ -633,7 +633,7 @@ export const BmiHealthCalculator: React.FC<BmiHealthCalculatorProps> = ({
                 type="button"
                 id="bmi-consult-whatsapp-btn"
                 onClick={handleConsultWhatsApp}
-                className="w-full py-2.5 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all transform active:scale-95 cursor-pointer"
+                className="w-full py-2.5 px-3.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-all transform active:scale-95 cursor-pointer"
               >
                 <MessageCircle className="w-4 h-4 text-white" />
                 <span>

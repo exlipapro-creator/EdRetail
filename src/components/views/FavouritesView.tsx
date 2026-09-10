@@ -26,8 +26,8 @@ export function FavouritesView({ onSelectProduct, onNavigateToProducts }: Favour
       <div className="flex items-center justify-between border-b border-neutral-200/80 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
-              <Heart className="w-4 h-4 fill-rose-500" />
+            <div className="w-8 h-8 rounded-lg bg-brand-red-light text-brand-red flex items-center justify-center">
+              <Heart className="w-4 h-4 fill-brand-red" />
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-neutral-900">
               {lang === 'sw' ? 'Bidhaa Ulizozipenda' : 'Your Saved Favourites'}
@@ -57,7 +57,7 @@ export function FavouritesView({ onSelectProduct, onNavigateToProducts }: Favour
               <button
                 id={`remove-fav-${product.id}-btn`}
                 onClick={() => toggleFavourite(product.id)}
-                className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-xs rounded-xl text-neutral-400 hover:text-rose-600 shadow-xs border border-neutral-100 transition-colors z-10"
+                className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-xs rounded-xl text-neutral-400 hover:text-brand-red shadow-xs border border-neutral-100 transition-colors z-10"
                 aria-label="Remove from favourites"
               >
                 <Trash2 className="w-4 h-4" />
@@ -111,7 +111,7 @@ export function FavouritesView({ onSelectProduct, onNavigateToProducts }: Favour
         </div>
       ) : (
         <div className="text-center py-16 bg-white rounded-3xl border border-neutral-200/80 p-8 space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-500 mx-auto flex items-center justify-center">
+          <div className="w-14 h-14 rounded-2xl bg-brand-red-light text-brand-red mx-auto flex items-center justify-center">
             <Heart className="w-7 h-7" />
           </div>
           <div>

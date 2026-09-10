@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
-import { Home, LayoutGrid, Target, Truck, ShieldCheck } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Home, LayoutGrid, Target, Truck, User } from 'lucide-react';
 import { useLang } from '../../context/LangContext';
 import { EdIcon } from '../brand/EdIcon';
 import { ScreenId } from './AppHeader';
@@ -9,11 +8,12 @@ interface BottomNavigationProps {
   currentScreen: ScreenId;
   onNavigate: (screen: ScreenId) => void;
   onOpenCart?: () => void;
+  /** Opens the customer account/auth surface (replaces the old Portal entry). */
+  onOpenAccount?: () => void;
 }
 
-export function BottomNavigation({ currentScreen, onNavigate }: BottomNavigationProps) {
+export function BottomNavigation({ currentScreen, onNavigate, onOpenAccount }: BottomNavigationProps) {
   const { lang } = useLang();
-  const navigate = useNavigate();
 
   const items = [
     {
@@ -41,16 +41,6 @@ export function BottomNavigation({ currentScreen, onNavigate }: BottomNavigation
       labelEn: 'Delivery',
       labelSw: 'Usafirishaji',
     },
-    {
-      id: 'distributor' as ScreenId,
-      icon: ShieldCheck,
-      // This item opens the authenticated Distributor Portal (/portal) —
-      // labeled "Portal" so it isn't confused with the public
-      // "Become a Distributor" page (which lives in the footer).
-      labelEn: 'Portal',
-      labelSw: 'Portal',
-      isPortalRoute: true,
-    },
   ];
 
   return (
@@ -68,13 +58,7 @@ export function BottomNavigation({ currentScreen, onNavigate }: BottomNavigation
             <button
               key={item.id}
               id={`bottom-nav-${item.id}`}
-              onClick={() => {
-                if (item.isPortalRoute) {
-                  navigate('/portal');
-                } else {
-                  onNavigate(item.id);
-                }
-              }}
+              onClick={() => onNavigate(item.id)}
               className={`flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all outline-none [-webkit-tap-highlight-color:transparent] relative cursor-pointer ${
                 isActive ? 'text-[#123B6D] font-bold' : 'text-neutral-500 hover:text-neutral-800'
               }`}
@@ -104,6 +88,22 @@ export function BottomNavigation({ currentScreen, onNavigate }: BottomNavigation
             </button>
           );
         })}
+
+        {/* Account — customer identity entry (auth modal or signed-in state).
+            Distributor access is NOT here: it lives behind the deliberate
+            3-pull gesture on the Goals screen, enforced server-side. */}
+        <button
+          id="bottom-nav-account"
+          onClick={() => onOpenAccount?.()}
+          className="flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all outline-none [-webkit-tap-highlight-color:transparent] relative cursor-pointer text-neutral-500 hover:text-neutral-800"
+          style={{ minHeight: 48 }}
+          aria-label={lang === 'sw' ? 'Akaunti' : 'Account'}
+        >
+          <User className="w-5 h-5 stroke-[1.8]" />
+          <span className="text-[10px] mt-1 leading-none tracking-tight truncate max-w-full font-medium text-neutral-500">
+            {lang === 'sw' ? 'Akaunti' : 'Account'}
+          </span>
+        </button>
       </div>
     </nav>
   );

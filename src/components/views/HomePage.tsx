@@ -32,7 +32,6 @@ interface HomePageProps {
   onNavigate: (screen: ScreenId) => void;
   onSelectProduct: (product: Product) => void;
   onOpenFlyerStudio?: () => void;
-  onOpenDistributorAuth?: () => void;
 }
 
 const CATEGORY_ICONS: Record<string, typeof Activity> = {
@@ -155,7 +154,7 @@ export function HomePage({
           )}
           target="_blank"
           rel="noopener noreferrer"
-          className="px-3.5 py-2 bg-[#E7F4EE] hover:bg-[#CDE9DE] text-[#0E6B52] border border-emerald-300/80 rounded-xl text-xs font-black transition-colors flex items-center gap-1.5 shadow-2xs shrink-0 cursor-pointer active:scale-98"
+          className="px-3.5 py-2 bg-success-50 hover:bg-success-100 text-success-700 border border-success-100 rounded-xl text-xs font-black transition-colors flex items-center gap-1.5 shadow-2xs shrink-0 cursor-pointer active:scale-98"
         >
           <MessageCircle className="w-4 h-4" />
           <span className="hidden xs:inline sm:inline">{sw ? 'Ushauri' : 'Free Advice'}</span>
@@ -170,7 +169,7 @@ export function HomePage({
           </h2>
           <button
             onClick={() => onNavigate('products')}
-            className="text-xs font-black text-[#123B6D] hover:text-[#0D315D] flex items-center gap-1 cursor-pointer"
+            className="text-xs font-black text-primary-600 hover:text-primary-700 flex items-center gap-1 cursor-pointer"
           >
             <span>{sw ? 'Zote' : 'See all'}</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -189,16 +188,16 @@ export function HomePage({
             const Icon = CATEGORY_ICONS[cat.id];
             const count = liveProducts.filter((p) => p.category === cat.id).length;
             const tint: Record<string, string> = {
-              'p4-slimming': 'bg-blue-50 text-blue-700 border-blue-100',
-              'health-wellness': 'bg-emerald-50 text-emerald-700 border-emerald-100',
-              'lifestyle-beverages': 'bg-amber-50 text-amber-700 border-amber-100',
+              'p4-slimming': 'bg-primary-50 text-primary-700 border-primary-100',
+              'health-wellness': 'bg-success-50 text-success-700 border-success-100',
+              'lifestyle-beverages': 'bg-warning-50 text-warning-700 border-warning-100',
             };
             return (
               <button
                 key={cat.id}
                 role="listitem"
                 onClick={() => onNavigate('products')}
-                className="group flex flex-col items-center gap-1.5 w-[92px] sm:w-auto shrink-0 sm:shrink py-3 px-2 rounded-2xl bg-white border border-neutral-200/80 hover:border-[#123B6D]/40 hover:bg-neutral-50 transition-all cursor-pointer"
+                className="group flex flex-col items-center gap-1.5 w-[92px] sm:w-auto shrink-0 sm:shrink py-3 px-2 rounded-2xl bg-white border border-neutral-200/80 hover:border-primary-600/40 hover:bg-neutral-50 transition-all cursor-pointer"
                 aria-label={`${t(cat.label)} — ${count} ${sw ? 'bidhaa' : count === 1 ? 'product' : 'products'}`}
               >
                 <span
@@ -220,7 +219,7 @@ export function HomePage({
 
       {/* ── 3. HERO — canonical Edmark artwork, clean treatment ── */}
       <section className="-mx-4 sm:mx-0">
-        <HeroCarousel onNavigate={onNavigate} />
+        <HeroCarousel onNavigate={onNavigate} onSelectProduct={onSelectProduct} />
       </section>
 
       {/* ── 4. TOP SELLING / FEATURED — real ranking, honest fallback ── */}
@@ -228,7 +227,7 @@ export function HomePage({
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-sm sm:text-base font-black text-neutral-900 flex items-center gap-1.5">
-              {isRealRanking && <Flame className="w-4 h-4 text-amber-500" />}
+              {isRealRanking && <Flame className="w-4 h-4 text-warning-500" />}
               {isRealRanking
                 ? sw
                   ? 'Bidhaa Zinazouzwa Zaidi'
@@ -281,12 +280,12 @@ export function HomePage({
                   }}
                   className={`absolute top-2 right-2 p-1.5 rounded-lg border backdrop-blur-xs transition-colors z-10 cursor-pointer ${
                     isFav
-                      ? 'bg-rose-50 text-rose-600 border-rose-200'
+                      ? 'bg-brand-red-light text-brand-red border-brand-red/20'
                       : 'bg-white/90 text-neutral-400 hover:text-neutral-700 border-neutral-200 shadow-2xs'
                   }`}
                   aria-label={isFav ? (sw ? 'Ondoa kwenye vipendwa' : 'Remove from favourites') : sw ? 'Weka kwenye vipendwa' : 'Save to favourites'}
                 >
-                  <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-rose-500 text-rose-500' : ''}`} />
+                  <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-brand-red text-brand-red' : ''}`} />
                 </button>
 
                 <div onClick={() => onSelectProduct(product)} className="cursor-pointer space-y-2">
@@ -356,7 +355,7 @@ export function HomePage({
       <section>
         <button
           onClick={() => onNavigate('goals')}
-          className="w-full text-left bg-gradient-to-r from-[#0E6B52] to-[#0A5540] rounded-3xl p-5 sm:p-6 flex items-center justify-between gap-4 hover:from-[#0C5D47] hover:to-[#094A38] transition-colors cursor-pointer group shadow-sm"
+          className="w-full text-left bg-gradient-to-r from-primary-600 to-primary-800 rounded-3xl p-5 sm:p-6 flex items-center justify-between gap-4 hover:from-primary-700 hover:to-primary-900 transition-colors cursor-pointer group shadow-sm"
           aria-label={sw ? 'Fungua Kipataji Lengo' : 'Open Goal Finder'}
         >
           <div className="flex items-center gap-4 min-w-0">
@@ -367,14 +366,14 @@ export function HomePage({
               <h2 className="text-sm sm:text-base font-black text-white leading-tight">
                 {sw ? 'Pata kinacholingana na lengo lako' : 'Find what fits your goal'}
               </h2>
-              <p className="text-[11px] sm:text-xs text-emerald-100/90 mt-0.5 leading-snug">
+              <p className="text-[11px] sm:text-xs text-primary-100/90 mt-0.5 leading-snug">
                 {sw
                   ? 'Chagua lengo lako la afya — tutaongoza katalogi.'
                   : 'Tell us your wellness goal — we guide the catalog.'}
               </p>
             </div>
           </div>
-          <span className="hidden sm:flex items-center gap-1.5 px-4 py-2.5 bg-white text-[#0E6B52] rounded-xl text-xs font-black shrink-0 group-hover:bg-emerald-50 transition-colors">
+          <span className="hidden sm:flex items-center gap-1.5 px-4 py-2.5 bg-white text-primary-700 rounded-xl text-xs font-black shrink-0 group-hover:bg-primary-50 transition-colors">
             {sw ? 'Fungua' : 'Explore'}
             <ArrowRight className="w-3.5 h-3.5" />
           </span>
@@ -388,7 +387,7 @@ export function HomePage({
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-sm sm:text-base font-black text-neutral-900 flex items-center gap-1.5">
-                <EdIcon name="flyer" className="w-4 h-4 text-[#123B6D]" />
+                <EdIcon name="flyer" className="w-4 h-4 text-primary-600" />
                 {sw ? 'Kampeni Mpya' : 'Latest flyers'}
               </h2>
               <p className="text-xs text-neutral-500 mt-0.5">

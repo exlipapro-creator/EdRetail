@@ -40,11 +40,11 @@ type BadgeTone = 'primary' | 'success' | 'warning' | 'danger' | 'gold' | 'neutra
 
 const BADGE_TONES: Record<BadgeTone, string> = {
   primary: 'bg-primary-50 text-primary-700 border-primary-200',
-  success: 'bg-green-50 text-green-700 border-green-200',
-  warning: 'bg-amber-50 text-amber-700 border-amber-200',
-  danger:  'bg-red-50 text-red-700 border-red-200',
+  success: 'bg-success-50 text-success-700 border-success-100',
+  warning: 'bg-warning-50 text-warning-700 border-warning-100',
+  danger:  'bg-danger-50 text-danger-600 border-danger-100',
   gold:    'bg-gold-50 text-gold-800 border-gold-200',
-  neutral: 'bg-gray-50 text-gray-600 border-gray-200',
+  neutral: 'bg-neutral-50 text-neutral-600 border-neutral-200',
 };
 
 export function Badge({

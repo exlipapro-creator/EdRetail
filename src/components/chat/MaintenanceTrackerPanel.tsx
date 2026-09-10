@@ -8,6 +8,7 @@ import {
   Package,
   Users,
   MessageSquare,
+  X,
   // Sparkles removed — replaced by EdIcon (brand layer)
   ShieldCheck,
 } from 'lucide-react';
@@ -87,8 +88,8 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
                   : 'Congratulations! Month qualification confirmed towards Edmark Fund!'}
               </span>
             </div>
-            <button onClick={() => setShowCelebration(false)} className="text-white/80 text-xs hover:text-white">
-              ✕
+            <button onClick={() => setShowCelebration(false)} aria-label="Funga" className="text-white/80 text-xs hover:text-white">
+              <X className="w-4 h-4" />
             </button>
           </motion.div>
         )}
@@ -117,10 +118,10 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
               onChange={(e) => setTargetFund(e.target.value as any)}
               className="portal-input !w-auto text-xs font-semibold cursor-pointer"
             >
-              <option value="car">🚗 Car Fund (3%)</option>
-              <option value="house">🏡 House Fund (2%)</option>
-              <option value="travel">✈️ Travel Fund (2%)</option>
-              <option value="manager">🛡️ Manager Active (14%)</option>
+              <option value="car">Car Fund (3%)</option>
+              <option value="house">House Fund (2%)</option>
+              <option value="travel">Travel Fund (2%)</option>
+              <option value="manager">Manager Active (14%)</option>
             </select>
           </div>
         </div>
@@ -229,15 +230,15 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
         {/* Metrics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
           <div className="panel-inner p-3.5 space-y-1">
-            <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Pengo Lililobaki</div>
+            <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">{lang === 'sw' ? 'Pengo Lililobaki' : 'Remaining Gap'}</div>
             <div className="text-sm sm:text-base font-bold text-amber-700">{analysis.gapSv.toLocaleString()} SV</div>
           </div>
           <div className="panel-inner p-3.5 space-y-1">
-            <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Siku Zilizobaki</div>
+            <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">{lang === 'sw' ? 'Siku Zilizobaki' : 'Days Left'}</div>
             <div className="text-sm sm:text-base font-bold text-gray-900">{analysis.daysRemaining} Siku</div>
           </div>
           <div className="panel-inner p-3.5 space-y-1">
-            <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Mwendokasi kwa Siku</div>
+            <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">{lang === 'sw' ? 'Mwendokasi kwa Siku' : 'Daily Pace'}</div>
             <div className="text-sm sm:text-base font-bold text-emerald-700">{analysis.dailyPacingSv} SV/siku</div>
           </div>
           <div className="panel-inner p-3.5 space-y-1">
@@ -268,7 +269,7 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <div className="panel-inner p-3.5 space-y-1.5 hover:border-gray-300 transition-colors">
-              <div className="text-xs font-semibold text-gray-900">🎁 Pakiti za P4 Slimming</div>
+              <div className="text-xs font-semibold text-gray-900">Pakiti za P4 Slimming</div>
               <div className="text-base font-bold text-emerald-700">{analysis.p4KitsNeeded} Pakiti</div>
               <div className="text-[11px] text-gray-500 leading-tight">
                 Kila pakiti (Shake Off + MRT) inatoa ~50 SV + faida TZS 21,000
@@ -276,7 +277,7 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
             </div>
 
             <div className="panel-inner p-3.5 space-y-1.5 hover:border-gray-300 transition-colors">
-              <div className="text-xs font-semibold text-gray-900">Mabox ya Shake Off</div>
+              <div className="text-xs font-semibold text-gray-900">{lang === 'sw' ? 'Mabox ya Shake Off' : 'Shake Off Boxes'}</div>
               <div className="text-base font-bold text-emerald-700">{analysis.shakeOffBoxesNeeded} Boxes</div>
               <div className="text-[11px] text-gray-500 leading-tight">
                 Mabox 10 kwa kila wateja 6 wanaorudia dozi siku ya 12
@@ -284,7 +285,7 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
             </div>
 
             <div className="panel-inner p-3.5 space-y-1.5 hover:border-gray-300 transition-colors">
-              <div className="text-xs font-semibold text-gray-900">🍵 Chupa za Splina Chlorophyll</div>
+              <div className="text-xs font-semibold text-gray-900">Chupa za Splina Chlorophyll</div>
               <div className="text-base font-bold text-emerald-700">{analysis.splinaBottlesNeeded} Chupa</div>
               <div className="text-[11px] text-gray-500 leading-tight">
                 Kwa wateja wenye vidonda vya tumbo & asidi
@@ -315,7 +316,7 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
             onClick={() => onSendChatMessage('downlines')}
             className="text-xs font-semibold text-primary-700 hover:text-primary-800 cursor-pointer"
           >
-            {lang === 'sw' ? 'Ushauri wa Timu 💬' : 'Team Advice 💬'}
+            {lang === 'sw' ? 'Ushauri wa Timu' : 'Team Advice'}
           </button>
         </div>
 
@@ -413,14 +414,14 @@ export const MaintenanceTrackerPanel: React.FC<MaintenanceTrackerPanelProps> = (
 
         <div className="space-y-2.5 text-xs">
           <div className="p-3.5 bg-green-50 border border-green-200 rounded-md space-y-1">
-            <span className="font-semibold text-green-800 text-xs">✅ Mbinu ya Siku ya 12 (Shake Off Refill Formula):</span>
+            <span className="font-semibold text-green-800 text-xs">Mbinu ya Siku ya 12 (Shake Off Refill Formula):</span>
             <p className="text-xs text-gray-700 leading-relaxed">
               Box la Shake Off lina sachets 12. Piga simu siku ya 10 kuuliza: "Umeona wepesi kiasi gani?". 70% ya wateja huagiza box la 2 papo hapo, ikikupa 10 SV bila kutafuta mteja mpya.
             </p>
           </div>
 
           <div className="p-3.5 bg-red-50 border border-red-200 rounded-md space-y-1">
-            <span className="font-semibold text-red-800 text-xs">🚫 Jambo la Kuepuka Kabisa (Don’t):</span>
+            <span className="font-semibold text-red-800 text-xs">Jambo la Kuepuka Kabisa (Don't):</span>
             <p className="text-xs text-gray-700 leading-relaxed">
               Usisubiri tarehe 25 kuanza kutafuta 2,000 SV. Lenga 500 SV kila wiki (Day 7, Day 14, Day 21, Day 28) kupitia laini 3 za downlines.
             </p>
