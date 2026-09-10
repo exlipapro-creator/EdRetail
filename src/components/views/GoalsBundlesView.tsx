@@ -91,6 +91,11 @@ export function GoalsBundlesView({ onSelectProduct, onHiddenAccess }: GoalsBundl
     onTrigger: () => triggerGesture.current?.(),
     resetKey: selectedGoalId + activeTab,
     zoneRef: activationZoneRef,
+    // The app footer renders after the (invisible) activation zone, so at a
+    // natural scroll-to-bottom the zone is off-screen. Also accept pulls that
+    // begin in the bottom viewport band (footer + bottom-nav edge) so the
+    // gesture fires where a user actually performs it.
+    viewportBand: 96,
   });
 
   const getBundleMetrics = (bundle: Bundle) => {

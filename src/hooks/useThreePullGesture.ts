@@ -39,12 +39,24 @@ interface ThreePullGestureProps {
    * `window` (legacy behavior — keep only for full-screen surfaces).
    */
   zoneRef?: { current: HTMLElement | null };
+  /**
+   * ALSO accept pulls that BEGIN anywhere within the bottom `viewportBand`
+   * pixels of the viewport. Needed when page content (e.g. the app footer)
+   * renders below the activation zone: after scrolling to the true page
+   * bottom the zone itself can sit off-screen, so the gesture would never
+   * fire exactly where a user naturally tries it. The cadence and swipe-
+   * distance rules still apply, so ordinary scrolling never triggers it.
+   * 0/undefined = zone-only (legacy behavior).
+   */
+  viewportBand?: number;
 }
 
-export function useThreePullGesture({ onTrigger, resetKey, disabled, zoneRef }: ThreePullGestureProps) {
+export function useThreePullGesture({ onTrigger, resetKey, disabled, zoneRef, viewportBand = 0 }: ThreePullGestureProps) {
   const pullsRef = useRef(0);
   const lastPullAtRef = useRef(0);
   const touchStartYRef = useRef<number | null>(null);
+  const touchStartedInZoneRef = useRef(false);
+  const touchStartedInBandRef = useRef(false);
   const [remaining, setRemaining] = useState(REQUIRED_PULLS);
 
   const registerPull = () => {
@@ -70,22 +82,46 @@ export function useThreePullGesture({ onTrigger, resetKey, disabled, zoneRef }: 
     const zone = zoneRef?.current;
     if (!zone) return true; // no zone → window listeners (legacy)
     const target = e.target as Node | null;
-    return !!target && (target === zone || zone.contains(target));
+    // Events dispatched on `window` (synthetic tests) are not Nodes —
+    // zone.contains() would throw. Treat non-Node targets as outside.
+    if (!target || !(target instanceof Node)) return false;
+    return target === zone || zone.contains(target);
   };
+
+  /** True when the gesture STARTS in the bottom band of the viewport. */
+  const inViewportBand = (clientY: number | null | undefined) =>
+    !!viewportBand && clientY != null && clientY >= window.innerHeight - viewportBand;
 
   useEffect(() => {
     if (disabled) return;
     const zone = zoneRef?.current;
-    const attachTarget: HTMLElement | Window = zone ?? window;
+    // With a viewport band, listeners must be on `window` — events over the
+    // band (e.g. the app footer) never target the zone element itself.
+    const bandMode = viewportBand > 0;
+    const attachTarget: HTMLElement | Window = zone && !bandMode ? zone : window;
     const onWheel = (e: Event) => {
-      if (eventTargetInZone(e) && (e as WheelEvent).deltaY < -MIN_WHEEL_PX) registerPull();
+      const we = e as WheelEvent;
+      // Band check FIRST: in band mode the event target is usually `window`
+      // (or a footer element), never the zone element itself.
+      if (
+        (inViewportBand(we.clientY) || eventTargetInZone(e)) &&
+        we.deltaY < -MIN_WHEEL_PX
+      )
+        registerPull();
     };
     const onTouchStart = (e: Event) => {
-      if (!eventTargetInZone(e)) return;
-      touchStartYRef.current = (e as TouchEvent).touches[0]?.clientY ?? null;
+      const te = e as TouchEvent;
+      const y = te.touches[0]?.clientY ?? null;
+      touchStartedInZoneRef.current = eventTargetInZone(e);
+      touchStartedInBandRef.current = inViewportBand(y);
+      if (!touchStartedInZoneRef.current && !touchStartedInBandRef.current) return;
+      touchStartYRef.current = y;
     };
     const onTouchEnd = (e: Event) => {
-      if (!eventTargetInZone(e)) return;
+      const started = touchStartedInZoneRef.current || touchStartedInBandRef.current;
+      touchStartedInZoneRef.current = false;
+      touchStartedInBandRef.current = false;
+      if (!started) return;
       const te = e as TouchEvent;
       const startY = touchStartYRef.current;
       touchStartYRef.current = null;
@@ -106,7 +142,7 @@ export function useThreePullGesture({ onTrigger, resetKey, disabled, zoneRef }: 
       attachTarget.removeEventListener('touchend', onTouchEnd);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [disabled, onTrigger, zoneRef]);
+  }, [disabled, onTrigger, zoneRef, viewportBand]);
 
   // Reset on navigation / key change.
   useEffect(() => {
