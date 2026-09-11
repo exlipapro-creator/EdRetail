@@ -1,12 +1,10 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { LangProvider } from './context/LangContext';
-import { CustomerAuthProvider } from './context/CustomerAuthContext';
 import { useDistributorStore } from './store/distributorStore';
 import { Spinner } from './components/ui';
 import { supabase } from './lib/supabase';
 import App from './App';
-import { CustomerResetPasswordPage } from './components/auth/CustomerResetPasswordPage';
 
 // Admin portal is code-split: its Supabase queries and auth context never
 // load for storefront visitors.
@@ -53,13 +51,12 @@ const DistributorResetPasswordPage = lazy(() =>
   import('./distributor/pages/DistributorResetPasswordPage').then((m) => ({ default: m.DistributorResetPasswordPage }))
 );
 
-// Storefront Wrapper with LangProvider + CustomerAuthProvider
+// Storefront Wrapper with LangProvider (checkout is guest-first — no customer
+// auth provider; staff auth lives in the distributor/admin route guards).
 function StorefrontRoute() {
   return (
     <LangProvider>
-      <CustomerAuthProvider>
-        <App />
-      </CustomerAuthProvider>
+      <App />
     </LangProvider>
   );
 }
@@ -171,20 +168,15 @@ export function AppRouter() {
     );
   }
 
-  // 3. Public Storefront Routes
-  // /account/reset-password must render OUTSIDE the main storefront shell:
-  // it is reached from a Supabase recovery email and needs its own quiet page.
-  // The customer auth provider still wraps it so identity is available after
-  // the password is set.
+  // /account/* previously hosted the customer reset-password page; customer
+  // accounts have been removed. Route kept as a quiet redirect so stale
+  // recovery emails don't 404.
   if (pathname.startsWith('/account/')) {
     return (
       <LangProvider>
-        <CustomerAuthProvider>
-          <Routes>
-            <Route path="/account/reset-password" element={<CustomerResetPasswordPage />} />
-            <Route path="/account/*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </CustomerAuthProvider>
+        <Routes>
+          <Route path="/account/*" element={<Navigate to="/" replace />} />
+        </Routes>
       </LangProvider>
     );
   }

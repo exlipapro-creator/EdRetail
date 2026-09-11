@@ -8,11 +8,9 @@ interface BottomNavigationProps {
   currentScreen: ScreenId;
   onNavigate: (screen: ScreenId) => void;
   onOpenCart?: () => void;
-  /** Opens the customer account/auth surface (replaces the old Portal entry). */
-  onOpenAccount?: () => void;
 }
 
-export function BottomNavigation({ currentScreen, onNavigate, onOpenAccount }: BottomNavigationProps) {
+export function BottomNavigation({ currentScreen, onNavigate }: BottomNavigationProps) {
   const { lang } = useLang();
 
   const items = [
@@ -40,6 +38,12 @@ export function BottomNavigation({ currentScreen, onNavigate, onOpenAccount }: B
       icon: Truck,
       labelEn: 'Delivery',
       labelSw: 'Usafirishaji',
+    },
+    {
+      id: 'favourites' as ScreenId,
+      icon: User,
+      labelEn: 'Favourites',
+      labelSw: 'Vipendwa',
     },
   ];
 
@@ -89,21 +93,6 @@ export function BottomNavigation({ currentScreen, onNavigate, onOpenAccount }: B
           );
         })}
 
-        {/* Account — customer identity entry (auth modal or signed-in state).
-            Distributor access is NOT here: it lives behind the deliberate
-            3-pull gesture on the Goals screen, enforced server-side. */}
-        <button
-          id="bottom-nav-account"
-          onClick={() => onOpenAccount?.()}
-          className="flex flex-col items-center justify-center py-1 px-1 rounded-xl transition-all outline-none [-webkit-tap-highlight-color:transparent] relative cursor-pointer text-neutral-500 hover:text-neutral-800"
-          style={{ minHeight: 48 }}
-          aria-label={lang === 'sw' ? 'Akaunti' : 'Account'}
-        >
-          <User className="w-5 h-5 stroke-[1.8]" />
-          <span className="text-[10px] mt-1 leading-none tracking-tight truncate max-w-full font-medium text-neutral-500">
-            {lang === 'sw' ? 'Akaunti' : 'Account'}
-          </span>
-        </button>
       </div>
     </nav>
   );

@@ -34,22 +34,18 @@ import { ReferralShareButton } from './ReferralShare';
 import { motionTokens } from '../design/motion';
 import { supabase } from '../lib/supabase';
 import { useDistributorStore } from '../store/distributorStore';
-import { useCustomerAuth } from '../context/CustomerAuthContext';
 
 interface CheckoutSheetProps {
   isOpen: boolean;
   onClose: () => void;
   /** Navigates to the real Products experience (empty-cart CTA). */
   onBrowseProducts?: () => void;
-  /** Opens the customer auth modal (guest checkout hint). Checkout stays open beneath. */
-  onCheckoutSignIn?: () => void;
 }
 
-export function CheckoutSheet({ isOpen, onClose, onBrowseProducts, onCheckoutSignIn }: CheckoutSheetProps) {
+export function CheckoutSheet({ isOpen, onClose, onBrowseProducts }: CheckoutSheetProps) {
   const { lang, t } = useLang();
   const { items, updateQuantity, clearCart, addItem } = useCartStore();
   const activeDistributor = useDistributorStore((s) => s.getActiveDistributor());
-  const { status: authStatus, customer } = useCustomerAuth();
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -68,16 +64,6 @@ export function CheckoutSheet({ isOpen, onClose, onBrowseProducts, onCheckoutSig
 
   const firstInputRef = useRef<HTMLInputElement | null>(null);
   const previouslyFocusedElement = useRef<HTMLElement | null>(null);
-
-  // Authenticated customers: prefill ONLY empty fields from their real account
-  // identity — guest entry is never overwritten, and the purchase itself stays
-  // guest-first (sales rows remain anonymous per the RLS model).
-  useEffect(() => {
-    if (isOpen && authStatus === 'authenticated' && customer) {
-      setName((n) => n || customer.fullName);
-      setPhone((p) => p || customer.phone);
-    }
-  }, [isOpen, authStatus, customer]);
 
   const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -627,31 +613,16 @@ export function CheckoutSheet({ isOpen, onClose, onBrowseProducts, onCheckoutSig
                           <User className="w-3.5 h-3.5 text-stone-700" />
                           {lang === 'sw' ? 'Taarifa za Mpokeaji & Usafirishaji' : 'Customer & Delivery Information'}
                         </h3>
-                        {authStatus === 'authenticated' && customer ? (
-                          <p className="text-[11px] text-primary-700 mt-1">
-                            {lang === 'sw'
-                              ? `Umeingia kama ${customer.email} — taarifa zako zimejaa kiotomatiki.`
-                              : `Signed in as ${customer.email} — your details are prefilled.`}
-                          </p>
-                        ) : (
-                          <p className="text-[11px] text-stone-500 mt-1">
-                            {lang === 'sw'
-                              ? 'Unaweza kuagiza bila akaunti. '
-                              : 'You can order without an account. '}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                onCheckoutSignIn?.();
-                              }}
-                              className="underline text-stone-700 hover:text-stone-900 font-semibold cursor-pointer"
-                            >
-                              {lang === 'sw' ? 'Ingia kwa akaunti' : 'Sign in'}
-                            </button>
-                            {lang === 'sw'
-                              ? ' ili kujaza taarifa kiotomatiki.'
-                              : ' to prefill your details.'}
-                          </p>
-                        )}
+                        {/* Guest-first by design: order details live on the
+                            order itself — no customer account needed. */}
+                        <p className="text-[11px] text-stone-500 mt-1">
+                          {lang === 'sw'
+                            ? 'Jaza taarifa za kupokea agizo lako. '
+                            : 'Enter the details for delivering your order. '}
+                          {lang === 'sw'
+                            ? 'Huhitaji akaunti kuagiza.'
+                            : 'No account needed to order.'}
+                        </p>
                       </div>
 
                       <div>

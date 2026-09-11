@@ -24,7 +24,6 @@ import { supabase } from '../../lib/supabase';
 import { fetchPublishedFlyers, type PublishedFlyer } from '../../lib/flyers';
 import { formatPrice, formatUsd, getActiveWhatsAppLink } from '../../utils/whatsappCompiler';
 import { useLang } from '../../context/LangContext';
-import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { ScreenId } from '../navigation/AppHeader';
 import { EdIcon } from '../brand/EdIcon';
 
@@ -48,7 +47,6 @@ export function HomePage({
   const sw = lang === 'sw';
   const getEffectiveProducts = useDistributorStore((s) => s.getEffectiveProducts);
   const distributor = useDistributorStore((s) => s.getActiveDistributor());
-  const { status, greetingName } = useCustomerAuth();
 
   const liveProducts = getEffectiveProducts();
 
@@ -138,14 +136,6 @@ export function HomePage({
           </span>
           <span className="text-neutral-300">•</span>
           <span className="text-[#0E6B52] font-bold shrink-0">100% Genuine Edmark</span>
-          {status === 'authenticated' && greetingName && (
-            <>
-              <span className="text-neutral-300">•</span>
-              <span className="text-neutral-700 font-bold">
-                {sw ? `Habari, ${greetingName}` : `Hi, ${greetingName}`}
-              </span>
-            </>
-          )}
         </p>
 
         <a

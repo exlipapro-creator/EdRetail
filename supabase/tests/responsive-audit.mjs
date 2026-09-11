@@ -5,7 +5,7 @@
 // No arbitrary sleeps: every wait targets an observable element/state.
 import { chromium } from 'playwright';
 
-const BASE = 'http://localhost:3000';
+const BASE = process.env.BASE_URL || 'http://localhost:3000';
 const VIEWPORTS = [
   [320, 640], [360, 800], [390, 844], [414, 896],
   [768, 1024], [1280, 720], [1440, 900], [1920, 1080],

@@ -1,13 +1,12 @@
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
-import { ShoppingCart, ShieldCheck, ArrowLeft, LogOut, UserRound, Search, X } from 'lucide-react';
+import { ShoppingCart, ShieldCheck, ArrowLeft, LogOut, Search, X } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import { useDistributorStore } from '../../store/distributorStore';
 import { CartBadge } from '../CartBadge';
 import { useLang } from '../../context/LangContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { useCustomerAuth } from '../../context/CustomerAuthContext';
 
 export type ScreenId =
   | 'home'
@@ -27,7 +26,6 @@ interface AppHeaderProps {
   onOpenSearch?: () => void;
   searchValue?: string;
   onSearchChange?: (v: string) => void;
-  onOpenCustomerAuth?: () => void;
   /** Fired when the global search gains focus (may navigate to Products). */
   onSearchFocus?: () => void;
   /** Where header Back should return (origin screen when search-driven). */
@@ -38,7 +36,6 @@ export function AppHeader({
   currentScreen,
   onNavigate,
   onOpenCart,
-  onOpenCustomerAuth,
   searchValue = '',
   onSearchChange,
   onSearchFocus,
@@ -50,7 +47,6 @@ export function AppHeader({
   const distributor = useDistributorStore((s) => s.getActiveDistributor());
   const isAdminAuthenticated = useDistributorStore((s) => s.isAdminAuthenticated);
   const setAdminAuthenticated = useDistributorStore((s) => s.setAdminAuthenticated);
-  const { status, greetingName } = useCustomerAuth();
 
   // Contextual back label — honest about the destination instead of a hardcoded
   // "Home". Direct Products navigation (bottom nav, category links) still
@@ -212,51 +208,10 @@ export function AppHeader({
             <CartBadge count={totalItems} />
           </motion.button>
 
-          {/* Customer account control — state-aware, never a fake greeting.
-              restoring → neutral icon; anonymous → Sign in; authenticated →
-              first name (+ Sign out). */}
-          {status === 'authenticated' ? (
-            <div
-              id="header-account-authenticated"
-              className="flex items-center gap-1.5 p-1 pl-2 rounded-xl border border-primary-200 bg-primary-50"
-              title={greetingName || undefined}
-            >
-              <span className="hidden sm:flex w-6 h-6 rounded-full bg-primary-600 text-white items-center justify-center text-[10px] font-black uppercase">
-                {(greetingName || 'E').slice(0, 1)}
-              </span>
-              <span className="hidden md:inline text-xs font-black text-primary-800 max-w-[90px] truncate">
-                {greetingName || (lang === 'sw' ? 'Akaunti' : 'Account')}
-              </span>
-              <button
-                id="header-customer-signout-btn"
-                onClick={async () => {
-                  try {
-                    await supabase.auth.signOut();
-                  } catch {
-                    // session may already be gone
-                  }
-                }}
-                className="p-1.5 rounded-lg text-primary-800 hover:bg-primary-100 transition-colors cursor-pointer"
-                aria-label={lang === 'sw' ? 'Toka' : 'Sign out'}
-                title={lang === 'sw' ? 'Toka' : 'Sign out'}
-              >
-                <LogOut className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ) : (
-            <button
-              id="header-account-btn"
-              onClick={onOpenCustomerAuth}
-              className="p-2 sm:px-3 sm:py-2 rounded-xl border transition-all flex items-center gap-1.5 cursor-pointer bg-neutral-100/80 border-neutral-300 hover:bg-neutral-200 text-neutral-800"
-              aria-label={lang === 'sw' ? 'Ingia kwenye akaunti' : 'Account sign in'}
-              title={lang === 'sw' ? 'Ingia / Fungua akaunti' : 'Sign in / Create account'}
-            >
-              <UserRound className={`w-4 h-4 ${status === 'restoring' ? 'text-neutral-400' : 'text-neutral-600'}`} />
-              <span className="text-xs font-black">
-                {status === 'restoring' ? '' : lang === 'sw' ? 'Ingia' : 'Sign in'}
-              </span>
-            </button>
-          )}
+          {/* Customer accounts intentionally removed — checkout is guest-first
+              and collects exactly what an order needs. Distributor access is
+              NOT here: it lives behind the deliberate 3-pull gesture on the
+              Goals screen, enforced server-side. */}
           {/* Distributor portal entry intentionally removed from the customer
               header — hidden access via the Goals 3-pull gesture only. An
               authenticated distributor's sign-out remains available below. */}

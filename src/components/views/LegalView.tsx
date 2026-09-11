@@ -6,7 +6,7 @@ import { ShieldCheck, ScrollText, Truck, MessageCircle, Mail } from 'lucide-reac
  *
  * Product-readiness documentation grounded in how EdRetail actually behaves:
  *  - Guest checkout collects name / phone / delivery location per order.
- *  - Customer accounts add name + email (password handled by Supabase Auth).
+ *    There are no customer accounts — ordering needs no registration.
  *  - Language preference and cart persist in the browser's localStorage.
  *  - Orders are communicated to the distributor through the customer's own
  *    WhatsApp app; EdRetail composes the message but does not see the chat.
@@ -50,14 +50,14 @@ export function LegalView() {
       title: sw ? 'Sera ya Faragha' : 'Privacy Notice',
       blocks: [
         sw
-          ? 'EdRetail inakusanya taarifa zinazohitajika tu kukamilisha agizo lako: jina, namba ya simu, eneo la kufikisha, na maelezo ya bidhaa ulizozagiza. Unapofungua akaunti, tunakusanya pia barua pepe yako; neno la siri linalindwa na Supabase Auth (halijulikani kwetu).'
-          : 'EdRetail collects only the information needed to complete your order: your name, phone number, delivery location, and the products you order. When you create an account we also collect your email; your password is secured by Supabase Auth and is never visible to us.',
+          ? 'EdRetail inakusanya taarifa zinazohitajika tu kukamilisha agizo lako: jina, namba ya simu, eneo la kufikisha, na maelezo ya bidhaa ulizozagiza. Huhitaji kuwa na akaunti — hatukusanyi barua pepe au neno la siri la wateja.'
+          : 'EdRetail collects only the information needed to complete your order: your name, phone number, delivery location, and the products you order. No account is needed to order — we do not collect customer email addresses or passwords.',
         sw
-          ? 'Upendeleo wa lugha, mkoba wako, na hali ya kuingia huhifadhiwa kwenye kivinjari chako (localStorage). Ukifika kupitia kiungo cha msambazaji (k.m. @jina), kiungo hicho kinaletwa kwenye ukurasa na kutumika kuonesha duka la msambazaji husika.'
-          : 'Your language preference, cart, and sign-in state are stored in your browser (localStorage). If you arrive through a distributor link (e.g. @name), that link is read from the page address and used to show the relevant distributor store.',
+          ? 'Upendeleo wa lugha na mkoba wako huhifadhiwa kwenye kivinjari chako (localStorage). Ukifika kupitia kiungo cha msambazaji (k.m. @jina), kiungo hicho kinaletwa kwenye ukurasa na kutumika kuonesha duka la msambazaji husika.'
+          : 'Your language preference and cart are stored in your browser (localStorage). If you arrive through a distributor link (e.g. @name), that link is read from the page address and used to show the relevant distributor store.',
         sw
-          ? 'Taarifa zako huhifadhiwa kwenye mfumo wa hifadhi ulio salama (Supabase) na haziuza kwa wahusika wengine. Kumbukumbu za maagizo huhifadhiwa kwa madhumuni ya biashara na uhasibu; taarifa za akaunti huhifadhiwa hadi utakapoagiza kuzifuta.'
-          : 'Your information is stored in secure cloud infrastructure (Supabase) and is never sold to third parties. Order records are kept for business and accounting purposes; account data is kept until you request deletion.',
+          ? 'Taarifa zako huhifadhiwa kwenye mfumo wa hifadhi ulio salama (Supabase) na haziuzi kwa wahusika wengine. Kumbukumbu za maagizo huhifadhiwa kwa madhumuni ya biashara na uhasibu tu.'
+          : 'Your information is stored in secure cloud infrastructure (Supabase) and is never sold to third parties. Order records are kept for business and accounting purposes only.',
         sw
           ? 'Huna wajibu wa kupokea matangazo; hatutumii matangazo bila idhini yako. Ujumbe wa WhatsApp unaohusiana na agizo lako hutumwa kutoka kwa WhatsApp yako mwenyewe — EdRetail inaandaa ujumbe lakini haioni mazungumzo yako.'
           : 'Marketing is opt-in; we do not send promotional messages without your consent. Order-related WhatsApp messages are sent from your own WhatsApp account — EdRetail prepares the message but does not see your conversation.',
@@ -110,11 +110,11 @@ export function LegalView() {
       title: sw ? 'WhatsApp & Mawasiliano' : 'WhatsApp & Contact',
       blocks: [
         sw
-          ? 'Mchakato wetu wa kuagiza unatumia WhatsApp yako mwenyewe: tunakusanyia ujumbe wenye bidhaa, kiasi, jumla na namba ya malipo, kisha unautuma kutoka kwa akaunti yako. Hivyo mazungumzo yako na msambazaji yanasalia kati yenu — EdRetail haifikii ujumbe wako wa kibinafsi.'
-          : 'Our ordering process uses your own WhatsApp: we prepare a message with the products, quantities, total, and payment number, and you send it from your account. Your chat with the distributor stays between you — EdRetail does not access your private messages.',
+          ? 'Mchakato wetu wa kuagiza unatumia WhatsApp yako mwenyewe: tunakusanyia ujumbe wenye bidhaa, kiasi, jumla na namba ya malipo, kisha wewe mwenyewe unautuma. Hivyo mazungumzo yako na msambazaji yanasalia kati yenu — EdRetail haifikii ujumbe wako wa kibinafsi.'
+          : 'Our ordering process uses your own WhatsApp: we prepare a message with the products, quantities, total, and payment number, and you send it yourself. Your chat with the distributor stays between you — EdRetail does not access your private messages.',
         sw
-          ? 'Usiombe neno la siri la akaunti yako kwa mtu yeyote; wafanyakazi wetu na wasambazaji hawataomba kamwe neno lako la siri au OTP kwa simu au WhatsApp.'
-          : 'Never share your account password with anyone; our staff and distributors will never ask for your password or OTP by phone or WhatsApp.',
+          ? 'Usimpe mtu yeyote PIN yako ya malipo au OTP; wafanyakazi wetu na wasambazaji hawataomba kamwe PIN au OTP yako kwa simu au WhatsApp.'
+          : 'Never share your payment PIN or OTP with anyone; our staff and distributors will never ask for your payment PIN or OTP by phone or WhatsApp.',
       ],
     },
   ];

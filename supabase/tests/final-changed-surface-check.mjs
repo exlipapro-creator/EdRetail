@@ -3,7 +3,7 @@
 // at the 8 release viewports. Run: node supabase/tests/final-changed-surface-check.mjs
 import { chromium } from 'playwright';
 
-const BASE = 'http://localhost:3000';
+const BASE = process.env.BASE_URL || 'http://localhost:3000';
 const VIEWPORTS = [
   [320, 640], [360, 800], [390, 844], [414, 896],
   [768, 1024], [1280, 720], [1440, 900], [1920, 1080],
@@ -34,7 +34,14 @@ for (const [w, h] of VIEWPORTS) {
     await panel.waitFor({ state: 'visible', timeout: 10000 });
     row.edAssistant = await overflowOf(page);
     const box = await panel.boundingBox();
-    row.assistantCompact = !!box && box.width <= w && box.height <= h * 0.72 + 2 && box.height <= 640;
+    // Breakpoint-aware compact contract (mirrors responsive-audit.mjs):
+    // mobile bottom sheet ≤72dvh (tolerance 2px); desktop floating card
+    // 530–640px with no viewport clipping (32px margin).
+    row.assistantCompact =
+      !!box &&
+      box.width <= w &&
+      box.height <= 640 &&
+      (w < 640 ? box.height <= h * 0.72 + 2 : box.height >= 530 && box.height <= h - 32);
     await page.keyboard.press('Escape');
     await panel.waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
 

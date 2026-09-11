@@ -46,9 +46,6 @@ const DistributorBackOfficeModal = lazy(() =>
 const ViewFlyers = lazy(() =>
   import('./components/marketing/ViewFlyers').then((m) => ({ default: m.ViewFlyers }))
 );
-const CustomerAuthModal = lazy(() =>
-  import('./components/auth/CustomerAuthModal').then((m) => ({ default: m.CustomerAuthModal }))
-);
 
 function App() {
   const { lang } = useLang();
@@ -64,7 +61,6 @@ function App() {
   const [isBackOfficeOpen, setIsBackOfficeOpen] = useState(false);
   const [isFlyerStudioOpen, setIsFlyerStudioOpen] = useState(false);
   const [isStoreLinkOpen, setIsStoreLinkOpen] = useState(false);
-  const [isCustomerAuthOpen, setIsCustomerAuthOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
 
   // Latch: a modal chunk is fetched on first open; afterwards the component
@@ -77,12 +73,11 @@ function App() {
         ...(isBackOfficeOpen ? { backoffice: true } : null),
         ...(isFlyerStudioOpen ? { flyer: true } : null),
         ...(isStoreLinkOpen ? { storelink: true } : null),
-        ...(isCustomerAuthOpen ? { customerauth: true } : null),
       } as Record<string, boolean>;
       const changed = Object.keys(next).some((k) => !prev[k]);
       return changed ? { ...prev, ...next } : prev;
     });
-  }, [isChatOpen, isBackOfficeOpen, isFlyerStudioOpen, isStoreLinkOpen, isCustomerAuthOpen]);
+  }, [isChatOpen, isBackOfficeOpen, isFlyerStudioOpen, isStoreLinkOpen]);
 
   const totalItems = useCartStore((s) => s.getTotalItems());
   const totalPrice = useCartStore((s) => s.getTotalPrice());
@@ -137,7 +132,6 @@ function App() {
         currentScreen={currentScreen}
         onNavigate={setCurrentScreen}
         onOpenCart={() => setIsCartOpen(true)}
-        onOpenCustomerAuth={() => setIsCustomerAuthOpen(true)}
         searchValue={searchValue}
         onSearchChange={setSearchValue}
         onSearchFocus={() => {
@@ -296,8 +290,6 @@ function App() {
       <BottomNavigation
         currentScreen={currentScreen}
         onNavigate={setCurrentScreen}
-        onOpenCart={() => setIsCartOpen(true)}
-        onOpenAccount={() => setIsCustomerAuthOpen(true)}
       />
 
       {/* ── FLOATING STICKY CART (DESKTOP & TABLET VIEW) ── */}
@@ -339,10 +331,10 @@ function App() {
 
       {/* ── FULL WHATSAPP CHECKOUT SHEET ── */}
       <CheckoutSheet
+
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         onBrowseProducts={() => setCurrentScreen('products')}
-        onCheckoutSignIn={() => setIsCustomerAuthOpen(true)}
       />
 
       {/* ── FLOATING CHATBOT TRIGGER & PROACTIVE BUBBLE ── */}
@@ -397,15 +389,6 @@ function App() {
         </Suspense>
       )}
 
-      {/* ── CUSTOMER ACCOUNT AUTH (sign in / sign up / reset) ── */}
-      {openedOnce.customerauth && (
-        <Suspense fallback={null}>
-          <CustomerAuthModal
-            isOpen={isCustomerAuthOpen}
-            onClose={() => setIsCustomerAuthOpen(false)}
-          />
-        </Suspense>
-      )}
     </div>
   );
 }
